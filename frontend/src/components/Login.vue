@@ -10,12 +10,12 @@
             <h2>Log In</h2>
 
             <!-- Input fields for email and password -->
-            <form>
-                <input type="email" placeholder="Email" required>
+            <form @submit.prevent="handleLogin">
+                <input type="email" v-model="email" placeholder="Email" required>
                 <br>
 
                 <div class="password-container">
-                    <input ref="passwordInput" type="password" id="passwordInput" placeholder="Password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}" title="Passwords contain at least one lowercase and one uppercase letter, one number, one special character, and are atleast 8 or more characters." required>
+                    <input ref="passwordInput" type="password" v-model="password" id="passwordInput" placeholder="Password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}" title="Passwords contain at least one lowercase and one uppercase letter, one number, one special character, and are atleast 8 or more characters." required>
                     <img class ="eye-icon" :src="eyeIcon()" alt="Password Visibility Eye" @click="toggleVisibility">
                 </div>
                 <br>
@@ -35,6 +35,8 @@
 </template>
 
 <script>
+    import axios from 'axios';
+
     export default{
         data(){
             return{
@@ -53,7 +55,27 @@
             },
             eyeIcon(){
                 return this.passwordVis ? require('../assets/eyeclose.png') : require('../assets/eye.png');
-            }
+            },
+
+            handleLogin(){
+                const loginData = {
+                    email: this.email,
+                    password: this.password
+                };
+                axios.post('http://127.0.0.1:5000/login', loginData)
+                    .then(response => {
+                        console.log(response.data.message);
+                        this.$router.push('/');
+                    })
+                    .catch(error => {
+                        if (error.response && error.response.status === 401) {
+                            alert("Invalid email or password.");
+                        } else {
+                            console.error("Login error: ", error);
+                            alert("An error occurred during login.");
+                        }
+                    });
+            },
         }
     };
 </script>

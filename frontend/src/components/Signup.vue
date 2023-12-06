@@ -64,6 +64,8 @@
 </template>
 
 <script>
+    import axios from 'axios';
+
     export default {
         data() {
             return {
@@ -149,9 +151,26 @@
             return true;
         },
 
+        // handleSubmit method implemented by Lucas Videtto
         handleSubmit() {
             if (this.validateForm()) {
-                alert('Form submitted successfully!');
+                const userData = {
+                    firstname: this.firstname,
+                    lastname: this.lastname,
+                    email: this.email,
+                    password: this.password,
+                    majorID: this.selectedMajor
+                };
+
+                axios.post('http://127.0.0.1:5000/signup', userData)
+                    .then(response => {
+                        alert('Form submitted successfully!');
+                        this.$router.push('/');
+                    })
+                    .catch(error => {
+                        console.error("A problem has ocurred: Unable to sign up:", error);
+                        alert("Signup failed: " + error.message);
+                    });
             }
         },
     },

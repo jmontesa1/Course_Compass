@@ -47,13 +47,33 @@
         data() {
             return {
                 user: {
-                    firstname: 'John',
-                    lastname: 'Montesa',
-                    email: 'john.montesa@example.com',
-                    major: 'Computer Science & Engineering',
+                    firstname: '',
+                    lastname: '',
+                    email: '',
+                    major: '',
                     profilePicture: require('../assets/profile-picture.jpg'),
                 },
+                error: null,
             };
+        },
+        created() {
+            this.fetchUserInfo();
+        },
+        methods: {
+            async fetchUserInfo() {
+                try {
+                    const response = await this.$http.get('/getUserInfo');
+                    if (response.data) {
+                        this.user.firstname = response.data.Fname;
+                        this.user.lastname = response.data.Lname;
+                        this.user.email = response.data.Email;
+                        this.user.major = response.data.major || 'Unknown';
+                    }
+                } catch (error) {
+                    console.error("Error fetching info: ", error);
+                    this.error = error.response ? error.response.data.error : "Unknown error";
+                }
+            },
         },
     };
 </script>
