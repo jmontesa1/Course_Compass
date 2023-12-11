@@ -105,10 +105,11 @@ def getUserInfo():
 def connectToDB():
     try:
         connection = connect(
-            host=os.getenv('DB_HOST', 'default_host'),
-            database=os.getenv('DB_NAME', 'default_db_name'),
-            user=os.getenv('DB_USER', 'default_user'),
-            password=os.getenv('DB_PASSWORD', 'default_password')
+            host=os.getenv("DB_HOST"),
+            user = os.getenv("DB_USER"),
+            passwd = os.getenv("DB_PASSWORD"),
+            database = os.getenv("DB_NAME"),
+            ssl_ca = os.getenv("DB_CA")
         )
         return connection
     except Error as err:
