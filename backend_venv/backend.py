@@ -7,10 +7,12 @@ from mysql.connector import connect, Error
 from datetime import datetime, timedelta
 import hashlib
 import os
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 app.secret_key = '12345'
 CORS(app)
+bcrypt = Bcrypt(app)
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -54,13 +56,15 @@ def signup():
     email = data['email']
     password = data['password']
     majorID = data['majorID']
+
+    passwordHash = bcrypt.generate_password_hash(password).decode('utf-8')
     
     connection = connectToDB()
     if connection is not None:
         cursor = connection.cursor()
         try:
             insertQuery = """INSERT INTO cs425.tblUser (Fname, Lname, Email, Passwd, majorID) VALUES (%s, %s, %s, %s, %s)"""
-            cursor.execute(insertQuery, (firstname, lastname, email, password, majorID))
+            cursor.execute(insertQuery, (firstname, lastname, email, passwordHash, majorID))
             connection.commit()
             session['user_email'] = email
             return jsonify({"message": "Signup successful"}), 200
@@ -105,10 +109,11 @@ def getUserInfo():
 def connectToDB():
     try:
         connection = connect(
-            host=os.getenv('DB_HOST', 'default_host'),
-            database=os.getenv('DB_NAME', 'default_db_name'),
-            user=os.getenv('DB_USER', 'default_user'),
-            password=os.getenv('DB_PASSWORD', 'default_password')
+            host=os.getenv("DB_HOST"),
+            user = os.getenv("DB_USER"),
+            passwd = os.getenv("DB_PASSWORD"),
+            database = os.getenv("DB_NAME"),
+            ssl_ca = os.getenv("DB_CA")
         )
         return connection
     except Error as err:
