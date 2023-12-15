@@ -13,7 +13,7 @@ create table cs425.tblDepartment(
 
 /*Major table*/
 create table cs425.tblMajor(
-    majorID int primary key,
+    majorID int primary key auto_increment,
     deptID int,
     majorCode varchar(15),
     majorName varchar(50),
@@ -26,7 +26,7 @@ create table cs425.tblMajor(
 
 /*User table*/
 create table cs425.tblUser(
-    userID int primary key,
+    userID int primary key auto_increment,
     Fname varchar(100) not null,
     Lname varchar(100) not null,
     DOB date,
@@ -36,12 +36,13 @@ create table cs425.tblUser(
 
 /*Roles table*/
 create table cs425.tblRoles(
-    userID int primary key,
-    roleID int,
-    roleTitle enum('Admin', 'Student', 'Instructor', 'Advisor'),
-    descript varchar(50),
+    roleID int primary key auto_increment,
+    userID int unique,
+    roleCode enum('STU', 'INST', 'ADV', 'ADM'),
+    title varchar(20),
     foreign key(userID) references tblUser(userID)
 );
+
 
 /*UserSettings table*/
 create table cs425.tblUserSettings(
@@ -70,9 +71,9 @@ create table cs425.tblContactInfo(
 
 /*Students table*/
 create table cs425.tblStudents(
-    userID int primary key,
-    studentID int unique,
-    username varchar(50),
+    studentID int primary key,
+    userID int unique,
+    username varchar(30),
     majorID int,
     majorName varchar(50),
     GPA decimal(3,2),
@@ -81,28 +82,16 @@ create table cs425.tblStudents(
 );
 
 
-
-/*Admin table*/
-create table cs425.tblAdmin(
-    userID int primary key,
-    adminID int unique,
-    deptID int,
-    officeLocation varchar(75),
-    phoneNum varchar(20),
-    responsilities text,
-    hireDate date,
-    foreign key (deptID) references tblDepartment(deptID)
-);
-
-
 /*Instructor table*/
 create table cs425.tblInstructor(
     instructorID int primary key,
+    userID int unique,
     email varchar (75),
     deptID int,
     officeLocation varchar(100),
     phoneNum varchar(20),
     officeHours varchar (100),
+    foreign key (userID) references tblUser(userID),
     foreign key (deptID) references tblDepartment(deptID)
 );
 
@@ -119,6 +108,21 @@ create table cs425.tblAdvisors(
     foreign key (userID) references tblUser(userID),
     foreign key (deptID) references tblDepartment(deptID)
 );
+
+
+
+/*Admin table*/
+create table cs425.tblAdmin(
+    adminID int primary key,
+    userID int unique,
+    deptID int,
+    officeLocation varchar(75),
+    phoneNum varchar(20),
+    responsilities text,
+    hireDate date,
+    foreign key (deptID) references tblDepartment(deptID)
+);
+
 
 
 /*Courses table*/
