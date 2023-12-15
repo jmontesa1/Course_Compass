@@ -15,7 +15,6 @@ values
 
 
 
-
 /*insert users*/
 insert into cs425.tblUser(Fname, Lname, DOB, Email, Passwd)
 values
@@ -60,7 +59,9 @@ values
 
 
 
-
 /*search for student by major*/
 select * from cs425.tblUser join cs425.tblStudents on cs425.tblUser.userID = cs425.tblStudents.userID
 where majorName = 'Computer Science';
+
+select * from cs425.tblUser join cs425.tblStudents on cs425.tblUser.userID = cs425.tblStudents.userID
+where majorName = 'Business';
