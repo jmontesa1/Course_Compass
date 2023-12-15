@@ -15,7 +15,6 @@ values
 
 
 
-
 /*insert users*/
 insert into cs425.tblUser(Fname, Lname, DOB, Email, Passwd)
 values
@@ -56,7 +55,6 @@ values
 (351651165, 5, 'anotheruser', 900, 'Business', 4.0),
 (254887148, 6, 'user123', 500, 'Chemistry', 3.8),
 (452412214, 7, 'example123', 800, 'Physchology', 3.4);
-
 
 
 
