@@ -49,6 +49,9 @@ end //
 delimiter ;
 
 /*use case*/
+<<<<<<< HEAD
+call GetStudentsMajor('Jose', 'Urrutia')
+=======
 call GetStudentsMajor('Jose', 'Urrutia')
 
 
@@ -68,3 +71,4 @@ delimiter ;
 
 /*use case*/
 call UpdateUserEmail(1, 'newemail@gmail.com');
+>>>>>>> a89dbfb7da9da36fdd0d48117c98e97aaad9f33a

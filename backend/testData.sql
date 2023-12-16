@@ -3,7 +3,11 @@ use cs425;
 /*insert majors*/
 insert into cs425.tblMajor(majorID, majorName)
 values
+<<<<<<< HEAD
+(100, 'Computer Science'),
+=======
 (100, 'Computer Science & Engineering'),
+>>>>>>> a89dbfb7da9da36fdd0d48117c98e97aaad9f33a
 (200, 'Civil Engineering'),
 (300, 'Physics'),
 (400, 'Accounting'),
@@ -11,7 +15,12 @@ values
 (600, 'Finance'),
 (700, 'Biology'),
 (800, 'Psychology'),
+<<<<<<< HEAD
+(900, 'Business Administration');
+
+=======
 (900, 'Business');
+>>>>>>> a89dbfb7da9da36fdd0d48117c98e97aaad9f33a
 
 
 
@@ -54,7 +63,11 @@ values
 (123456789, 3, 'userexample', 200, 'Civil Engineering', 3.6),
 (351651165, 5, 'anotheruser', 900, 'Business', 4.0),
 (254887148, 6, 'user123', 500, 'Chemistry', 3.8),
+<<<<<<< HEAD
+(452412214, 7, 'example123', 800, 'Physchology', 3.4);
+=======
 (452412214, 7, 'example123', 800, 'Physchology', 3.4),
 (561452135, 8, 'testtest', 100, 3.7),
 (124578325, 9, 'user4245', 100, 3.7),
 (245412154, 10, 'user7515', 200, 4.0);
+>>>>>>> a89dbfb7da9da36fdd0d48117c98e97aaad9f33a
