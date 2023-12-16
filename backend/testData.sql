@@ -3,7 +3,7 @@ use cs425;
 /*insert majors*/
 insert into cs425.tblMajor(majorID, majorName)
 values
-(100, 'Computer Science & Engineering'),
+(100, 'Computer Science'),
 (200, 'Civil Engineering'),
 (300, 'Physics'),
 (400, 'Accounting'),
@@ -11,7 +11,7 @@ values
 (600, 'Finance'),
 (700, 'Biology'),
 (800, 'Psychology'),
-(900, 'Business');
+(900, 'Business Administration');
 
 
 
@@ -56,11 +56,3 @@ values
 (351651165, 5, 'anotheruser', 900, 'Business', 4.0),
 (254887148, 6, 'user123', 500, 'Chemistry', 3.8),
 (452412214, 7, 'example123', 800, 'Physchology', 3.4);
-
-
-
-
-
-/*search for student by major*/
-select * from cs425.tblUser join cs425.tblStudents on cs425.tblUser.userID = cs425.tblStudents.userID
-where majorName = 'Computer Science';
