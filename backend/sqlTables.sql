@@ -135,6 +135,7 @@ create table cs425.tblCourses(
     foreign key (majorID) references tblMajor(majorID)
 );
 
+
 /*CourseSchedule table*/
 create table cs425.tblCourseSchedule(
     scheduleID int primary key,
@@ -209,7 +210,8 @@ create table cs425.tblGrades(
 
 /*GPA table*/
 create table cs425.tblGPA(
-    studentID int primary key,
+    gpaID int primary key,
+    studentID int,
     cumulativeGPA decimal(3,2),
     creditsEarned int,
     semesterCredits decimal(3,2),
