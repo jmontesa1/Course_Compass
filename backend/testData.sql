@@ -54,14 +54,7 @@ values
 (123456789, 3, 'userexample', 200, 'Civil Engineering', 3.6),
 (351651165, 5, 'anotheruser', 900, 'Business', 4.0),
 (254887148, 6, 'user123', 500, 'Chemistry', 3.8),
-(452412214, 7, 'example123', 800, 'Physchology', 3.4);
-
-
-
-
-/*search for student by major*/
-select * from cs425.tblUser join cs425.tblStudents on cs425.tblUser.userID = cs425.tblStudents.userID
-where majorName = 'Computer Science';
-
-select * from cs425.tblUser join cs425.tblStudents on cs425.tblUser.userID = cs425.tblStudents.userID
-where majorName = 'Business';
+(452412214, 7, 'example123', 800, 'Physchology', 3.4),
+(561452135, 8, 'testtest', 100, 3.7),
+(124578325, 9, 'user4245', 100, 3.7),
+(245412154, 10, 'user7515', 200, 4.0);
