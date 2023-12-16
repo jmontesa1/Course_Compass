@@ -50,3 +50,21 @@ delimiter ;
 
 /*use case*/
 call GetStudentsMajor('Jose', 'Urrutia')
+
+
+
+/*update user email*/
+delimiter //
+create procedure UpdateUserEmail (
+    in p_userID int,
+    in p_newEmail varchar(150)
+)
+begin
+    update cs425.tblUser
+    set Email = p_newEmail
+    where userID = p_userID;
+end //
+delimiter ;
+
+/*use case*/
+call UpdateUserEmail(1, 'newemail@gmail.com');
