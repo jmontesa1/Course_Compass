@@ -37,7 +37,11 @@ create table cs425.tblUser(
 /*Roles table*/
 create table cs425.tblRoles(
     roleID int primary key auto_increment,
+<<<<<<< HEAD
     userID int unique,
+=======
+    userID int,
+>>>>>>> a89dbfb7da9da36fdd0d48117c98e97aaad9f33a
     roleCode enum('STU', 'INST', 'ADV', 'ADM'),
     title varchar(20),
     foreign key(userID) references tblUser(userID)
@@ -72,7 +76,11 @@ create table cs425.tblContactInfo(
 /*Students table*/
 create table cs425.tblStudents(
     studentID int primary key,
+<<<<<<< HEAD
     userID int unique,
+=======
+    userID int,
+>>>>>>> a89dbfb7da9da36fdd0d48117c98e97aaad9f33a
     username varchar(30),
     majorID int,
     majorName varchar(50),
@@ -85,7 +93,11 @@ create table cs425.tblStudents(
 /*Instructor table*/
 create table cs425.tblInstructor(
     instructorID int primary key,
+<<<<<<< HEAD
     userID int unique,
+=======
+    userID int,
+>>>>>>> a89dbfb7da9da36fdd0d48117c98e97aaad9f33a
     email varchar (75),
     deptID int,
     officeLocation varchar(100),
@@ -99,7 +111,7 @@ create table cs425.tblInstructor(
 /*Advisor table*/
 create table cs425.tblAdvisors(
     advisorID int primary key,
-    userID int unique,
+    userID int,
     deptID int,
     bio text,
     officeAdv varchar(100),
@@ -114,7 +126,11 @@ create table cs425.tblAdvisors(
 /*Admin table*/
 create table cs425.tblAdmin(
     adminID int primary key,
+<<<<<<< HEAD
     userID int unique,
+=======
+    userID int,
+>>>>>>> a89dbfb7da9da36fdd0d48117c98e97aaad9f33a
     deptID int,
     officeLocation varchar(75),
     phoneNum varchar(20),
@@ -194,7 +210,7 @@ create table cs425.tblPrerequisites(
 /*Grades table*/
 create table cs425.tblGrades(
     gradeID int primary key,
-    studentID int unique,
+    studentID int,
     courseID int,
     grade varchar(3),
     semesterID int,
@@ -277,7 +293,7 @@ create table cs425.tblAnnouncements(
 /*Internships table*/
 create table cs425.tblInternships(
     internshipID int primary key,
-    studentID int unique,
+    studentID int,
     companyName varchar (75),
     startDate date,
     endDate date,
