@@ -88,7 +88,7 @@
     h2 {
         margin-left: 30px;
         text-align: left;
-        font-family:akira;
+        font-family:coolvetica;
     }
 
     p{
@@ -124,10 +124,11 @@
     }
 
     button {
-        font-family: akira, sans-serif;
+        font-family: coolvetica, sans-serif;
+        font-size: 25px;
         background-color: #000000;
         color: #ffffff;
-        padding: 10px 20px;
+        padding: 5px 15px;
         border: none;
         border-radius: 4px;
         cursor: pointer;

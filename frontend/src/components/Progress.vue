@@ -121,20 +121,18 @@
 
 <style scoped>
     h2 {
-        font-family: 'akira', akira;
+        font-family: 'coolvetica', coolvetica;
         text-align: left;
-        margin-left: 30px;
     }
 
     h1{
-        font-family: 'akira', akira;
+        font-family: 'coolvetica', coolvetica;
         text-align: center;
-        margin-left: 30px; 
     }
 
     p{
         font-family: Poppins;
-        margin-left: 30px;
+        margin-left: 10px;
     }
 
     .progress-page {
@@ -152,6 +150,7 @@
         border: 2px solid #000000;
         border-radius: 10px;
         margin-right: 15px;
+        margin-top: 10px;
     }
 
     .progress-bar {
@@ -164,16 +163,15 @@
 
     .progress-text {
         position: absolute;
-        font-family:akira;
+        font-family:'Poppins';
         color: #000;
-        margin-left: 10px;
     }
 
     .completion-text {
-        font-family: akira;
-        margin:  3px auto;
+        font-family: coolvetica;
+        font-size: 25px;
         color: #000;
-        font-size: 18px;
+        margin-left: 10px;
     }
 
     .footer { 
@@ -185,7 +183,7 @@
     }
 
     .course-container {
-        font-family: akira;
+        font-family: 'Poppins';
         align-items: center;
         display: flex;
         margin-bottom: 8px;

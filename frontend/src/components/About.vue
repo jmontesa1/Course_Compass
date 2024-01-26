@@ -18,7 +18,9 @@
                 </p>
             </div>
             <div class="col-md-6">
-                <img src="../assets/course compass logo.png" alt="University of Nevada, Reno logo." class="img-fluid">
+                <div class="img-container">
+                    <img src="../assets/course compass logo.png" alt="University of Nevada, Reno logo." class="img-fluid">
+                </div>
             </div>
         </div>
     </div>
@@ -27,7 +29,9 @@
     <div class="container mt-5">
         <div class="row">
             <div class="col-md-6">
-                <img src="../assets/schedule.png" alt="University of Nevada, Reno logo." class="img-fluid">
+                <div class="img-container">
+                    <img src="../assets/schedule.png" alt="University of Nevada, Reno logo." class="img-fluid">
+                </div>
             </div>    
             <div class="col-md-6">
                 <h1>Why Course Compass?</h1>
@@ -48,11 +52,13 @@
                     Capstone Project for graduation, developed during Fall 2023 and Winter 2024.<br>
                     <br>External Advisor: Syreeta Williams
                     <br>Instructors for Fall 2023: Sara Davis, Vinh Le, and Devrin Lee
+                    <br>Instructors for Spring 2024: David Feil-Seifer, Devrin Lee, and Sara Davis
                 </p>
             </div>            
             <div class="col-md-6">
-                <img src="../assets/unrlogo.png" alt="University of Nevada, Reno logo." class="img-fluid">
-
+                <div class="img-container">
+                    <img src="../assets/unrlogo.png" alt="University of Nevada, Reno logo." class="img-fluid">
+                </div>
             </div>
         </div>
     </div>
@@ -77,12 +83,18 @@
         font-size: 20px;
     }
     h1{
-        font-family: 'akira';
+        font-family: 'coolvetica';
         text-align: center;
     }
 
     img {
-        width: 100%;
+        width: 70%;
         height: auto;
+    }
+
+    .img-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 </style>

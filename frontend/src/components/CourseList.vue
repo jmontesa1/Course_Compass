@@ -91,7 +91,8 @@
     }
 
     .course-item {
-        font-family: akira;
+        font-family: coolvetica;
+        font-size: 25px;
         padding: 8px;
         box-sizing: border-box;
         /*margin-bottom: 1px;
@@ -148,7 +149,7 @@
     }
 
     h2{
-        font-family: 'akira', akira;
+        font-family: 'coolvetica', coolvetica;
         color:#000000;
     }
 </style>
