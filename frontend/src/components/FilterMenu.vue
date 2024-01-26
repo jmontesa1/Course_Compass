@@ -63,7 +63,8 @@
         margin-bottom : 40px;
     }
     .list-group-item{
-        font-family: 'akira';
+        font-family: 'Poppins';
+        font-size: 25px;
         text-align: left;
         border: 1px solid #000000;
         box-sizing: border-box;
@@ -71,7 +72,7 @@
 
     }
     .btn-secondary.dropdown-toggle {
-        font-family: 'akira';
+        font-family: 'Poppins';
         background-color: #ffffff;
         color: #000000;
         border: 1px solid transparent;

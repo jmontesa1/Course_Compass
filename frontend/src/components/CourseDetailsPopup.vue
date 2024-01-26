@@ -104,7 +104,7 @@
     }
 
     h2{
-        font-family: 'akira', akira;
+        font-family: 'coolvetica', coolvetica;
         text-align: center;
         color:#000000;
     }
@@ -122,11 +122,11 @@
     }
 
     .schedule-button {
-        font-family: akira;
+        font-family: coolvetica;
         background-color: #000000;
         color: #ffffff;
         padding: 10px 30px;
-        font-size: 15px;
+        font-size: 20px;
         border: none;
         cursor: pointer;
         display: inline-block;

@@ -86,13 +86,13 @@
         font-size: 20px;
     }
     h1{
-        font-family: 'akira', akira;
+        font-family: 'coolvetica', coolvetica;
         text-align: left;
-        margin-left: 30px;
+        margin-left: 13px;
     }
 
     .input-group-text{
-        font-family: 'akira', akira;
+        font-family: 'Poppins', sans-serif;
         font-size: 15px;
     }
     .form-control{
@@ -100,7 +100,7 @@
         font-size: 15px;
     }
     .form-check-label{
-        font-family: 'akira', akira;
+        font-family: 'Poppins', sans-serif;
         font-size: 15px;
     }
 </style>

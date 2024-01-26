@@ -58,8 +58,8 @@
     }
 
     .nav-link {
-        font-family: 'akira';            
-        font-size: 27px;
+        font-family: 'coolvetica';            
+        font-size: 37px;
         color: #160e0e;
         margin-right: 10px;
     }
@@ -67,14 +67,17 @@
     .nav-link:hover {
         color: #ffffff;
         background-color: #000000;
+        margin-top: -5px;
+        margin-bottom: -5px;
     }
 
     .dropdown-menu {
-        font-family: 'akira';
+        font-family: 'coolvetica';
         background-color: #ffffff00;
         border: 1px solid transparent;
         text-align: center;
-        min-width: 220px;
+        font-size: 25px;
+        min-width: 180px;
     }
 
     .dropdown-item {

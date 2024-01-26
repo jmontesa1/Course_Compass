@@ -54,12 +54,12 @@ export default {
 <style scoped>
     h1 {
         text-align: center;
-        font-family: akira;
-        padding: 10px;
+        font-family: coolvetica;
+        margin: 3px auto;
     }
 
     .schedule-days {
-        font-family: Akira;
+        font-family: coolvetica;
         font-size: 20px;
         text-align: center;
         padding: 10px;

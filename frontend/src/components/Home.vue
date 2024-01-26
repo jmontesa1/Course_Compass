@@ -21,17 +21,6 @@
         position: relative;
     }
 
-    p{
-        font-family: 'Poppins', sans-serif;
-        font-size: 20px;
-    }
-
-    h1{
-        font-family: 'akira', akira;
-        text-align: center;
-        color:#000000;
-    }
-
     img {
         width: 100%;
         height: auto;
