@@ -165,6 +165,7 @@
         position: absolute;
         font-family:'Poppins';
         color: #000;
+        margin-left: 5px;
     }
 
     .completion-text {

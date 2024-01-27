@@ -23,7 +23,6 @@
                 <div class="button-container">
                     <button type="submit">Log In</button>
                 </div>
-
             </form>
             <div class="signup-link">
                 <p>Don't have an account? <router-link to="/signup" >Sign Up</router-link></p>
@@ -31,6 +30,12 @@
             <div class="signup-link">
                 <p><router-link to="/signup" >Forgot Password?</router-link></p>
             </div>
+
+            <b-toast v-if="showToast" :auto-hide-delay="5000" no-close-button>
+
+                {{ toastMessage }}
+                
+            </b-toast>
         </div>
 </template>
 
@@ -42,7 +47,9 @@
             return{
                 email: '',
                 password: '',
-                passwordVis: false
+                passwordVis: false,
+                showToast: false,
+                toastMessage: "",
             };
         },
         methods:{
@@ -69,13 +76,20 @@
                     })
                     .catch(error => {
                         if (error.response && error.response.status === 401) {
-                            alert("Invalid email or password.");
+                            this.showToastMessage("Invalid email or password.");
                         } else {
                             console.error("Login error: ", error);
-                            alert("An error occurred during login.");
+                            this.showToastMessage("An error occurred during login.");
                         }
                     });
             },
+            showToastMessage(message){
+                this.toastMessage = message;
+                this.showToast = true;
+                setTimeout(() => {
+                    this.showToast = false;
+                },5000);
+            }
         }
     };
 </script>
