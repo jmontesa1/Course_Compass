@@ -55,16 +55,15 @@ def signup():
     lastname = data['lastname']
     email = data['email']
     password = data['password']
-    majorID = data['majorID']
-
-    passwordHash = bcrypt.generate_password_hash(password).decode('utf-8')
+    # majorID = data['majorID']
+    userId = 100 - len(firstname) - len(lastname)
     
     connection = connectToDB()
     if connection is not None:
         cursor = connection.cursor()
         try:
-            insertQuery = """INSERT INTO cs425.tblUser (Fname, Lname, Email, Passwd, majorID) VALUES (%s, %s, %s, %s, %s)"""
-            cursor.execute(insertQuery, (firstname, lastname, email, passwordHash, majorID))
+            insertQuery = """INSERT INTO cs425.tblUser (userID, Fname, Lname, Email, Passwd) VALUES (%s, %s, %s, %s, %s)"""
+            cursor.execute(insertQuery, (userId, firstname, lastname, email, password))
             connection.commit()
             session['user_email'] = email
             return jsonify({"message": "Signup successful"}), 200
@@ -109,11 +108,12 @@ def getUserInfo():
 def connectToDB():
     try:
         connection = connect(
-            host=os.getenv("DB_HOST"),
-            user = os.getenv("DB_USER"),
-            passwd = os.getenv("DB_PASSWORD"),
-            database = os.getenv("DB_NAME"),
-            ssl_ca = os.getenv("DB_CA")
+            host="aws.connect.psdb.cloud",
+            user = "v35r6c6vawjrcplmopyi",
+            passwd = "pscale_pw_r4MkZfh4rGEeihtFYF5laeFW5cv9ZUbZsElQNwjlnnH",
+            database = "cs425",
+            ssl_verify_identity=True,
+            ssl_ca='D:\\GitHub Repositories\\Course_Compass_T38\\backend_venv\\cacert-2023-08-22.pem'
         )
         return connection
     except Error as err:
