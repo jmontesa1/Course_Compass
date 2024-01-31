@@ -21,6 +21,7 @@
                 <br>
 
                 <div class="button-container">
+                    <Toast :showToast="showToast" :toastMessage="toastMessage" />
                     <button type="submit">Log In</button>
                 </div>
             </form>
@@ -31,18 +32,18 @@
                 <p><router-link to="/signup" >Forgot Password?</router-link></p>
             </div>
 
-            <b-toast v-if="showToast" :auto-hide-delay="5000" no-close-button>
 
-                {{ toastMessage }}
-                
-            </b-toast>
         </div>
 </template>
 
 <script>
     import axios from 'axios';
+    import Toast from './Toast.vue';
 
     export default{
+        components:{
+            Toast,
+        },
         data(){
             return{
                 email: '',
