@@ -88,44 +88,20 @@
             showToast: false,
            
 
-            majors:[
-                'Accounting',
-                'Agricultural Science',
-                'Anthropology',
-                'Art',
-                'Biochemistry',
-                'Biology',
-                'Business Administration',
-                'Chemistry',
-                'Civil Engineering',
-                'Computer Science',
-                'Criminal Justice',
-                'Economics',
-                'Electrical Engineering',
-                'English',
-                'Environmental Science',
-                'Finance',
-                'Geography',
-                'History',
-                'Journalism',
-                'Management',
-                'Marketing',
-                'Mathematics',
-                'Mechanical Engineering',
-                'Music',
-                'Nursing',
-                'Nutrition',
-                'Philosophy',
-                'Physics',
-                'Political Science',
-                'Psychology',
-                'Social Work',
-                'Sociology',
-                'Spanish',
-                'Statistics',
-                'Theatre',
-                'Wildlife Ecology and Conservation'],
+            majors: [] 
             };
+        },
+
+        mounted() {
+            //fetch majors from the backend API endpoint
+            axios.get('http://127.0.0.1:5000/majors')
+                .then(response => {
+                    //assign the retrieved majors to the 'majors' array
+                    this.majors = response.data.majors;
+                })
+                .catch(error => {
+                    console.error("Failed to fetch majors:", error);
+                });
         },
 
     methods: {
