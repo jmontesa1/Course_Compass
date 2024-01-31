@@ -59,14 +59,20 @@
         <div class="right-section">
             <img src="@/assets/background-img.png" alt="Background Image" />
         </div>
+
+        <Toast :showToast="showToast" :toastMessage="toastMessage" />
     </div>
 
 </template>
 
 <script>
     import axios from 'axios';
+    import Toast from './Toast.vue';
 
     export default {
+        components:{
+            Toast,
+        },
         data() {
             return {
             firstname: '',
@@ -78,6 +84,9 @@
             passwordVis: false,
             confirmPassVis: false,
             selectedMajor: '',
+            toastMessage: "",
+            showToast: false,
+           
 
             majors:[
                 'Accounting',
@@ -145,7 +154,7 @@
 
         validateForm() {
             if (this.email !== this.confirmEmail || this.password !== this.confirmPass) {
-                alert('Emails and Passwords must match.');
+                this.showToastMessage('Emails and Passwords must match.');
                 return false;
             }
             return true;
@@ -164,15 +173,23 @@
 
                 axios.post('http://127.0.0.1:5000/signup', userData)
                     .then(response => {
-                        alert('Form submitted successfully!');
+                        this.showToastMessage('Form submitted successfully!');
                         this.$router.push('/');
                     })
                     .catch(error => {
                         console.error("A problem has ocurred: Unable to sign up:", error);
-                        alert("Signup failed: " + error.message);
+                        this.showToastMessage("Signup failed: " + error.message);
                     });
             }
         },
+
+        showToastMessage(message){
+                this.toastMessage = message;
+                this.showToast = true;
+                setTimeout(() => {
+                    this.showToast = false;
+                },5000);
+        }
     },
 };
 </script>

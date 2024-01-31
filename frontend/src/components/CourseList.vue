@@ -24,19 +24,26 @@
 
     <!-- Duplicate Courses in Schedule Check -->
     <div v-if="notification" class="full-screen-notification">
-        <div class="notification-content">
+        <!--<div class="notification-content">
             <span>{{ notification }}</span>
             <button class ="close-btn" @click="clearNotification">
                 <img src="../assets/X.png" alt="Close Button">
             </button>
-        </div>
+        </div> -->
+        <Toast :showToast="showToast" :toastMessage="toastMessage" />
     </div>
+    <Toast :showToast="showToast" :toastMessage="toastMessage" />
+
+    
+
 
 
 </template>
 
 <script>
     import CourseDetailsPopup from '@/components/CourseDetailsPopup.vue';
+    import Toast from './Toast.vue';
+
 
     export default {
         //the courses are passed in as a prop array
@@ -48,6 +55,8 @@
                 selectedCourse: null,
                 schedule: [],
                 notification: null,
+                showToast: false,
+                toastMessage: "",
             };
         },
         methods: {
@@ -65,7 +74,7 @@
                     this.notification = null; // Clear any existing notifications
                 }
                 else {
-                    this.notification = `${course.name} is already added to your schedule.`;
+                    this.showToastMessage(course.name + "is already added to your schedule.");
                 }
             },
             showNotification(message, isError = false) {
@@ -77,9 +86,18 @@
             clearNotification() {
                 this.notification = null;
             },
+
+            showToastMessage(message){
+                this.toastMessage = message;
+                this.showToast = true;
+                setTimeout(() => {
+                    this.showToast = false;
+                },5000);
+            }
         },
         components: {
             CourseDetailsPopup,
+            Toast,
             },
         };
 </script>
