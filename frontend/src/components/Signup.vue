@@ -24,6 +24,10 @@
                 <br>
                 <br>
 
+                <input v-model="dateOfBirth" type="date" placeholder="Date of Birth" required>
+                <br>
+                <br>
+
                 <div class="password-container">
                     <input v-model="password" ref="passwordInput" type="password" id="passwordInput" placeholder="Password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}" title="Passwords contain at least one lowercase and one uppercase letter, one number, one special character, and are at least 8 or more characters." required/>
                     <img class="eye-icon" :src="eyeIcon('passwordInput')" alt="Password Visibility Eye" @click="toggleVisibility('passwordInput')" />
@@ -77,6 +81,7 @@
             return {
             firstname: '',
             lastname: '',
+            dateOfBirth:'',
             email: '',
             confirmEmail: '',
             password: '',
@@ -96,7 +101,6 @@
             //fetch majors from the backend API endpoint
             axios.get('http://127.0.0.1:5000/majors')
                 .then(response => {
-                    //assign the retrieved majors to the 'majors' array
                     this.majors = response.data.majors;
                 })
                 .catch(error => {
@@ -142,6 +146,7 @@
                 const userData = {
                     firstname: this.firstname,
                     lastname: this.lastname,
+                    dateOfBirth: this.dateOfBirth,
                     email: this.email,
                     password: this.password,
                     majorID: this.selectedMajor
