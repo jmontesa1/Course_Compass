@@ -34,9 +34,11 @@ def login():
         try:
             cursor.execute("SELECT * FROM cs425.tblUser WHERE Email = %s", (email,))
             user = cursor.fetchone()
-            if user and user['Passwd'] == password:
-                session['user_email'] = email
-                return jsonify({"message": "Login successful"}), 200
+            if user:
+                hashed_password = user['Passwd']
+                if bcrypt.check_password_hash(hashed_password, password):
+                    session['user_email'] = email
+                    return jsonify({"message": "Login successful"}), 200
             else:
                 return jsonify({"error": "Invalid email or password"}), 401
         except Error as err:
@@ -53,17 +55,21 @@ def signup():
     data = request.json
     firstname = data['firstname']
     lastname = data['lastname']
+    dateOfBirth = data['dateOfBirth']
     email = data['email']
     password = data['password']
     majorID = data['majorID']
-    userId = 100 - len(firstname) - len(lastname)
+    userId = 1000 - len(firstname) - len(lastname)
+
+    passwordHash = bcrypt.generate_password_hash(password).decode('utf-8')
+
     
     connection = connectToDB()
     if connection is not None:
         cursor = connection.cursor()
         try:
-            insertQuery = """INSERT INTO cs425.tblUser (userID, Fname, Lname, Email, Passwd) VALUES (%s, %s, %s, %s, %s)"""
-            cursor.execute(insertQuery, (userId, firstname, lastname, email, password))
+            insertQuery = """INSERT INTO cs425.tblUser (userID, Fname, Lname, DOB, Email, Passwd) VALUES (%s, %s, %s, %s, %s, %s)"""
+            cursor.execute(insertQuery, (userId, firstname, lastname, dateOfBirth, email, passwordHash))
             connection.commit()
             session['user_email'] = email
             return jsonify({"message": "Signup successful"}), 200
