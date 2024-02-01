@@ -55,7 +55,7 @@ def signup():
     lastname = data['lastname']
     email = data['email']
     password = data['password']
-    # majorID = data['majorID']
+    majorID = data['majorID']
     userId = 100 - len(firstname) - len(lastname)
     
     connection = connectToDB()
@@ -104,16 +104,35 @@ def getUserInfo():
             connection.close()
     else:
         return jsonify({"error": "DB connection failed"}), 500
+    
+
+
+#route for fetching majors
+@app.route('/majors', methods=['GET'])
+def get_majors():
+    connection = connectToDB()
+    if connection:
+        cursor = connection.cursor()
+        try:
+            cursor.execute("SELECT majorName FROM cs425.tblMajor")
+            majors = [row[0] for row in cursor.fetchall()]
+            return jsonify({"majors": majors}), 200  
+        except Error as err:
+            return jsonify({"error": "Error while fetching majors: " + str(err)}), 500
+        finally:
+            cursor.close()
+            connection.close()
+    else:
+        return jsonify({"error": "DB connection failed"}), 500
+
 
 def connectToDB():
     try:
         connection = connect(
-            host="aws.connect.psdb.cloud",
-            user = "v35r6c6vawjrcplmopyi",
-            passwd = "pscale_pw_r4MkZfh4rGEeihtFYF5laeFW5cv9ZUbZsElQNwjlnnH",
-            database = "cs425",
-            ssl_verify_identity=True,
-            ssl_ca='D:\\GitHub Repositories\\Course_Compass_T38\\backend_venv\\cacert-2023-08-22.pem'
+            host= "coursecompass-db-instance.c74q40ekci79.us-east-2.rds.amazonaws.com",
+            user = "admin",
+            passwd = "CourseCompT38!",
+            database = "cs425"
         )
         return connection
     except Error as err:
