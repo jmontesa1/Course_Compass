@@ -20,14 +20,6 @@ def login():
     email = data['email']
     password = data['password']
     
-    demo_email = '425demo@example.com' # For demo showcase / plan b
-    demo_pw = 'Password1!'
-    
-    if email == demo_email and password == demo_pw:
-        print("User logged in and session started") # Print check for testing purposes
-        session['user_email'] = email
-        return jsonify({"message": "Demo login successful"}), 200
-    
     connection = connectToDB()
     if connection is not None:
         cursor = connection.cursor(dictionary=True)
@@ -59,7 +51,6 @@ def signup():
     email = data['email']
     password = data['password']
     majorID = data['majorID']
-    userId = 1000 - len(firstname) - len(lastname)
 
     passwordHash = bcrypt.generate_password_hash(password).decode('utf-8')
 
@@ -68,8 +59,8 @@ def signup():
     if connection is not None:
         cursor = connection.cursor()
         try:
-            insertQuery = """INSERT INTO cs425.tblUser (userID, Fname, Lname, DOB, Email, Passwd) VALUES (%s, %s, %s, %s, %s, %s)"""
-            cursor.execute(insertQuery, (userId, firstname, lastname, dateOfBirth, email, passwordHash))
+            insertQuery = """INSERT INTO cs425.tblUser (Fname, Lname, DOB, Email, Passwd) VALUES (%s, %s, %s, %s, %s)"""
+            cursor.execute(insertQuery, (firstname, lastname, dateOfBirth, email, passwordHash))
             connection.commit()
             session['user_email'] = email
             return jsonify({"message": "Signup successful"}), 200
@@ -81,6 +72,7 @@ def signup():
             connection.close()
     else:
         return jsonify({"error": "Database connection failed"}), 500
+
 
 @app.route('/getUserInfo', methods=['GET'])
 def getUserInfo():
@@ -110,7 +102,7 @@ def getUserInfo():
             connection.close()
     else:
         return jsonify({"error": "DB connection failed"}), 500
-    
+     
 
 
 #route for fetching majors
@@ -146,3 +138,4 @@ def connectToDB():
         return None
 
 app.run(debug=True)
+
