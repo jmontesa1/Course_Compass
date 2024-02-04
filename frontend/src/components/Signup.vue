@@ -142,7 +142,7 @@
 
         // handleSubmit method implemented by Lucas Videtto
         handleSubmit() {
-            if (this.validateForm()) {
+            if (this.validateForm() &&this.validateAge()) {
                 const userData = {
                     firstname: this.firstname,
                     lastname: this.lastname,
@@ -170,7 +170,32 @@
                 setTimeout(() => {
                     this.showToast = false;
                 },5000);
+        },
+
+
+        validateAge() {
+        const today = new Date();
+        const birthDate = new Date(this.dateOfBirth);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
         }
+
+        const minimumAge = 18;
+
+        if (age < minimumAge) {
+            this.showToastMessage('You must be at least 18 years old to sign up.');
+            return false;
+        }
+        return true;
+
+
+    },
+
+
+        
     },
 };
 </script>
