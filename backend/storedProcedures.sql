@@ -1,4 +1,4 @@
-/*get users by major*/
+/*Get users by major*/
 delimiter //
 create procedure GetUsersByMajor (
     in p_majorName varchar(50)
@@ -11,12 +11,10 @@ begin
 end //
 delimiter ;
 
-/*use case*/
+/*Use case*/
 call GetUsersByMajor('Computer Science')
 
-
-
-/*get users by role*/
+/*Get users by role*/
 delimiter //
 create procedure GetUsersByRole (
     in p_roleTitle varchar(50)
@@ -29,12 +27,10 @@ begin
 end //
 delimiter ;
 
-/*use case*/
+/*Use case*/
 call GetUsersByRole('Student')
 
-
-
-/*get students major*/
+/*Get students major*/
 delimiter //
 create procedure GetStudentsMajor (
     in p_Fname varchar(100),
@@ -48,15 +44,10 @@ begin
 end //
 delimiter ;
 
-/*use case*/
-<<<<<<< HEAD
-call GetStudentsMajor('Jose', 'Urrutia')
-=======
+/*Use case*/
 call GetStudentsMajor('Jose', 'Urrutia')
 
-
-
-/*update user email*/
+/*Update user email*/
 delimiter //
 create procedure UpdateUserEmail (
     in p_userID int,
@@ -69,6 +60,5 @@ begin
 end //
 delimiter ;
 
-/*use case*/
+/*Use case*/
 call UpdateUserEmail(1, 'newemail@gmail.com');
->>>>>>> a89dbfb7da9da36fdd0d48117c98e97aaad9f33a
