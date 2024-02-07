@@ -49,17 +49,18 @@
 <style scoped>
     .navbar {
         background-color: #ffffff; 
-        border-bottom: 2px solid #000000;
+        border-bottom: 1px solid #000000;
     }
 
     .navbar-brand img {
-        max-width: 95px;
+        max-width: 85px;
         height: auto;
+        margin: -8px auto;
     }
 
     .nav-link {
         font-family: 'coolvetica';            
-        font-size: 37px;
+        font-size: 25px;
         color: #160e0e;
         margin-right: 10px;
     }
@@ -76,8 +77,8 @@
         background-color: #ffffff00;
         border: 1px solid transparent;
         text-align: center;
-        font-size: 25px;
-        min-width: 180px;
+        font-size: 15px;
+        min-width: 130px;
     }
 
     .dropdown-item {
