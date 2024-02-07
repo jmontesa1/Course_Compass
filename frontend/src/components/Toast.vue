@@ -54,10 +54,11 @@
 
 <style scoped>
     .toast-container {
-        align-content: right;
+        align-content: center;
         position: fixed;
-        top: 90%;
-        right: 1%;
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%);
         background-color: #da4d4d;
         color: #ffffff;
         border-radius: 5px;
@@ -82,7 +83,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        height: auto; /* Ensure that height is auto when showToast is true */
+        height: auto;
     }
 
     .progress-bar {
