@@ -71,17 +71,22 @@
                     password: this.password
                 };
                 axios.post('http://127.0.0.1:5000/login', loginData)
-                    .then(response => {
-                        console.log(response.data.message);
-                        this.$router.push('/');
-                    })
-                    .catch(error => {
-                        if (error.response && error.response.status === 401) {
-                            this.showToastMessage("Invalid email or password.");
-                        } else {
-                            console.error("Login error: ", error);
-                            this.showToastMessage("An error occurred during login.");
-                        }
+                .then(response => {
+                    console.log(response.data.message);
+                    if (response.status === 200) {
+                        this.showToastMessage("Login is successful.");
+                        setTimeout(() => {
+                            this.$router.push('/');
+                        }, 2500);
+                    }
+                })
+                .catch(error => {
+                    if (error.response && error.response.status === 401) {
+                        this.showToastMessage("Invalid email or password.");
+                    } else {
+                        console.error("Login error: ", error);
+                        this.showToastMessage("An error occurred during login.");
+                    }
                     });
             },
             showToastMessage(message){
