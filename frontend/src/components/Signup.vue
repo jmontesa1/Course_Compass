@@ -154,8 +154,13 @@
 
                 axios.post('http://127.0.0.1:5000/signup', userData)
                     .then(response => {
-                        this.showToastMessage('Form submitted successfully!');
-                        this.$router.push('/');
+                        console.log(response.data.message);
+                        if(response.status === 200){
+                        this.showToastMessage('Welcome to Course Compass!');
+                        setTimeout(() => {
+                            this.$router.push('/');
+                        }, 2500);
+                    }
                     })
                     .catch(error => {
                         console.error("A problem has ocurred: Unable to sign up:", error);
