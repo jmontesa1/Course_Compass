@@ -113,13 +113,31 @@ create table cs425.tblAdmin(
 );
 
 /*Courses table*/
-create table cs425.tblCourses(
-    courseID int primary key,
-    courseCode varchar(50) not null,
-    courseName varchar(100) not null,
+CREATE TABLE cs425.tblCourses (
+    courseID int PRIMARY KEY auto_increment,
+    courseCode varchar(25) NOT NULL,
+    courseName varchar(100) NOT NULL,
+    status varchar(10),
+    credits int,
+    Description TEXT,
     majorID int,
-    prereqs varchar(75),
-    foreign key (majorID) references tblMajor(majorID)
+    meetingDays varchar(15),
+    startTime TIME,
+    endTime TIME,
+    meetingTimes varchar(30),
+    Requirements text,
+    classAttributes varchar(256),
+    FOREIGN KEY (majorID) REFERENCES tblMajor(majorID),
+    Section int,
+    Room varchar(10),
+    instructor varchar(50),
+    startDate date,
+    endDate date,
+    classCapacity int,
+    enrollmentTotal int,
+    availableSeats int,
+    waitList int,
+    materials varchar(50)
 );
 
 /*CourseSchedule table*/
