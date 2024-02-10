@@ -4,19 +4,18 @@
 
 <template>
     <div class="header-container">
-        <div class="row justify-content-end">
-            <div class="col-6"><h1>{{ user.firstname }} {{ user.lastname }}'s Schedule | {{ user.term }}</h1></div>
-            <div class="col-3">
+        <div class="row justify-content-center">
+            <div class="col d-flex flex-column"><h1>{{ user.firstname }} {{ user.lastname }}'s Schedule | {{ user.term }}</h1></div>
                 <button class="print-btn" @click="downloadPDF">
                     <img class ="printer" src="../assets/printer.png" alt="Print Button">
                 </button>
-        </div>
         </div>
     </div>
 
     <div id="schedule-page" ref="schedulePage">
         <div class="container-fluid mt-3">
             <div class="schedule-days">
+                <!-- This is the very top of the schedule, showing the days -->
                 <div class="row">
                     <div class="col-sm-1"></div>
                     <div v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']" :key="day" class="col d-flex flex-column">
@@ -24,18 +23,25 @@
                     </div>
                 </div>
 
+                <!-- This is the rest of the schedule, showing the time and blocks of courses -->
                 <div class="row">
+                    <!-- This is the time on the left side -->
                     <div class="col-sm-1">
                             <div class="time-slot" v-for="time in ['8', '9', '10', '11', '12', '1', '2', '3', '4', '5', '6', 
                             '7']" :key="time">
-                                <div class="time-slot-hour"><h2> {{ time }} </h2></div>
-                                <div class="time-slot-bar"></div>
+                                <div class="time-slot-hour"><h2> {{ time }} </h2></div> <!-- height of each row-->
+                                <div class="time-slot-bar"></div> <!-- bars for time -->
                             </div>
                     </div>
 
+
                     <div v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']" :key="day" class="col">
-                        <!--<div class="day-slot-text-bar"></div> THIS A TEST -->
-                        <div v-for="classBlock in generateBlocks(day)" :key="classBlock.id" class="class-block" :style="classBlock.style">
+                            <div class="time-slot" v-for="time in ['8', '9', '10', '11', '12', '1', '2', '3', '4', '5', '6', 
+                            '7']" :key="time">
+                                <div class="day-slot-hour"></div> <!-- height of each row-->
+                                <div class="day-slot-bar"></div> <!-- bars for time -->
+                            </div>
+                        <div v-for="classBlock in generateBlocks(day)" :key="classBlock.id" :style="classBlock.style">
                             {{ classBlock.classes.map((item) => item.course).join(', ') }}
                         </div>
                     </div>
@@ -50,8 +56,38 @@
     import html2pdf from 'html2pdf.js';
 
     export default {
+        data() {
+            return {
+            user: {
+                firstname: 'John',
+                lastname: 'Montesa',
+                major: 'Computer Science & Engineering',
+                term: 'Fall 2023',
+            },
+
+            schedule: [
+                { course: 'CS 135', days: ['Monday','Wednesday','Friday'], time: '10:00 AM - 10:50 AM', start: '10:00', end: '10:50', location: 'SEM 104' },
+                { course: 'CS 425', days: ['Tuesday','Thursday'], time: '10:30 AM - 11:45 AM', start: '10:30', end: '11:45', location: 'WPEB 101' },
+                { course: 'CS 302', days: ['Monday', 'Wednesday'], time: '3:00 PM - 4:15 PM', start: '3:00', end: '4:15', location: 'PSAC 1002' },
+                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '8:00', end: '8:50', location: 'PSAC 1002' },
+                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '9:00', end: '9:50', location: 'PSAC 1002' },
+                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '11:00', end: '11:50', location: 'PSAC 1002' },
+                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '12:00', end: '12:50', location: 'PSAC 1002' },
+                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '1:00', end: '1:50', location: 'PSAC 1002' },
+                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '2:00', end: '2:50', location: 'PSAC 1002' },
+                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '4:00', end: '4:50', location: 'PSAC 1002' },
+                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '5:00', end: '5:50', location: 'PSAC 1002' },
+                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '6:00', end: '6:50', location: 'PSAC 1002' },
+                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '7:00', end: '7:50', location: 'PSAC 1002' },
+                // Add more events as needed
+            ],
+
+            };
+        },
+
         methods: {
             async downloadPDF() {
+                await this.$nextTick();
                 const content = this.$refs.schedulePage;
 
                 const pdfSettings = {
@@ -90,22 +126,20 @@
 
                         const blockHeight = ((endHour - startHour) * 60 + (endMinute - startMinute));
 
-                        const referenceHour = 8;
-
                         let yTransformation;
 
 
                         if(startHour === 8){
-                            yTransformation = 0;
+                            yTransformation = 78;
                         }
                         else if(startHour === 9){
-                            yTransformation = 7;
+                            yTransformation = 78;
                         }
                         else if(startHour === 10){
                             yTransformation = 110;
                         }
                         else if(startHour === 11){
-                            yTransformation = 15;
+                            yTransformation = 158;
                         }
                         else if(startHour === 12){
                             yTransformation = 110;
@@ -119,17 +153,34 @@
                         else if(startHour === 3){
                             yTransformation = 310;
                         }
+                        else if(startHour === 4){
+                            yTransformation = 310;
+                        }
+                        else if(startHour === 5){
+                            yTransformation = 310;
+                        }
+                        else if(startHour === 6){
+                            yTransformation = 310;
+                        }
+                        else if(startHour === 7){
+                            yTransformation = 310;
+                        }
                         
                         if(startMinute === 30){
                                 yTransformation += 27;
                             }
+
+
                         blocks.push({
                             id: course.course + day,
                             style: { 
                                 'background-color': color,
                                 'border-radius': '8px',
                                 'height': `${blockHeight}px`,
+                                'width': '15%',
                                 'transform': `translateY(${yTransformation}px)`, // Apply Y transformation
+                                'position': 'absolute',
+                                'top': `153px`,// Use percentage value
                             },
                             classes: [course],
                         });
@@ -139,33 +190,6 @@
             },
         },
 
-        data() {
-            return {
-            user: {
-                firstname: 'John',
-                lastname: 'Montesa',
-                major: 'Computer Science & Engineering',
-                term: 'Fall 2023',
-            },
-
-            schedule: [
-                { course: 'CS 135', days: ['Wednesday','Friday'], time: '10:00 AM - 10:50 AM', start: '10:00', end: '10:50', location: 'SEM 104' },
-                { course: 'CS 425', days: ['Tuesday','Thursday'], time: '10:30 AM - 11:45 AM', start: '10:30', end: '11:45', location: 'WPEB 101' },
-                { course: 'CS 302', days: ['Wednesday'], time: '3:00 PM - 4:15 PM', start: '3:00', end: '4:15', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '8:00', end: '8:50', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '9:00', end: '9:50', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '11:00', end: '11:50', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '12:00', end: '12:50', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '1:00', end: '1:50', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '2:00', end: '2:50', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '4:00', end: '4:50', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '5:00', end: '5:50', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '6:00', end: '6:50', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '7:00', end: '7:50', location: 'PSAC 1002' },
-                // Add more events as needed
-            ],
-            };
-        },
     };
 </script>
 
@@ -174,6 +198,7 @@
         margin-bottom: -10px;
     }
     h1 {
+        white-space: nowrap;
         text-align: center;
         font-family: coolvetica;
         font-size: 30px;
@@ -202,6 +227,9 @@
         float: right;
         margin-top: 5px;
         margin-right: 15px;
+        width: 35px;
+        height: auto;
+        transform: translateX(-75%);
     }
 
     .printer{
@@ -237,15 +265,17 @@
         background-color: #333;
     }
 
-    .day-slot-text-bar {
+    .day-slot-bar {
         position: absolute;
-        max-width: 520px; /*time slot black bar*/
-        top: 0;
-        bottom: 0;
+        max-width: 500px; /*time slot black bar*/
+        top: 4%;
         left: 0; /*time slot black bar*/
         right: 0;
-        height: 20px;
-        background-color: #333;
+        height: 1px;
+        background-color: #00000036;
     }
 
+    .day-slot-hour {
+        padding-bottom: 55.5px; /*Height of the day slot box */
+    }
 </style>
