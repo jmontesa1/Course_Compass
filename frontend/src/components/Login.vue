@@ -74,7 +74,8 @@
                 .then(response => {
                     console.log(response.data.message);
                     if (response.status === 200) {
-                        this.showToastMessage("Login is successful.");
+                    localStorage.setItem('access_token', response.data.access_token);
+                        this.showToastMessage("Login successful. Welcome back!");
                         setTimeout(() => {
                             this.$router.push('/');
                         }, 2500);

@@ -1,5 +1,49 @@
 use cs425;
 
+
+/*insert majors*/
+Insert into cs425.tblMajor (majorID, majorName)
+values
+(100, 'Accounting'),
+(200, 'Agricultural Science'),
+(300, 'Anthropology'),
+(400, 'Art'),
+(500, 'Biochemistry'),
+(600, 'Biology'),
+(700, 'Business Administration'),
+(800, 'Chemistry'),
+(900, 'Civil Engineering'),
+(1000, 'Computer Science'),
+(1100, 'Criminal Justice'),
+(1200,'Economics'),
+(1300,'Electrical Engineering'),
+(1400, 'English'),
+(1500, 'Environmental Science'),
+(1600, 'Finance'),
+(1700, 'Geography'),
+(1800, 'History'),
+(1900, 'Journalism'),
+(2000, 'Management'),
+(2100, 'Marketing'),
+(2200, 'Mathematics'),
+(2300, 'Mechanical Engineering'),
+(2400, 'Music'),
+(2500, 'Nursing'),
+(2600, 'Nutrition'),
+(2700, 'Philosophy'),
+(2800, 'Physics'),
+(2900, 'Political Science'),
+(3000, 'Psychology'),
+(3100, 'Social Work'),
+(3200, 'Sociology'),
+(3300, 'Spanish'),
+(3400, 'Statistics'),
+(3500, 'Theatre'),
+(3600, 'Wildlife Ecology and Conservation');
+
+
+/*set roles*/
+
 /*Insert majors*/
 insert into cs425.tblMajor(majorID, majorName)
 values
@@ -30,6 +74,7 @@ values
 ('Jose', 'Urrutia', NULL, 'jose12@gmail.com', 'solikj65');
 
 /*Set roles*/
+
 insert into cs425.tblRoles(userID, roleCode)
 values 
 (1, 'STU'),

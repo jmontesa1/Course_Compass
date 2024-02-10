@@ -43,6 +43,8 @@
 </template>
 
 <script>
+    import axios from 'axios';
+    
     export default {
         data() {
             return {
@@ -62,12 +64,19 @@
         methods: {
             async fetchUserInfo() {
                 try {
-                    const response = await this.$http.get('/getUserInfo');
+                    const token = localStorage.getItem('access_token');
+                    console.log('Token:', token)
+                    const response = await axios.get('http://127.0.0.1:5000/getUserInfo', {
+                        headers:{
+                            Authorization: `Bearer ${token}`
+                        }
+                    });
+                    console.log('Response:', response.data)
                     if (response.data) {
                         this.user.firstname = response.data.Fname;
                         this.user.lastname = response.data.Lname;
                         this.user.email = response.data.Email;
-                        this.user.major = response.data.major || 'Unknown';
+                        this.user.major = response.data.majorName;
                     }
                 } catch (error) {
                     console.error("Error fetching info: ", error);
