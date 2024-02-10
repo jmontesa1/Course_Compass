@@ -2,6 +2,7 @@
 # Backend connection for Course Compass
 
 from flask import Flask, jsonify, request, session
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 from flask_cors import CORS
 from mysql.connector import connect, Error
 from datetime import datetime, timedelta
@@ -13,6 +14,7 @@ app = Flask(__name__)
 app.secret_key = '12345'
 CORS(app)
 bcrypt = Bcrypt(app)
+jwt = JWTManager(app)
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -29,8 +31,9 @@ def login():
             if user:
                 hashed_password = user['Passwd']
                 if bcrypt.check_password_hash(hashed_password, password):
+                    access_token = create_access_token(identity = email)
                     session['user_email'] = email
-                    return jsonify({"message": "Login successful"}), 200
+                    return jsonify({"access_token": access_token, "message": "Login successful"}), 200
             else:
                 return jsonify({"error": "Invalid email or password"}), 401
         except Error as err:
@@ -75,8 +78,9 @@ def signup():
 
 
 @app.route('/getUserInfo', methods=['GET'])
+@jwt_required()
 def getUserInfo():
-    user_email = session.get('user_email')
+    user_email = get_jwt_identity()
     if not user_email:
         return jsonify({"error": "User not logged in"}), 401
     
@@ -84,14 +88,9 @@ def getUserInfo():
     if connection:
         cursor = connection.cursor(dictionary=True)
         try:
-            cursor.execute("SELECT Fname, Lname, Email, majorID FROM cs425.tblUser WHERE Email = %s", (user_email,))
+            cursor.execute("SELECT Fname, Lname, Email, majorName FROM cs425.tblUser WHERE Email = %s", (user_email,))
             user_info = cursor.fetchone()
             if user_info:
-                major_id = user_info['majorID']
-                cursor.execute("SELECT majorName FROM cs425.tblMajor WHERE majorID = %s", (major_id,))
-                major = cursor.fetchone()
-                if major:
-                    user_info['major'] = major['majorName']
                 return jsonify(user_info), 200
             else:
                 return jsonify({"error": "User not found"}), 404
@@ -138,4 +137,3 @@ def connectToDB():
         return None
 
 app.run(debug=True)
-
