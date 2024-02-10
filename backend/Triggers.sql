@@ -16,7 +16,6 @@ end;
 //
 delimiter ;
 
-
 delimiter //
 create trigger set_majorName
 before insert on tblStudents

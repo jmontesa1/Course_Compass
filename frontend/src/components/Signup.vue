@@ -8,7 +8,7 @@
 <template>
     <div class="signup-container">
         <div class="left-section">
-            <br>
+
             <h2>Sign Up</h2>
 
             <form @submit.prevent="handleSubmit">
@@ -45,7 +45,7 @@
                         <option v-for="major in majors" :key="major" :value="major">{{ major }}</option>
                     </select>
                 </div>
-                <br>
+
 
 
                 <div class="button-container">

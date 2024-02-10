@@ -10,7 +10,6 @@ create table cs425.tblDepartment(
     headOfDept varchar(50)
 );
 
-
 /*Major table*/
 create table cs425.tblMajor(
     majorID int primary key auto_increment,
@@ -22,7 +21,6 @@ create table cs425.tblMajor(
     creditsReq int,
     foreign key (deptID) references tblDepartment (deptID)
 );
-
 
 /*User table*/
 create table cs425.tblUser(
@@ -37,16 +35,11 @@ create table cs425.tblUser(
 /*Roles table*/
 create table cs425.tblRoles(
     roleID int primary key auto_increment,
-<<<<<<< HEAD
     userID int unique,
-=======
-    userID int,
->>>>>>> a89dbfb7da9da36fdd0d48117c98e97aaad9f33a
     roleCode enum('STU', 'INST', 'ADV', 'ADM'),
     title varchar(20),
     foreign key(userID) references tblUser(userID)
 );
-
 
 /*UserSettings table*/
 create table cs425.tblUserSettings(
@@ -56,8 +49,6 @@ create table cs425.tblUserSettings(
     dateFormats varchar(20),
     foreign key (userID) references tblUser(userID)
 );
-
-
 
 /*ContactInfo table*/
 create table cs425.tblContactInfo(
@@ -71,16 +62,10 @@ create table cs425.tblContactInfo(
     foreign key (userID) references tblUser(userID)
 );
 
-
-
 /*Students table*/
 create table cs425.tblStudents(
     studentID int primary key,
-<<<<<<< HEAD
     userID int unique,
-=======
-    userID int,
->>>>>>> a89dbfb7da9da36fdd0d48117c98e97aaad9f33a
     username varchar(30),
     majorID int,
     majorName varchar(50),
@@ -89,15 +74,10 @@ create table cs425.tblStudents(
     foreign key (majorID) references tblMajor(majorID)
 );
 
-
 /*Instructor table*/
 create table cs425.tblInstructor(
     instructorID int primary key,
-<<<<<<< HEAD
     userID int unique,
-=======
-    userID int,
->>>>>>> a89dbfb7da9da36fdd0d48117c98e97aaad9f33a
     email varchar (75),
     deptID int,
     officeLocation varchar(100),
@@ -106,7 +86,6 @@ create table cs425.tblInstructor(
     foreign key (userID) references tblUser(userID),
     foreign key (deptID) references tblDepartment(deptID)
 );
-
 
 /*Advisor table*/
 create table cs425.tblAdvisors(
@@ -121,16 +100,10 @@ create table cs425.tblAdvisors(
     foreign key (deptID) references tblDepartment(deptID)
 );
 
-
-
 /*Admin table*/
 create table cs425.tblAdmin(
     adminID int primary key,
-<<<<<<< HEAD
     userID int unique,
-=======
-    userID int,
->>>>>>> a89dbfb7da9da36fdd0d48117c98e97aaad9f33a
     deptID int,
     officeLocation varchar(75),
     phoneNum varchar(20),
@@ -138,8 +111,6 @@ create table cs425.tblAdmin(
     hireDate date,
     foreign key (deptID) references tblDepartment(deptID)
 );
-
-
 
 /*Courses table*/
 CREATE TABLE cs425.tblCourses (
@@ -169,7 +140,6 @@ CREATE TABLE cs425.tblCourses (
     materials varchar(50)
 );
 
-
 /*CourseSchedule table*/
 create table cs425.tblCourseSchedule(
     scheduleID int primary key,
@@ -183,7 +153,6 @@ create table cs425.tblCourseSchedule(
     instructor varchar(100),
     foreign key (studentID) references tblStudents(studentID)
 );
-
 
 /*CourseOffering table*/
 create table cs425.tblCourseOffering(
@@ -200,7 +169,6 @@ create table cs425.tblCourseOffering(
     foreign key (instructorID) references tblInstructor(instructorID)
 );
 
-
 /*Semesters table*/
 create table cs425.tblSemesters(
     semesterID int primary key,
@@ -213,8 +181,6 @@ create table cs425.tblSemesters(
     notes text
 );
 
-
-
 /*Prerequisites table*/
 create table cs425.tblPrerequisites(
     prereqID int primary key,
@@ -223,7 +189,6 @@ create table cs425.tblPrerequisites(
     completionStatus varchar(20),
     foreign key (courseID) references tblCourses(courseID)
 );
-
 
 /*Grades table*/
 create table cs425.tblGrades(
@@ -241,7 +206,6 @@ create table cs425.tblGrades(
     foreign key(instructorID) references tblInstructor(instructorID)
 );
 
-
 /*GPA table*/
 create table cs425.tblGPA(
     gpaID int primary key,
@@ -254,7 +218,6 @@ create table cs425.tblGPA(
     foreign key (studentID) references tblStudents(studentID)
 );
 
-
 /*Enrollment table*/
 create table cs425.tblEnrollment(
     enrollmentID int primary key,
@@ -265,7 +228,6 @@ create table cs425.tblEnrollment(
     foreign key (studentID) references tblStudents(studentID),
     foreign key (courseID) references tblCourses(courseID)
 );
-
 
 /*Review table*/
 create table cs425.tblReviews(
@@ -281,7 +243,6 @@ create table cs425.tblReviews(
     foreign key (courseID) references tblCourses(courseID)
 );
 
-
 /*Payments table*/
 create table cs425.tblPayments(
     paymentID int primary key,
@@ -296,7 +257,6 @@ create table cs425.tblPayments(
     foreign key (studentID) references tblStudents(studentID)
 );
 
-
 /*Announcements table*/
 create table cs425.tblAnnouncements(
     announcementID int primary key,
@@ -306,7 +266,6 @@ create table cs425.tblAnnouncements(
     createDate timestamp,
     lastModify timestamp
 );
-
 
 /*Internships table*/
 create table cs425.tblInternships(
