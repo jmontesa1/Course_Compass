@@ -36,14 +36,23 @@
 
 
                     <div v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']" :key="day" class="col">
-                            <div class="time-slot" v-for="time in ['8', '9', '10', '11', '12', '1', '2', '3', '4', '5', '6', 
-                            '7']" :key="time">
-                                <div class="day-slot-hour"></div> <!-- height of each row-->
-                                <div class="day-slot-bar"></div> <!-- bars for time -->
-                            </div>
-                        <div v-for="classBlock in generateBlocks(day)" :key="classBlock.id" :style="classBlock.style">
-                            {{ classBlock.classes.map((item) => item.course).join(', ') }}
-                        </div>
+                                <div class="time-slot" v-for="time in ['8', '9', '10', '11', '12', '1', '2', '3', '4', '5', '6', '7']" :key="time">
+                                    <div class="day-slot-hour"></div> <!-- height of each row-->
+                                    <div class="day-slot-bar"></div> <!-- bars for time -->
+                                    <template v-if="time === '8' && day === 'Monday' || time === '8' && day === 'Tuesday'
+                                            || time === '8' && day === 'Wednesday' || time === '8' && day === 'Thursday'
+                                            || time === '8' && day === 'Friday'">
+                                        <div v-for="classBlock in generateBlocks(day)" :key="classBlock.id" :style="classBlock.style">
+                                            <div class="class-info">
+                                                {{ classBlock.classes.map(item => item.course).join(', ') }}
+                                                <br>
+                                                {{ classBlock.classes[0].time }}
+                                                <br>
+                                                {{ classBlock.classes[0].location }}
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
                     </div>
                 </div>
             </div>
@@ -69,16 +78,9 @@
                 { course: 'CS 135', days: ['Monday','Wednesday','Friday'], time: '10:00 AM - 10:50 AM', start: '10:00', end: '10:50', location: 'SEM 104' },
                 { course: 'CS 425', days: ['Tuesday','Thursday'], time: '10:30 AM - 11:45 AM', start: '10:30', end: '11:45', location: 'WPEB 101' },
                 { course: 'CS 302', days: ['Monday', 'Wednesday'], time: '3:00 PM - 4:15 PM', start: '3:00', end: '4:15', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '8:00', end: '8:50', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '9:00', end: '9:50', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '11:00', end: '11:50', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '12:00', end: '12:50', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '1:00', end: '1:50', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '2:00', end: '2:50', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '4:00', end: '4:50', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '5:00', end: '5:50', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '6:00', end: '6:50', location: 'PSAC 1002' },
-                { course: 'Test', days: ['Monday'], time: '3:00 PM - 4:15 PM', start: '7:00', end: '7:50', location: 'PSAC 1002' },
+                { course: 'ENG 101', days: ['Monday', 'Wednesday', 'Friday'], time: '6:00 PM - 6:50 PM', start: '6:00', end: '6:50', location: 'MKIC 320' },
+                { course: 'EE 165', days: ['Monday', 'Wednesday', 'Friday'], time: '8:30 PM - 9:45 PM', start: '8:30', end: '9:45', location: 'SLC 102' },
+                { course: 'MUS 123', days: ['Tuesday', 'Thursday', 'Friday'], time: '1:00 PM - 1:50 PM', start: '1:00', end: '1:50', location: 'CFA 102' },
                 // Add more events as needed
             ],
 
@@ -130,40 +132,40 @@
 
 
                         if(startHour === 8){
-                            yTransformation = 78;
+                            yTransformation = 2;
                         }
                         else if(startHour === 9){
-                            yTransformation = 78;
+                            yTransformation = 58;
                         }
                         else if(startHour === 10){
-                            yTransformation = 110;
+                            yTransformation = 113;
                         }
                         else if(startHour === 11){
-                            yTransformation = 158;
+                            yTransformation = 169;
                         }
                         else if(startHour === 12){
-                            yTransformation = 110;
+                            yTransformation = 224;
                         }
                         else if(startHour === 1){
-                            yTransformation = 110;
+                            yTransformation = 280;
                         }
                         else if(startHour === 2){
-                            yTransformation = 110;
+                            yTransformation = 335;
                         }
                         else if(startHour === 3){
-                            yTransformation = 310;
+                            yTransformation = 391;
                         }
                         else if(startHour === 4){
-                            yTransformation = 310;
+                            yTransformation = 446;
                         }
                         else if(startHour === 5){
-                            yTransformation = 310;
+                            yTransformation = 502;
                         }
                         else if(startHour === 6){
-                            yTransformation = 310;
+                            yTransformation = 558;
                         }
                         else if(startHour === 7){
-                            yTransformation = 310;
+                            yTransformation = 613;
                         }
                         
                         if(startMinute === 30){
@@ -177,10 +179,10 @@
                                 'background-color': color,
                                 'border-radius': '8px',
                                 'height': `${blockHeight}px`,
-                                'width': '15%',
+                                'width': '100%',
                                 'transform': `translateY(${yTransformation}px)`, // Apply Y transformation
                                 'position': 'absolute',
-                                'top': `153px`,// Use percentage value
+                                'top': `0`,
                             },
                             classes: [course],
                         });
@@ -194,9 +196,13 @@
 </script>
 
 <style scoped>
+    .body {
+        overflow-x: hidden;
+    }
     .header-container{
         margin-bottom: -10px;
     }
+
     h1 {
         white-space: nowrap;
         text-align: center;
@@ -273,9 +279,32 @@
         right: 0;
         height: 1px;
         background-color: #00000036;
+        z-index: 0;
     }
 
     .day-slot-hour {
         padding-bottom: 55.5px; /*Height of the day slot box */
     }
+
+    .class-info {
+        font-size: 16px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #000000;
+        line-height: 1;
+        position: relative;
+        overflow: hidden;
+        white-space: nowrap; /* Optional: Prevent text from wrapping if it exceeds the width */
+        top: 50%; /* The last three make the text in the middle of the block*/
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+@media (max-width: 768px) {
+    .class-info {
+        font-size: 12px; /* Adjust the font size for smaller screens */
+    }
+}
 </style>
