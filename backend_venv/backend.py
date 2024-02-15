@@ -6,75 +6,117 @@ from flask_jwt_extended import JWTManager, jwt_required, create_access_token, ge
 from flask_cors import CORS
 from mysql.connector import connect, Error
 from datetime import datetime, timedelta
-import hashlib
-import os
 from flask_bcrypt import Bcrypt
 
+
+# Under construction !!!
 app = Flask(__name__)
 app.secret_key = '12345'
 CORS(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
+
+# Under construction !!!
+# Check backend development notes (Lucas)
+# Included print statements for terminal reference
 @app.route('/login', methods=['POST'])
-def login():
-    data = request.json
-    email = data['email']
-    password = data['password']
-    
-    connection = connectToDB()
-    if connection is not None:
-        cursor = connection.cursor(dictionary=True)
+def login(): 
+    if request.method == 'POST':
+        email = request.json.get('email')
+        password = request.json.get('password')
+        
+        if not email or not password:
+            print("MISSING EMAIL OR PASSWORD")
+            return jsonify({"message": "Missing email or password"}), 400
+        
         try:
-            cursor.execute("SELECT * FROM cs425.tblUser WHERE Email = %s", (email,))
+            connection = connectToDB()
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM tblUser WHERE Email = %s", (email,))
             user = cursor.fetchone()
-            if user:
-                hashed_password = user['Passwd']
-                if bcrypt.check_password_hash(hashed_password, password):
-                    access_token = create_access_token(identity = email)
-                    session['user_email'] = email
-                    return jsonify({"access_token": access_token, "message": "Login successful"}), 200
+            
+            if user and bcrypt.check_password_hash(user['Passwd'], password):
+                session['user_id'] = user['userID']
+                session['email'] = user['Email']
+                
+                access_token = create_access_token(identity={"email": user['Email'], "userID": user['userID']})
+                print("LOGIN SUCCESSFUL")
+                return jsonify({"access_token": access_token, "message": "Login successful"}), 200
             else:
-                return jsonify({"error": "Invalid email or password"}), 401
+                print("INVALID EMAIL OR PASSWORD")
+                return jsonify({"message": "Invalid email or password"}), 401
         except Error as err:
-            print("Error while authenticating user", err)
-            return jsonify({"error": str(err)}), 500
+            print(err)
+            return jsonify({"message": "An error occurred"}), 500
+        
         finally:
             cursor.close()
             connection.close()
     else:
-        return jsonify({"error": "Database connection failed"}), 500
-    
+        print("INVALID REQUEST")
+        return jsonify({"message": "Invalid request"}), 400
+            
+
+# Under construction !!!
+# Check backend development notes (Lucas)
+# Included print statements for terminal reference
 @app.route('/signup', methods=['POST'])
 def signup():
-    data = request.json
-    firstname = data['firstname']
-    lastname = data['lastname']
-    dateOfBirth = data['dateOfBirth']
-    email = data['email']
-    password = data['password']
-    majorID = data['majorID']
-
-    passwordHash = bcrypt.generate_password_hash(password).decode('utf-8')
-
-    
-    connection = connectToDB()
-    if connection is not None:
-        cursor = connection.cursor()
+    if request.method == 'POST':
+        fname = request.json.get('firstname')
+        lname = request.json.get('lastname')
+        dob = request.json.get('dateOfBirth')
+        email = request.json.get('email')
+        pw = request.json.get('password')
+        majID = request.json.get('majorID')
+        
+        if not fname or not lname or not dob or not email or not pw or not majID:
+            print("MISSING REQUIRED FIELDS")
+            return jsonify({"message:" "Missing required fields"}), 400
+        
+        birthdate = datetime.strptime(dob, '%Y-%m-%d')
+        today = datetime.today()
+        age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
+        if age < 17:
+            print("MUST BE AT LEAST 17 YEARS OLD TO REGISTER")
+            return jsonify({"message": "Must be at least 17 years old to sign up"}), 400
+        
         try:
-            insertQuery = """INSERT INTO cs425.tblUser (Fname, Lname, DOB, Email, Passwd) VALUES (%s, %s, %s, %s, %s)"""
-            cursor.execute(insertQuery, (firstname, lastname, dateOfBirth, email, passwordHash))
+            connection = connectToDB()
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM tblUser WHERE Email = %s", (email,))
+            existing_user = cursor.fetchone()
+            
+            if existing_user:
+                print("EMAIL ALREADY IN USE")
+                return jsonify({"message": "Email already exists"}), 409
+            
+            hashed_pw = bcrypt.generate_password_hash(pw).decode('utf-8')
+            
+            cursor.execute("INSERT INTO tblUser (Fname, Lname, DOB, Email, Passwd) VALUES (%s, %s, %s, %s, %s)", (fname, lname, dob, email, hashed_pw))
             connection.commit()
-            session['user_email'] = email
-            return jsonify({"message": "Signup successful"}), 200
+            
+            cursor.execute("SELECT * FROM tblUser WHERE Email = %s", (email,))
+            new_user = cursor.fetchone()
+            
+            access_token = create_access_token(identity={"email": new_user['Email'], "userID": new_user['userID']})
+            
+            session['user_id'] = new_user['userID']
+            session['email'] = new_user['Email']
+            
+            print("SIGN UP SUCCESSFUL")
+            return jsonify({"access_token": access_token, "message": "Sign up successful"}), 200
         except Error as err:
-            print("Error while inserting data into database", err)
-            return jsonify({"error": str(err)}), 500
+            print(err)
+            return jsonify({"message": "An error occurred"}), 500
+        
         finally:
             cursor.close()
             connection.close()
-    else:
-        return jsonify({"error": "Database connection failed"}), 500
+            
+    print("INVALID REQUEST")
+    return jsonify({"message": "Invalid request"}), 400
 
 
 @app.route('/getUserInfo', methods=['GET'])

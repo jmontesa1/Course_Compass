@@ -1,5 +1,6 @@
-# course-compass
-# this is the folder for the front end, established with vue cli
+# Course Compass
+# This is the folder for the front end, established with Vue CLI
+
 ## Project setup
 ```
 npm install
