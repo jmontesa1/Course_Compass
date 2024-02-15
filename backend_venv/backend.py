@@ -1,22 +1,23 @@
 # Created by Lucas Videtto
-# Backend connection for Course Compass
+# Backend functionality for Course Compass
 
 from flask import Flask, jsonify, request, session
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token
 from flask_cors import CORS
 from mysql.connector import connect, Error
-from datetime import datetime, timedelta
+from datetime import datetime
 from flask_bcrypt import Bcrypt
 
 
 # Under construction !!!
 app = Flask(__name__)
-app.secret_key = '12345'
+app.secret_key = '123456789'
 CORS(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
 
+# Login functionality for backend
 # Under construction !!!
 # Check backend development notes (Lucas)
 # Included print statements for terminal reference
@@ -58,6 +59,7 @@ def login():
         return jsonify({"message": "Invalid request"}), 400
             
 
+# Signup functionality for backend
 # Under construction !!!
 # Check backend development notes (Lucas)
 # Included print statements for terminal reference
@@ -119,52 +121,7 @@ def signup():
     return jsonify({"message": "Invalid request"}), 400
 
 
-@app.route('/getUserInfo', methods=['GET'])
-@jwt_required()
-def getUserInfo():
-    user_email = get_jwt_identity()
-    if not user_email:
-        return jsonify({"error": "User not logged in"}), 401
-    
-    connection = connectToDB()
-    if connection:
-        cursor = connection.cursor(dictionary=True)
-        try:
-            cursor.execute("SELECT Fname, Lname, Email, majorName FROM cs425.tblUser WHERE Email = %s", (user_email,))
-            user_info = cursor.fetchone()
-            if user_info:
-                return jsonify(user_info), 200
-            else:
-                return jsonify({"error": "User not found"}), 404
-        except Error as err:
-            return jsonify({"error": "Error while fetching data: " + str(err)}), 500
-        finally:
-            cursor.close()
-            connection.close()
-    else:
-        return jsonify({"error": "DB connection failed"}), 500
-     
-
-
-#route for fetching majors
-@app.route('/majors', methods=['GET'])
-def get_majors():
-    connection = connectToDB()
-    if connection:
-        cursor = connection.cursor()
-        try:
-            cursor.execute("SELECT majorName FROM cs425.tblMajor")
-            majors = [row[0] for row in cursor.fetchall()]
-            return jsonify({"majors": majors}), 200  
-        except Error as err:
-            return jsonify({"error": "Error while fetching majors: " + str(err)}), 500
-        finally:
-            cursor.close()
-            connection.close()
-    else:
-        return jsonify({"error": "DB connection failed"}), 500
-
-
+# Connect to database
 def connectToDB():
     try:
         connection = connect(
@@ -177,5 +134,7 @@ def connectToDB():
     except Error as err:
         print("Error while connecting to database", err)
         return None
+    
 
+# Launch development server
 app.run(debug=True)
