@@ -2,7 +2,7 @@
 # Backend functionality for Course Compass
 
 from flask import Flask, jsonify, request, session
-from flask_jwt_extended import JWTManager, create_access_token
+from flask_jwt_extended import JWTManager,create_access_token
 from flask_cors import CORS
 from mysql.connector import connect, Error
 from datetime import datetime
@@ -119,6 +119,25 @@ def signup():
             
     print("INVALID REQUEST")
     return jsonify({"message": "Invalid request"}), 400
+
+
+# Retrieve majors
+@app.route('/majors', methods=['GET'])
+def get_majors():
+    connection = connectToDB()
+    if connection:
+        cursor = connection.cursor()
+        try:
+            cursor.execute("SELECT majorName FROM cs425.tblMajor")
+            majors = [row[0] for row in cursor.fetchall()]
+            return jsonify({"majors": majors}), 200  
+        except Error as err:
+            return jsonify({"error": "Error while fetching majors: " + str(err)}), 500
+        finally:
+            cursor.close()
+            connection.close()
+    else:
+        return jsonify({"error": "DB connection failed"}), 500
 
 
 # Connect to database
