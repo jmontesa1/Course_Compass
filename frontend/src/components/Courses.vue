@@ -59,29 +59,29 @@
                 sortByMajorRequirements: false,
                 
                 //Hardcoded course list for now, will work on getting data from database later
-                      courseList: [
-                            { department: 'CS', name: 'CS 425 - Software Engineering', professor: ['Sara Davis', 'Vinh Le'], rating: 4.5, level: '400+', startTime: '10-11 AM',
-                             keywords: ['Attendance', 'Lecture Heavy', 'Textbook Required', 'Projects'], location: 'WPEB 130', format: 'In-Person', requirement: 'N/A',
-                              term: 'Fall 2023', program: 'Undergraduate', days: ['Tuesday', 'Thursday'], meetingtime:'10:30 AM - 11:45 AM', units: '3.0',
-                              prerequisites: 'CS 446', status: 'Waitlist', section: '1001' },
-            
-                            { name: 'this is a projected course'},
-                            { name: 'this is a projected course' },
-                            { name: 'this is a projected course' },
-                            { name: 'this is a projected course' },
-                            { name: 'this is a projected course' },
-                            { name: 'this is a projected course' },
-                            { name: 'this is a projected course' },
-                            { name: 'this is a projected course' },
-                            { name: 'this is a projected course' },
-                            { name: 'this is a projected course' },
-                            { name: 'this is a projected course' },
-                            { name: 'this is a projected course' },
-                            { name: 'this is a projected course' },
-                            { name: 'this is a projected course' },
-                            { name: 'this is a projected course' },
-                            //Add more courses as needed
-                        ],
+                courseList: [
+                        { department: 'CS', name: 'CS 425 - Software Engineering', professor: ['Sara Davis', 'Vinh Le'], rating: 4.5, level: '400+', startTime: '10-11 AM',
+                        keywords: ['Attendance', 'Lecture Heavy', 'Textbook Required', 'Projects'], location: 'WPEB 130', format: 'In-Person', requirement: 'N/A',
+                        term: 'Fall 2023', program: 'Undergraduate', days: ['Tuesday', 'Thursday'], meetingtime:'10:30 AM - 11:45 AM', units: '3.0',
+                        prerequisites: 'CS 446', status: 'Waitlist', section: '1001' },
+        
+                        { name: 'this is a projected course'},
+                        { name: 'this is a projected course' },
+                        { name: 'this is a projected course' },
+                        { name: 'this is a projected course' },
+                        { name: 'this is a projected course' },
+                        { name: 'this is a projected course' },
+                        { name: 'this is a projected course' },
+                        { name: 'this is a projected course' },
+                        { name: 'this is a projected course' },
+                        { name: 'this is a projected course' },
+                        { name: 'this is a projected course' },
+                        { name: 'this is a projected course' },
+                        { name: 'this is a projected course' },
+                        { name: 'this is a projected course' },
+                        { name: 'this is a projected course' },
+                        //Add more courses as needed
+                    ],
             };
         }
     }
