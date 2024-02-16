@@ -64,14 +64,8 @@
         methods: {
             async fetchUserInfo() {
                 try {
-                    const token = localStorage.getItem('access_token');
-                    console.log('Token:', token)
-                    const response = await axios.get('http://127.0.0.1:5000/getUserInfo', {
-                        headers:{
-                            Authorization: `Bearer ${token}`
-                        }
-                    });
-                    console.log('Response:', response.data)
+                    const response = await axios.get('http://127.0.0.1:5000/getUserInfo', { withCredentials: true });
+                    console.log(response.data.message);
                     if (response.data) {
                         this.user.firstname = response.data.Fname;
                         this.user.lastname = response.data.Lname;

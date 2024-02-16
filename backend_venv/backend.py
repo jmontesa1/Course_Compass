@@ -12,7 +12,9 @@ from flask_bcrypt import Bcrypt
 # Under construction !!!
 app = Flask(__name__)
 app.secret_key = '123456789'
-CORS(app)
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SECURE'] = True
+CORS(app, supports_credentials=True)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
@@ -41,16 +43,15 @@ def login():
                 session['user_id'] = user['userID']
                 session['email'] = user['Email']
                 
-                access_token = create_access_token(identity={"email": user['Email'], "userID": user['userID']})
+                #access_token = create_access_token(identity={"email": user['Email'], "userID": user['userID']})
                 print("LOGIN SUCCESSFUL")
-                return jsonify({"access_token": access_token, "message": "Login successful"}), 200
+                return jsonify({"message": "Login successful"}), 200
             else:
                 print("INVALID EMAIL OR PASSWORD")
                 return jsonify({"message": "Invalid email or password"}), 401
         except Error as err:
             print(err)
             return jsonify({"message": "An error occurred"}), 500
-        
         finally:
             cursor.close()
             connection.close()
@@ -121,6 +122,32 @@ def signup():
     return jsonify({"message": "Invalid request"}), 400
 
 
+@app.route('/getUserInfo', methods=['GET'])
+def getUserInfo():
+    if 'user_id' in session and 'email' in session:
+        userid = session['user_id']
+        useremail = session['email']
+        connection = connectToDB()
+        if connection:
+            cursor = connection.cursor(dictionary=True)
+            try:
+                cursor.execute("SELECT Fname, Lname, Email, majorName FROM cs425.tblUser WHERE userID = %s AND Email = %s", (userid, useremail))
+                user_info = cursor.fetchone()
+                if user_info:
+                    return jsonify(user_info), 200
+                else:
+                    return jsonify({"error": "User not found"}), 404
+            except Error as err:
+                return jsonify({"error": "Error while fetching data: " + str(err)}), 500
+            finally:
+                cursor.close()
+                connection.close()
+        else:
+            return jsonify({"error": "DB connection failed"}), 500
+    else:
+        return jsonify({"error": "User not logged in"}), 401
+
+
 # Retrieve majors
 @app.route('/majors', methods=['GET'])
 def get_majors():
@@ -139,6 +166,13 @@ def get_majors():
     else:
         return jsonify({"error": "DB connection failed"}), 500
 
+
+#logout route
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.clear()  
+    print('Logut Successful')
+    return jsonify({"message": "Logout successful"}), 200
 
 # Connect to database
 def connectToDB():

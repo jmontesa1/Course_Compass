@@ -70,15 +70,17 @@
                     email: this.email,
                     password: this.password
                 };
-                axios.post('http://127.0.0.1:5000/login', loginData)
+                axios.post('http://127.0.0.1:5000/login', loginData, { withCredentials: true })
                 .then(response => {
                     console.log(response.data.message);
                     if (response.status === 200) {
-                    localStorage.setItem('access_token', response.data.access_token);
                         this.showToastMessage("Login successful. Welcome back!");
                         setTimeout(() => {
                             this.$router.push('/');
                         }, 2500);
+                    } else{
+                        console.error("Unexpected response during login: ", response);
+                        this.showToastMessage("An error occurred during login. Please try again.");
                     }
                 })
                 .catch(error => {
