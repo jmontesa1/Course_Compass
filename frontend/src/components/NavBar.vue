@@ -34,6 +34,7 @@
                             <li><router-link to="/login" class = "dropdown-item">Log in</router-link></li>
                             <li><router-link to="/signup" class = "dropdown-item">Sign Up</router-link></li>
                             <li><router-link to="/myaccount" class = "dropdown-item">My Account</router-link></li>
+                            <li><a href="#" class="dropdown-item" @click.prevent="handleLogout">Log Out</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -43,7 +44,29 @@
 </template>
 
 <script>
+    import axios from 'axios';
 
+    export default {
+        
+        methods: {
+            handleLogout() {
+                axios.post('http://127.0.0.1:5000/logout', {}, { withCredentials: true })
+                    .then(response => {
+                        console.log(response.data.message);
+                        if (response.status === 200) {
+                        setTimeout(() => {
+                            this.$router.push('/');
+                        }, 2500);
+                        } else {
+                            console.error("Unexpected response during logout: ", response);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Logout error: ", error);
+                    });
+        }
+    }
+}
 </script>
 
 <style scoped>
