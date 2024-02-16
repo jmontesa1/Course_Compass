@@ -66,7 +66,20 @@
                               prerequisites: 'CS 446', status: 'Waitlist', section: '1001' },
             
                             { name: 'this is a projected course'},
-                            { name: 'this is a projected course' }
+                            { name: 'this is a projected course' },
+                            { name: 'this is a projected course' },
+                            { name: 'this is a projected course' },
+                            { name: 'this is a projected course' },
+                            { name: 'this is a projected course' },
+                            { name: 'this is a projected course' },
+                            { name: 'this is a projected course' },
+                            { name: 'this is a projected course' },
+                            { name: 'this is a projected course' },
+                            { name: 'this is a projected course' },
+                            { name: 'this is a projected course' },
+                            { name: 'this is a projected course' },
+                            { name: 'this is a projected course' },
+                            { name: 'this is a projected course' },
                             //Add more courses as needed
                         ],
             };

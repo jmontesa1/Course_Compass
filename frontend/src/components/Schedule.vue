@@ -265,7 +265,7 @@
         position: absolute;
         max-width: 90px; /*time slot black bar*/
         top: 20%;
-        left: 20%; /*time slot black bar*/
+        left: 30%; /*time slot black bar*/
         right: 0;
         height: 1px;
         background-color: #333;
@@ -302,9 +302,9 @@
         transform: translate(-50%, -50%);
     }
 
-@media (max-width: 768px) {
-    .class-info {
-        font-size: 12px; /* Adjust the font size for smaller screens */
+    @media (max-width: 768px) {
+        .class-info {
+            font-size: 12px; /* Adjust the font size for smaller screens */
+        }
     }
-}
 </style>

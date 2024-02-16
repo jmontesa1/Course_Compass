@@ -113,18 +113,23 @@
         font-size: 25px;
         padding: 8px;
         box-sizing: border-box;
-        /*margin-bottom: 1px;
-        /*border-radius: 0px;
-        /*border: 1px solid #000000;*/
+        margin-bottom: 4px;
+        border-radius: 18px;
+        border: 1px solid #000000;
         color: #000000;
         cursor: pointer;
     }
+
+    .course-item:hover{
+        color: rgb(61, 61, 61);
+    }
+    
     .course-item:nth-child(even) {
-        background: #dddddd;
+        background: #ffffff;
     }
 
     .course-item:nth-child(odd) {
-        background: #aaaaaa; 
+        background: #e7e7e7; 
     }
 
     .full-screen-notification {
