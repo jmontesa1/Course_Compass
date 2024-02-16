@@ -3,6 +3,23 @@
 <!-- There are 5 buttons, and one is a drop down menu that directs the user to log in, sign up, or check their profile settings-->
 
 <template>
+    <v-banner v-if="isBannerVisible" color="grey-darken-1" icon="mdi-account-box" lines="two">
+        <template v-slot:prepend>
+            <span class="material-icons" style="color:white">notifications</span>
+        </template>
+
+        <v-banner-text class="notification-text">
+            <b> {{ upcomingNotification.date }} </b> {{ upcomingNotification.source }} - {{ upcomingNotification.message }}
+        </v-banner-text>
+
+        <v-banner-actions class="notification-actions">
+            <v-btn class ="notification-button" @click="dismissBanner">
+                <span class="material-icons" style="color:white">close</span>
+            </v-btn>
+        </v-banner-actions>
+    </v-banner>
+
+
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
                 <router-link to="/" class="navbar-brand">
@@ -46,9 +63,33 @@
 <script>
     import axios from 'axios';
 
-    export default {
-        
-        methods: {
+    export default{
+        data(){
+            return{
+                isBannerVisible: true,
+                notifications: [
+                    {date: '5/15/2024', source: 'UNR', message: 'Instruction Ends'},
+                    {date: '3/1/2024', source: 'UNR', message: 'Deadline to apply for May graduation'},
+                ],
+                currentDate : null,
+            };
+        },
+
+        computed:{
+            upcomingNotification(){
+                //this.currentDate = new Date('2024-03-03'); USE THIS AS A TEST CASE TO CHECK DIFFERENT DAYS, THIS SHOWS IT WORKS WHEN A DAY PASSES FOR A NOTIF
+                this.currentDate = new Date(); //get current day
+                const upcomingNotifications = this.notifications.filter(notification => new Date(notification.date) > this.currentDate).sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                return upcomingNotifications.length > 0 ? upcomingNotifications[0] : null;
+            },
+        },
+
+        methods:{
+            dismissBanner(){
+                this.isBannerVisible = false;
+            },
+            
             handleLogout() {
                 axios.post('http://127.0.0.1:5000/logout', {}, { withCredentials: true })
                     .then(response => {
@@ -64,9 +105,9 @@
                     .catch(error => {
                         console.error("Logout error: ", error);
                     });
-        }
-    }
-}
+            },
+        },
+    };
 </script>
 
 <style scoped>
@@ -115,4 +156,28 @@
         color: #ffffff;
         background-color: #000000;
     }
+
+    .v-banner{
+        margin-top: -5px; /* Adjust the maximum width as needed */
+        margin-bottom: -20px;
+        background-color: rgb(53, 53, 53);
+    }
+
+    .notification-actions{
+        margin-left: auto;
+    }
+
+    .notification-button:hover{
+        background-color:rgb(157, 157, 157);
+    }
+
+    .notification-text{
+        font-family: Poppins;
+        color: rgb(185, 185, 185);
+    }
+
+    .notification-button{
+        transform: translate(-15px, -22px);
+    }
+
 </style>
