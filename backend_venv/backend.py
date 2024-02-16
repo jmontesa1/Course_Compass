@@ -52,6 +52,7 @@ def login():
         except Error as err:
             print(err)
             return jsonify({"message": "An error occurred"}), 500
+        
         finally:
             cursor.close()
             connection.close()
@@ -97,7 +98,7 @@ def signup():
             
             hashed_pw = bcrypt.generate_password_hash(pw).decode('utf-8')
             
-            cursor.execute("INSERT INTO tblUser (Fname, Lname, DOB, Email, Passwd) VALUES (%s, %s, %s, %s, %s)", (fname, lname, dob, email, hashed_pw))
+            cursor.execute("INSERT INTO tblUser (Fname, Lname, DOB, Email, Passwd, majorName) VALUES (%s, %s, %s, %s, %s, %s)", (fname, lname, dob, email, hashed_pw, majID))
             connection.commit()
             
             cursor.execute("SELECT * FROM tblUser WHERE Email = %s", (email,))
@@ -121,7 +122,7 @@ def signup():
     print("INVALID REQUEST")
     return jsonify({"message": "Invalid request"}), 400
 
-
+#fetch user information
 @app.route('/getUserInfo', methods=['GET'])
 def getUserInfo():
     if 'user_id' in session and 'email' in session:
@@ -165,6 +166,37 @@ def get_majors():
             connection.close()
     else:
         return jsonify({"error": "DB connection failed"}), 500
+    
+
+#fetch course information, not finished
+@app.route('/getCourseInfo', methods=['GET'])
+def get_courses():
+    connection = connectToDB()
+    if connection:
+        cursor = connection.cursor()
+        try:
+            cursor.execute("SELECT * FROM cs425.tblCourses")
+            courses = cursor.fetchall()
+
+            courses_list = []
+            for course in courses:
+                course_dict = {
+                    "courseCode" : course[1],
+                    "courseName" : course[2],
+                    "description" : course[4],
+                    "Room" : course[14],
+                    "instructor" : course[15],
+                    "section" : course[13]
+                }
+                courses_list.append(course_dict)
+            return jsonify({"courses": courses_list}), 200  
+        except Error as err:
+            return jsonify({"error": "Error while fetching courses: " + str(err)}), 500
+        finally:
+            cursor.close()
+            connection.close()
+    else:
+        return jsonify({"error": "DB connection failed"}), 500
 
 
 #logout route
@@ -187,7 +219,6 @@ def connectToDB():
     except Error as err:
         print("Error while connecting to database", err)
         return None
-    
 
 # Launch development server
 app.run(debug=True)

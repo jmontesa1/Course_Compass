@@ -91,8 +91,6 @@
             selectedMajor: '',
             toastMessage: "",
             showToast: false,
-           
-
             majors: [] 
             };
         },
@@ -163,8 +161,13 @@
                     }
                     })
                     .catch(error => {
+                        if (error.response && error.response.status ===409){
+                            this.showToastMessage("Signup failed: " + error.response.data.message);
+                        }
+                        else{
                         console.error("A problem has ocurred: Unable to sign up:", error);
                         this.showToastMessage("Signup failed: " + error.message);
+                        }
                     });
             }
         },
