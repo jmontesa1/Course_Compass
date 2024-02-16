@@ -63,14 +63,15 @@
 
 <script>
     import html2pdf from 'html2pdf.js';
+    import axios from 'axios';
 
     export default {
         data() {
             return {
             user: {
-                firstname: 'John',
-                lastname: 'Montesa',
-                major: 'Computer Science & Engineering',
+                firstname: '',
+                lastname: '',
+                major: '',
                 term: 'Fall 2023',
             },
 
@@ -87,6 +88,10 @@
             };
         },
 
+        mounted() {
+            this.fetchUserInfo();
+        },
+
         methods: {
             async downloadPDF() {
                 await this.$nextTick();
@@ -101,6 +106,21 @@
                 };
 
                 html2pdf().from(content).set(pdfSettings).save();
+            },
+
+            async fetchUserInfo() {
+                try {
+                    const response = await axios.get('http://127.0.0.1:5000/getUserInfo', { withCredentials: true });
+                    console.log(response.data.message);
+                    if (response.data) {
+                        this.user.firstname = response.data.Fname;
+                        this.user.lastname = response.data.Lname;
+                        this.user.major = response.data.majorName;
+                    }
+                } catch (error) {
+                    console.error("Error fetching info: ", error);
+                    this.error = error.response ? error.response.data.error : "Unknown error";
+                }
             },
 
     
