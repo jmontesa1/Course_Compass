@@ -16,7 +16,6 @@
 .footer-container {
     border-top: 1px solid black;
     background-color: #ffffff; /* Grey background color */
-    margin-top: 10px;
     padding: 20px; /* Adjust padding as needed */
     text-align: center;
     font-family: Poppins;

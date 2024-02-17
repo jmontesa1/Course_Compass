@@ -14,13 +14,13 @@
     </div>
 
 
-    <!-- This is a schedule array test, I would need to find a way to store this globally and so that it persists-->
+    <!-- This is a schedule array test, I would need to find a way to store this globally and so that it persists
     <div class="schedule">
     <h2>Schedule</h2>
         <div v-for="(course, index) in schedule" :key="index" class="schedule-item">
             {{ course.name }}
         </div>
-    </div>
+    </div>-->
 
     <!-- Duplicate Courses in Schedule Check -->
     <div v-if="notification" class="full-screen-notification">
@@ -74,7 +74,7 @@
                     this.notification = null; // Clear any existing notifications
                 }
                 else {
-                    this.showToastMessage(course.name + "is already added to your schedule.");
+                    this.showToastMessage(course.name + " is already added to your schedule.");
                 }
             },
             showNotification(message, isError = false) {
@@ -113,8 +113,7 @@
         font-size: 25px;
         padding: 8px;
         box-sizing: border-box;
-        margin-bottom: 4px;
-        border-radius: 18px;
+        border-radius: 0px;
         border: 1px solid #000000;
         color: #000000;
         cursor: pointer;
