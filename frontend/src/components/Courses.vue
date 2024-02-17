@@ -4,13 +4,13 @@
 <!-- Courses will have a popup menu that gives details about it -->
 
 <template>
-    <br>
     <h1>Courses</h1>
-    <div class="container-fluid mt-3">
+
+    <div class="coursepage-container">
 
         <div class="row">
             <!--LEFT SIDE OF PAGE-->
-            <div class="col-md-4 d-flex flex-column">
+            <div class="col-md-2 d-flex flex-column">
                 <!--Department Search Row-->
                 <div class="input-group mb-3">
                     <span class="input-group-text" id="department-search">Department</span>
@@ -36,6 +36,15 @@
                 <CourseList :courses="courseList"></CourseList>
             </div>
 
+            <div class="col-md-2 flex-column">
+                    <div class="schedule">
+                    <h2>Enrolled:</h2>
+                        <div v-for="(course, index) in schedule" :key="index" class="schedule-item">
+                            {{ course.name }}
+                        </div>
+                    </div>
+            </div>
+
         </div>
     </div>
 </template>
@@ -43,6 +52,7 @@
 <script>
     import FilterMenu from '@/components/FilterMenu.vue'
     import CourseList from '@/components/CourseList.vue'
+
 
     export default{
         //Import components and Data
@@ -57,7 +67,8 @@
                 departmentSearch: '',
                 professorSearch: '',
                 sortByMajorRequirements: false,
-                
+                schedule: [],
+
                 //Hardcoded course list for now, will work on getting data from database later
                 courseList: [
                         { department: 'CS', name: 'CS 425 - Software Engineering', professor: ['Sara Davis', 'Vinh Le'], rating: 4.5, level: '400+', startTime: '10-11 AM',
@@ -83,16 +94,20 @@
                         //Add more courses as needed
                     ],
             };
-        }
+        },
     }
 </script>
 
 <style scoped>
-    .container{
-        margin: 30px;
-        padding: 0px;
-        overflow: hidden;
-        background-color:blue;
+
+    .coursepage-container{
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: 94%;
+        border-radius: 1px;
+        border-left: 1px solid black;
+        border-top: 1px solid black;
     }
     p{
         font-family: 'Poppins', sans-serif;
@@ -102,6 +117,10 @@
         font-family: 'coolvetica', coolvetica;
         text-align: left;
         margin-left: 13px;
+    }
+    h2{
+        font-family: 'coolvetica', coolvetica;
+        text-align: left;
     }
 
     .input-group-text{
