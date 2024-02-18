@@ -2,36 +2,33 @@
 <!-- This component creates the filter menu that the user will interact with -->
 
 <template>
-  <div class="selected-filters">
-    <p class="selected-title">Applied Filters: {{ selected }}</p>
-  </div>
-
   <v-card class="menu">
     <v-list v-model:opened="open">
-      <v-list-item  v-for="(menuItem, index) in menuItems" :key="index">
-          <v-list-group  :value="menuItem.label" >
-            <template v-slot:activator="{ props }">
-              <v-list-item class="label" v-bind="props" :title="menuItem.label"></v-list-item>
-            </template>
+      <v-list-item v-for="(menuItem, index) in menuItems" :key="index">
+        <v-list-group :value="menuItem.label">
+          <template v-slot:activator="{ props }">
+            <v-list-item class="label" v-bind="props" :title="menuItem.label"></v-list-item>
+          </template>
 
-            <v-list-item v-for="(childItem, childIndex) in menuItem.children" :key="childIndex" :value="childItem.label">
-              <v-checkbox v-model="selected" class="child-checkbox" :label="childItem.label" :value="childItem.label"></v-checkbox>
-            </v-list-item>
-          </v-list-group>
+          <v-list-item v-for="(childItem, childIndex) in menuItem.children" :key="childIndex">
+            <v-checkbox v-model="selected" class="child-checkbox" :label="childItem.label" :value="childItem.label" @change="handleCheckboxChange(childItem.label)"></v-checkbox>
+          </v-list-item>
+        </v-list-group>
       </v-list-item>
-
-      
     </v-list>
   </v-card>
-
 </template>
 
 <script setup>
-  import { ref } from 'vue'
+  import { ref, defineEmits } from 'vue';
 
-  const open = ref(['Filters'])
-  const selected = ref([])
+  const open = ref(['Filters']);
+  const selected = ref([]);
+  const emit = defineEmits();
 
+  const handleCheckboxChange = (value) => {
+    emit('itemSelected', value);
+  };
 </script>
 
 <script>
@@ -79,7 +76,7 @@
     .label{
       font-family: 'Poppins';
       border-bottom: 1px solid black;
-      font-size: 12px;
+      font-size: 13px;
     }
 
     .child-checkbox{
@@ -90,8 +87,5 @@
       height: 45px;
     }
     
-    .selected-title{
-      font-family: Poppins;
-      margin-left: 10px;
-    } 
+
 </style>

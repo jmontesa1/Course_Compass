@@ -247,6 +247,8 @@
         padding: 10px;
         margin: 10px 0;
         box-sizing: border-box;
+        border: 1px black solid;
+
     }
 
     label{
@@ -305,6 +307,13 @@
         padding: 10px;
         margin: 10px 0;
         box-sizing: border-box;
+        border: 1px black solid;
+        overflow-y: auto;
+        max-height: 100px;
+    }
+
+    option{
+        max-height: 20vh;
     }
 
 </style>

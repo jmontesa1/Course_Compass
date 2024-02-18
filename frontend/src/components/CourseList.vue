@@ -68,6 +68,7 @@
                 this.notification = null;
             },
             addToSchedule(course) {
+                this.$emit("addToSchedule", course);
                 if (!this.schedule.some((c) => c.name === course.name)) {
                     this.schedule.push(course);
                     this.selectedCourse = null; // Close the popup after adding to the schedule
