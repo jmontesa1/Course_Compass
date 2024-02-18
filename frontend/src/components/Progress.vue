@@ -47,7 +47,7 @@
             </div>
         </div>
     </div>
-
+    <br>
 </template>
 
 <script>
@@ -176,10 +176,9 @@
     }
 
     .footer { 
-        position: absolute;
+        position: relative;
         bottom: 0; 
         left: 0;
-        padding: 10px;
         width: 100%;
     }
 

@@ -139,6 +139,7 @@
         padding: 10px;
         margin: 10px 0;
         box-sizing: border-box;
+        border: 1px black solid;
     }
 
     .button-container {
