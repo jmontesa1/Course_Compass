@@ -7,6 +7,7 @@ import Progress from '../views/ProgressView.vue'
 import Login from '../views/LoginView.vue'
 import Signup from '../views/SignupView.vue'
 import MyAccount from '../views/MyAccountView.vue'
+import Dashboard from '../views/DashboardView.vue'
 
 const routes = [
   {
@@ -48,7 +49,12 @@ const routes = [
     path: '/myaccount',
     name: 'myaccount',
     component: MyAccount
-  }
+  },
+  {
+    path: '/dashboard',
+    name: 'dashboard',
+    component: Dashboard
+  },
 ]
 
 const router = createRouter({

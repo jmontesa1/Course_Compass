@@ -76,12 +76,12 @@
             },
 
             schedule: [
-                { course: 'CS 135', days: ['Monday','Wednesday','Friday'], time: '10:00 AM - 10:50 AM', start: '10:00', end: '10:50', location: 'SEM 104' },
-                { course: 'CS 425', days: ['Tuesday','Thursday'], time: '10:30 AM - 11:45 AM', start: '10:30', end: '11:45', location: 'WPEB 101' },
-                { course: 'CS 302', days: ['Monday', 'Wednesday'], time: '3:00 PM - 4:15 PM', start: '3:00', end: '4:15', location: 'PSAC 1002' },
-                { course: 'ENG 101', days: ['Monday', 'Wednesday', 'Friday'], time: '6:00 PM - 6:50 PM', start: '6:00', end: '6:50', location: 'MKIC 320' },
-                { course: 'EE 165', days: ['Monday', 'Wednesday', 'Friday'], time: '8:30 PM - 9:45 PM', start: '8:30', end: '9:45', location: 'SLC 102' },
-                { course: 'MUS 123', days: ['Tuesday', 'Thursday', 'Friday'], time: '1:00 PM - 1:50 PM', start: '1:00', end: '1:50', location: 'CFA 102' },
+                { course: 'CS 135', days: ['Monday','Wednesday','Friday'], time: '10:00 AM - 10:50 AM', start: '10:00 AM', end: '10:50 AM', location: 'SEM 104' },
+                { course: 'CS 425', days: ['Tuesday','Thursday'], time: '10:30 AM - 11:45 AM', start: '10:30 AM', end: '11:45 AM', location: 'WPEB 101' },
+                { course: 'CS 302', days: ['Monday', 'Wednesday'], time: '3:00 PM - 4:15 PM', start: '3:00 PM', end: '4:15 PM', location: 'PSAC 1002' },
+                { course: 'ENG 101', days: ['Monday', 'Wednesday', 'Friday'], time: '6:00 PM - 6:50 PM', start: '6:00 PM', end: '6:50 PM', location: 'MKIC 320' },
+                { course: 'EE 165', days: ['Monday', 'Wednesday', 'Friday'], time: '8:30 AM - 9:45 AM', start: '8:30 AM', end: '9:45 AM', location: 'SLC 102' },
+                { course: 'MUS 123', days: ['Tuesday', 'Thursday', 'Friday'], time: '1:00 PM - 1:50 PM', start: '1:00 PM', end: '1:50 PM', location: 'CFA 102' },
                 // Add more events as needed
             ],
 

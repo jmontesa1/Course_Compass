@@ -76,7 +76,7 @@
                     if (response.status === 200) {
                         this.showToastMessage("Login successful. Welcome back!");
                         setTimeout(() => {
-                            this.$router.push('/');
+                            this.$router.push('/dashboard');
                         }, 2500);
                     } else{
                         console.error("Unexpected response during login: ", response);

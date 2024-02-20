@@ -32,6 +32,9 @@
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <!-- right-aligned menu items -->
                     <li class="nav-item">
+                        <router-link to="/dashboard" class = "nav-link">Dashboard</router-link>
+                    </li>
+                    <li class="nav-item">
                         <router-link to="/courses" class = "nav-link">Courses</router-link>
                     </li>
                     <li class="nav-item">
@@ -78,9 +81,8 @@
         computed:{
             upcomingNotification(){
                 //this.currentDate = new Date('2024-03-03'); //USE THIS AS A TEST CASE TO CHECK DIFFERENT DAYS, THIS SHOWS IT WORKS WHEN A DAY PASSES FOR A NOTIF
-                //this.currentDate = new Date(); //get current day
+                this.currentDate = new Date(); //get current day
                 const upcomingNotifications = this.notifications.filter(notification => new Date(notification.date) > this.currentDate).sort((a, b) => new Date(a.date) - new Date(b.date));
-
                 return upcomingNotifications.length > 0 ? upcomingNotifications[0] : null;
             },
         },
