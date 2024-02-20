@@ -1,7 +1,7 @@
 <template>
   <!-- Display the navbar and the router view on every page -->
-  <NavBar></NavBar>
-  <router-view/>
+  <NavBar :isLoggedIn="isLoggedIn" @logout="handleLogout"/>
+  <router-view @login-status-changed="updateLoginStatus" />
   <Footer></Footer>
 </template>
 
@@ -14,7 +14,23 @@
     components: {
       NavBar,
       Footer,
-    }
+    },
+
+    data() {
+        return {
+            isLoggedIn: false,
+        };
+    },
+    methods: {
+        updateLoginStatus(status) {
+            this.isLoggedIn = status;
+        },
+        
+        handleLogout() {
+          this.isLoggedIn = false;
+        },
+    },
+
   }
 </script>
 

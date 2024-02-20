@@ -197,6 +197,7 @@
         margin-bottom: 14px;
     }
     .class-block{
+        position: relative;
     }
 
     .class-block-left{

@@ -19,54 +19,90 @@
         </v-banner-actions>
     </v-banner>
 
-
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-        <div class="container-fluid">
-                <router-link to="/" class="navbar-brand">
-                    <img src="../assets/course compass logo.png" alt="Course Compass Logo">
-                </router-link>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <!-- right-aligned menu items -->
-                    <li class="nav-item">
-                        <router-link to="/dashboard" class = "nav-link">Dashboard</router-link>
-                    </li>
-                    <li class="nav-item">
-                        <router-link to="/courses" class = "nav-link">Courses</router-link>
-                    </li>
-                    <li class="nav-item">
-                        <router-link to="/schedule" class = "nav-link">Schedule</router-link>
-                    </li>
-                    <li class="nav-item">
-                        <router-link to="/progress" class = "nav-link">Progress</router-link>
-                    </li>
-                    <li class="nav-item">
-                        <router-link to="/about" class = "nav-link">About</router-link>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Account
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><router-link to="/login" class = "dropdown-item">Log in</router-link></li>
-                            <li><router-link to="/signup" class = "dropdown-item">Sign Up</router-link></li>
-                            <li><router-link to="/myaccount" class = "dropdown-item">My Account</router-link></li>
-                            <li><a href="#" class="dropdown-item" @click.prevent="handleLogout">Log Out</a></li>
-                        </ul>
-                    </li>
-                </ul>
+    <div v-if="isLoggedIn">
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+                    <router-link to="/" class="navbar-brand">
+                        <img src="../assets/course compass logo.png" alt="Course Compass Logo">
+                    </router-link>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <!-- right-aligned menu items -->
+                        <li class="nav-item">
+                            <router-link to="/dashboard" class = "nav-link">Dashboard</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link to="/courses" class = "nav-link">Courses</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link to="/schedule" class = "nav-link">Schedule</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link to="/progress" class = "nav-link">Progress</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link to="/about" class = "nav-link">About</router-link>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Account
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><router-link to="/myaccount" class = "dropdown-item">My Account</router-link></li>
+                                <li><a href="#" class="dropdown-item" @click.prevent="handleLogout">Log Out</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </div>
+    
+
+    <!--NAV BAR WHEN LOGGED OUT-->
+    <div v-else>
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+                    <router-link to="/" class="navbar-brand">
+                        <img src="../assets/course compass logo.png" alt="Course Compass Logo">
+                    </router-link>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <router-link to="/about" class = "nav-link">About</router-link>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Account
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><router-link to="/login" class = "dropdown-item">Log in</router-link></li>
+                                <li><router-link to="/signup" class = "dropdown-item">Sign Up</router-link></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
 </template>
 
 <script>
     import axios from 'axios';
 
     export default{
+        props:{
+            isLoggedIn: {
+                type: Boolean,
+                required: true, // Make sure it's required
+            },
+        },
         data(){
             return{
                 isBannerVisible: true,
@@ -74,7 +110,6 @@
                     {date: '5/15/2024', source: 'UNR', message: 'Instruction Ends'},
                     {date: '3/1/2024', source: 'UNR', message: 'Deadline to apply for May graduation'},
                 ],
-                currentDate : null,
             };
         },
 
@@ -98,8 +133,9 @@
                         console.log(response.data.message);
                         if (response.status === 200) {
                         setTimeout(() => {
+                            this.$emit('logout');
                             this.$router.push('/');
-                        }, 2500);
+                        }, 1000);
                         } else {
                             console.error("Unexpected response during logout: ", response);
                         }
@@ -108,7 +144,24 @@
                         console.error("Logout error: ", error);
                     });
             },
+
+            /*checkLoginStatus() {
+                axios.get('http://127.0.0.1:5000/check_login', { withCredentials: true })
+                    .then(response => {
+                        if (response.status === 200) {
+                            this.isLoggedIn = response.data.logged_in;
+                            console.log('User is logged in');
+                        } else if (response.status === 401) {
+                            this.isLoggedIn = false;
+                            console.log('User is not logged in');
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Check login error: ", error);
+                    });
+                },*/
         },
+
     };
 </script>
 

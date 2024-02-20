@@ -206,6 +206,15 @@ def logout():
     print('Logut Successful')
     return jsonify({"message": "Logout successful"}), 200
 
+#Developed by John
+#tests to see if the user is logged in for front end usability
+@app.route('/check_login', methods=['GET'])
+def check_login():
+    if 'user_id' in session and 'email' in session:
+        return jsonify({'logged_in': True, 'user_id': session['user_id'], 'email': session['email']}), 200
+    else:
+        return jsonify({'logged_in': False}), 401
+    
 # Connect to database
 def connectToDB():
     try:

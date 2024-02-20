@@ -77,6 +77,7 @@
                         this.showToastMessage("Login successful. Welcome back!");
                         setTimeout(() => {
                             this.$router.push('/dashboard');
+                            this.$emit('login-status-changed', true);                        
                         }, 2500);
                     } else{
                         console.error("Unexpected response during login: ", response);
@@ -92,6 +93,7 @@
                     }
                     });
             },
+
             showToastMessage(message){
                 this.toastMessage = message;
                 this.showToast = true;
@@ -104,19 +106,12 @@
 </script>
 
 <style scoped>
-    :placeholder-shown{
-        font-family: Poppins, sans-serif;
-    }
-
     h2 {
         margin-left: 30px;
         text-align: left;
         font-family:coolvetica;
     }
 
-    p{
-        font-family: Poppins, sans-serif;
-    }
 
     .login-container {
         background-color: #e1e1e1;

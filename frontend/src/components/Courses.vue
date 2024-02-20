@@ -46,9 +46,9 @@
 
             <div class="form-check mb-3">
                 <label class="form-check-label" for="sortMajorRequirements">
-                    <span class="ml-1">Only Show Courses from Major</span>
+                    <span class="ml-1">Show Courses from Major</span>
                 </label>
-                <input class="form-check-input" type="checkbox" v-model="sortByMajorRequirements" @change="handleFilterSelected('Only Show Courses from Major')" id="sortMajorRequirements"/>
+                <input class="form-check-input" type="checkbox" v-model="sortByMajorRequirements" @change="handleFilterSelected('Show Courses from Major')" id="sortMajorRequirements"/>
             </div>
         </div>
 
@@ -60,9 +60,13 @@
         <div class="col-md-2 flex-column">
             <div class="enrolled">
                 <h2>Enrolled:</h2>
-                <div v-for="(course, index) in schedule" :key="index" class="schedule-item">
-                    {{ course.name }}
-                </div>
+                <v-chip class="form-control"
+                        v-for="course in schedule"
+                        :key="course.id"
+                        color="darkgrey"
+                    >
+                        {{ course.name }}
+                </v-chip>
             </div>
         </div>
 
@@ -155,7 +159,7 @@
 
     p{
         font-family: 'Poppins', sans-serif;
-        font-size: 20px;
+        font-size: 14px;
     }
     h1{
         font-family: 'coolvetica', coolvetica;
@@ -172,10 +176,12 @@
         font-family: 'Poppins', sans-serif;
         font-size: 14px;
     }
+
     .form-control{
         font-family: 'Poppins', sans-serif;
         font-size: 14px;
     }
+
     .form-check-label{
         font-family: 'Poppins', sans-serif;
         font-size: 14px;
@@ -195,6 +201,6 @@
     }
 
     .enrolled{
-        margin-left: -15px;
+        margin-left: 0px;
     }
 </style>
