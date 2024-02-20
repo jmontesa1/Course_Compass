@@ -133,11 +133,13 @@
 
             //retrieves todays and tomorrows classes
             retrieveSchedule(){
-                const currentDay =  new Date().toLocaleDateString('en-US', { weekday: 'long' });
+                const currentDayIndex = new Date().getDay();
+                const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const currentDay = daysOfWeek[currentDayIndex];
 
                 return this.schedule.filter(course => {
-                    const courseDay = course.days[new Date().getDay() - 1];
-                    return courseDay === currentDay;
+                    const courseDay = course.days.includes(currentDay);
+                    return courseDay;
                 }).sort((a, b) => {
                     const getTime = time => {
                         const [hours, minutes] = time.split(':').map(Number);
@@ -160,11 +162,13 @@
                 const tomorrow = new Date();
                 tomorrow.setDate(tomorrow.getDate() + 1); //Tomorrow
 
-                const nextDay = tomorrow.toLocaleDateString('en-US', { weekday: 'long' });
+                const nextDayIndex = tomorrow.getDay();
+                const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const nextDay = daysOfWeek[nextDayIndex];
 
                 return this.schedule.filter(course => {
-                    const courseDay = course.days[new Date().getDay() - 1];
-                    return courseDay === nextDay;
+                    const courseDay = course.days.includes(nextDay);
+                    return courseDay;
                 }).sort((a, b) => {
                     const getTime = time => {
                         const [hours, minutes] = time.split(':').map(Number);

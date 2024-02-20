@@ -21,13 +21,25 @@
             isLoggedIn: false,
         };
     },
+    mounted() {
+      // Check local storage for login status on component mount
+      const storedLoginStatus = localStorage.getItem('isLoggedIn');
+      if (storedLoginStatus) {
+        this.isLoggedIn = JSON.parse(storedLoginStatus);
+      }
+    },
+
     methods: {
         updateLoginStatus(status) {
-            this.isLoggedIn = status;
+          this.isLoggedIn = status;
+          // Update local storage with the new login status
+          localStorage.setItem('isLoggedIn', JSON.stringify(status));
         },
-        
+
         handleLogout() {
           this.isLoggedIn = false;
+          // Clear the login status from local storage on logout
+          localStorage.removeItem('isLoggedIn');
         },
     },
 
