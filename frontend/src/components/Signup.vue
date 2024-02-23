@@ -146,9 +146,9 @@
                     .then(response => {
                         console.log(response.data.message);
                         if(response.status === 200){
-                        this.$emit("show-toast", "Welcome to Course Compass!");
+                        this.$emit("show-toast", "Welcome to Course Compass!", "#51da6e");
                         setTimeout(() => {
-                            this.$router.push('/');
+                            this.$router.push('/login');
                         }, 2500);
                     }
                     })

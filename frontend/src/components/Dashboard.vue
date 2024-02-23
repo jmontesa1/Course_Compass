@@ -166,6 +166,7 @@
                 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                 const nextDay = daysOfWeek[nextDayIndex];
 
+
                 return this.schedule.filter(course => {
                     const courseDay = course.days.includes(nextDay);
                     return courseDay;

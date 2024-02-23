@@ -68,7 +68,7 @@
                 .then(response => {
                     console.log(response.data.message);
                     if (response.status === 200) {
-                        this.$emit("show-toast","Login successful. Welcome back!");
+                        this.$emit("show-toast","Login successful. Welcome back!", "#51da6e");
                         setTimeout(() => {
                             this.$router.push('/dashboard');
                             this.$emit('login-status-changed', true);                        

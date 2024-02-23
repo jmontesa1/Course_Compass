@@ -29,6 +29,7 @@
   const handleCheckboxChange = (value) => {
     emit('itemSelected', value);
   };
+  
 </script>
 
 <script>

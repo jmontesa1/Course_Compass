@@ -17,6 +17,10 @@
         props: {
             showToast: Boolean,
             toastMessage: String,
+            toastColor:{
+                type: String,
+                default: '#da4d4d' //"#51da6e" alternate code for green color
+            }
         },
 
         data() {
@@ -59,7 +63,7 @@
         top: 10%;
         left: 50%;
         transform: translateX(-50%);
-        background-color: #da4d4d;
+        background-color: var(--toast-color, #da4d4d);
         color: #ffffff;
         border-radius: 5px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);

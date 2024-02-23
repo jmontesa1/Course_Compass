@@ -8,7 +8,7 @@
         <!--Pop up Screen with details of course-->
         <div class="popup-content" @click.stop>
             <button class="close-btn" @click="closePopup">
-                <img src="../assets/X.png" alt="Close Button">
+                <span class="material-icons" style="color:black">close</span>
             </button>
             <h2>Course Details</h2>
             <div class="container">
@@ -82,8 +82,6 @@
         background: #ffffff;
         padding: 20px;
         border-radius: 8px;
-        max-width: 1000px;
-        width: 100%;
     }
 
     .left-column {
@@ -91,11 +89,7 @@
     }
 
     .close-btn {
-        border: transparent;
-        background: transparent;
-        cursor: pointer;
-        width: 60px;
-        height: 60px;
+        margin-left: auto;
     }
 
     img {
@@ -117,8 +111,7 @@
         padding: 0;
         overflow: hidden;
         display: flex;
-        align-items: right;
-        justify-content: right;
+        justify-content: center;
     }
 
     .schedule-button {

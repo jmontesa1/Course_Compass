@@ -29,9 +29,17 @@
 
     <div class="row">
         <div class="col-sm-2 d-flex flex-column"></div>
+
         <div class="col d-flex flex-column">
-            <div>
-                <p class="selected-filters">Applied Filters: {{ selectedFilters }}</p>
+            <div class="filter-row">
+                <div class="filter-chips-container">
+                    <p class="selected-filters">Applied Filters: {{ selectedFilters }}</p>
+                    <v-chip v-for="filter in selectedFilters" :key="filter.id" color="darkgrey" closable
+                        class="filter-chips"
+                        @click:close="handleFilterSelected(filter)">
+                        {{ filter }}
+                    </v-chip>
+                </div>
             </div>
         </div>
         <div class="col-sm-2 d-flex flex-column"></div>
@@ -137,18 +145,15 @@
                 }
             },
 
-            handleFilterSelected(item) {
-                // Check if the item is already in the selectedFilters array
-                const index = this.selectedFilters.indexOf(item);
+            handleFilterSelected(filter) {
+                const index = this.selectedFilters.indexOf(filter);
 
                 if (index !== -1) {
-                    // If the item is already selected, remove it
                     this.selectedFilters.splice(index, 1);
                 } else {
-                    // If the item is not selected, add it
-                    this.selectedFilters.push(item);
+                    this.selectedFilters.push(filter);
                 }
-            },   
+},
         },
     }
 </script>
@@ -218,4 +223,21 @@
         border-top: black 1px solid;
 
     }
+
+    .filter-row {
+        max-width: 100%; /* Ensure the container doesn't expand beyond the column */
+    }
+
+    .filter-chips-container {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        width: 100%;
+    }
+
+    .filter-chips {
+        margin-right: 5px;
+        margin-bottom: 5px;
+        white-space: nowrap;
+    }
+
 </style>

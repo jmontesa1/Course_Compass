@@ -8,7 +8,9 @@
     <!-- Display the courses in a list -->
     <div class="course-list">
         <div v-for="(course, index) in courses" :key="index" class="course-item" @click="handleCourseClick(course)">
-        {{ course.name }}
+        {{ course.name }} 
+        <span class="material-icons" style="color:black;">north_east</span>
+
         </div>
         <CourseDetailsPopup v-if="selectedCourse" :course="selectedCourse" @close="closePopup" @addToSchedule="addToSchedule" /> 
     </div>
@@ -105,6 +107,9 @@
         border: 1px solid #000000;
         color: #000000;
         cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
     .course-item:hover{
