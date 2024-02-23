@@ -22,17 +22,16 @@
         </div>
     </div>-->
 
-    <!-- Duplicate Courses in Schedule Check -->
+    <!-- Duplicate Courses in Schedule Check
     <div v-if="notification" class="full-screen-notification">
-        <!--<div class="notification-content">
+        <div class="notification-content">
             <span>{{ notification }}</span>
             <button class ="close-btn" @click="clearNotification">
                 <img src="../assets/X.png" alt="Close Button">
             </button>
-        </div> -->
+        </div> 
         <Toast :showToast="showToast" :toastMessage="toastMessage" />
-    </div>
-    <Toast :showToast="showToast" :toastMessage="toastMessage" />
+    </div>-->
 
     
 
@@ -42,8 +41,6 @@
 
 <script>
     import CourseDetailsPopup from '@/components/CourseDetailsPopup.vue';
-    import Toast from './Toast.vue';
-
 
     export default {
         //the courses are passed in as a prop array
@@ -55,8 +52,6 @@
                 selectedCourse: null,
                 schedule: [],
                 notification: null,
-                showToast: false,
-                toastMessage: "",
             };
         },
         methods: {
@@ -67,6 +62,7 @@
                 this.selectedCourse = null;
                 this.notification = null;
             },
+
             addToSchedule(course) {
                 this.$emit("addToSchedule", course);
                 if (!this.schedule.some((c) => c.name === course.name)) {
@@ -74,31 +70,22 @@
                     this.selectedCourse = null; // Close the popup after adding to the schedule
                     this.notification = null; // Clear any existing notifications
                 }
-                else {
-                    this.showToastMessage(course.name + " is already added to your schedule.");
-                }
             },
+            
             showNotification(message, isError = false) {
                 this.notification = {
                     message,
                     isError,
                 };
             },
+
             clearNotification() {
                 this.notification = null;
             },
 
-            showToastMessage(message){
-                this.toastMessage = message;
-                this.showToast = true;
-                setTimeout(() => {
-                    this.showToast = false;
-                },5000);
-            }
         },
         components: {
             CourseDetailsPopup,
-            Toast,
             },
         };
 </script>

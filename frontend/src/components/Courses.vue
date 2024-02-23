@@ -3,7 +3,7 @@
 <!-- This page prompts the user to select courses based on filters they choose -->
 <!-- Courses will have a popup menu that gives details about it -->
 
-<template>
+<template>   
     <div class="top-row">
         <div class="row">
             <div class="col-sm-2 d-flex flex-column">
@@ -59,13 +59,9 @@
 
         <div class="col-md-2 flex-column">
             <div class="enrolled">
-                <h2>Enrolled:</h2>
-                <v-chip class="form-control"
-                        v-for="course in schedule"
-                        :key="course.id"
-                        color="darkgrey"
-                    >
-                        {{ course.name }}
+                <p>Enrolled:</p>
+                <v-chip class="form-control" v-for="course in schedule" :key="course.id" color="darkgrey" closable @click:close="removeFromSchedule(course)">
+                        <div class="chip-text">{{ course.name }}</div>
                 </v-chip>
             </div>
         </div>
@@ -87,7 +83,7 @@
         components:
         {
             FilterMenu,
-            CourseList
+            CourseList,
         },
         data() {
             return {
@@ -129,7 +125,18 @@
                 if (!this.schedule.some((c) => c.name === course.name)) {
                     this.schedule.push(course);
                 }
+                else if (this.schedule.some((c) => c.name === course.name)) {
+                    this.$emit("show-toast", course.name + " is already added to your schedule.");
+                }
             },
+
+            removeFromSchedule(course){
+                const index = this.schedule.indexOf(course);
+                if(index !== -1){
+                    this.schedule.splice(index, 1);
+                }
+            },
+
             handleFilterSelected(item) {
                 // Check if the item is already in the selectedFilters array
                 const index = this.selectedFilters.indexOf(item);
@@ -141,8 +148,7 @@
                     // If the item is not selected, add it
                     this.selectedFilters.push(item);
                 }
-            },
-            
+            },   
         },
     }
 </script>
@@ -170,6 +176,12 @@
     h2{
         font-family: 'coolvetica', coolvetica;
         text-align: left;
+    }
+
+    .chip-text{
+        width: 165px;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .input-group-text{
@@ -201,6 +213,9 @@
     }
 
     .enrolled{
-        margin-left: 0px;
+        margin-left: -7px;
+        max-width: 210px;
+        border-top: black 1px solid;
+
     }
 </style>

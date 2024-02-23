@@ -63,20 +63,14 @@
         <div class="right-section">
             <img src="@/assets/background-img.png" alt="Background Image" />
         </div>
-
-        <Toast :showToast="showToast" :toastMessage="toastMessage" />
     </div>
 
 </template>
 
 <script>
     import axios from 'axios';
-    import Toast from './Toast.vue';
 
     export default {
-        components:{
-            Toast,
-        },
         data() {
             return {
             firstname: '',
@@ -89,8 +83,6 @@
             passwordVis: false,
             confirmPassVis: false,
             selectedMajor: '',
-            toastMessage: "",
-            showToast: false,
             majors: [] 
             };
         },
@@ -132,7 +124,7 @@
 
         validateForm() {
             if (this.email !== this.confirmEmail || this.password !== this.confirmPass) {
-                this.showToastMessage('Emails and Passwords must match.');
+                this.$emit("show-toast", "Emails and Passwords must match.");
                 return false;
             }
             return true;
@@ -154,7 +146,7 @@
                     .then(response => {
                         console.log(response.data.message);
                         if(response.status === 200){
-                        this.showToastMessage('Welcome to Course Compass!');
+                        this.$emit("show-toast", "Welcome to Course Compass!");
                         setTimeout(() => {
                             this.$router.push('/');
                         }, 2500);
@@ -162,22 +154,14 @@
                     })
                     .catch(error => {
                         if (error.response && error.response.status ===409){
-                            this.showToastMessage("Signup failed: " + error.response.data.message);
+                            this.$emit("show-toast","Signup failed: " + error.response.data.message);
                         }
                         else{
-                        console.error("A problem has ocurred: Unable to sign up:", error);
-                        this.showToastMessage("Signup failed: " + error.message);
+                            console.error("A problem has ocurred: Unable to sign up:", error);
+                            this.$emit("show-toast","Signup failed: " + error.message);
                         }
                     });
             }
-        },
-
-        showToastMessage(message){
-                this.toastMessage = message;
-                this.showToast = true;
-                setTimeout(() => {
-                    this.showToast = false;
-                },5000);
         },
 
 
@@ -194,7 +178,7 @@
         const minimumAge = 18;
 
         if (age < minimumAge) {
-            this.showToastMessage('You must be at least 18 years old to sign up.');
+            this.$emit("show-toast", "You must be at least 18 years old to sign up.");
             return false;
         }
         return true;

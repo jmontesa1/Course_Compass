@@ -1,24 +1,31 @@
 <template>
   <!-- Display the navbar and the router view on every page -->
   <NavBar :isLoggedIn="isLoggedIn" @logout="handleLogout"/>
-  <router-view @login-status-changed="updateLoginStatus" />
+  <router-view @login-status-changed="updateLoginStatus" @show-toast="showToastMessage" />
   <Footer></Footer>
+  <Toast :showToast="showToast" :toastMessage="toastMessage" />
+
+
 </template>
 
 <script>
   import NavBar from '@/components/NavBar.vue'
   import Footer from '@/components/Footer.vue'
+  import Toast from '@/components/Toast.vue'
 
   export default{
     name: 'App',
     components: {
       NavBar,
       Footer,
+      Toast,
     },
 
     data() {
         return {
             isLoggedIn: false,
+            showToast: false,
+            toastMessage: "",
         };
     },
     mounted() {
@@ -41,6 +48,14 @@
           // Clear the login status from local storage on logout
           localStorage.removeItem('isLoggedIn');
         },
+
+        showToastMessage(message){
+                this.toastMessage = message;
+                this.showToast = true;
+                setTimeout(() => {
+                    this.showToast = false;
+                },5000);
+            }
     },
 
   }

@@ -21,7 +21,6 @@
                 <br>
 
                 <div class="button-container">
-                    <Toast :showToast="showToast" :toastMessage="toastMessage" />
                     <button type="submit">Log In</button>
                 </div>
             </form>
@@ -38,19 +37,14 @@
 
 <script>
     import axios from 'axios';
-    import Toast from './Toast.vue';
 
     export default{
-        components:{
-            Toast,
-        },
         data(){
             return{
                 email: '',
                 password: '',
                 passwordVis: false,
-                showToast: false,
-                toastMessage: "",
+
             };
         },
         methods:{
@@ -74,33 +68,26 @@
                 .then(response => {
                     console.log(response.data.message);
                     if (response.status === 200) {
-                        this.showToastMessage("Login successful. Welcome back!");
+                        this.$emit("show-toast","Login successful. Welcome back!");
                         setTimeout(() => {
                             this.$router.push('/dashboard');
                             this.$emit('login-status-changed', true);                        
                         }, 2500);
                     } else{
                         console.error("Unexpected response during login: ", response);
-                        this.showToastMessage("An error occurred during login. Please try again.");
+                        this.$emit("show-toast","An error occurred during login. Please try again.");
                     }
                 })
                 .catch(error => {
                     if (error.response && error.response.status === 401) {
-                        this.showToastMessage("Invalid email or password.");
+                        this.$emit("show-toast","Invalid email or password.");
                     } else {
                         console.error("Login error: ", error);
-                        this.showToastMessage("An error occurred during login.");
+                        this.$emit("show-toast","An error occurred during login.");
                     }
                     });
             },
 
-            showToastMessage(message){
-                this.toastMessage = message;
-                this.showToast = true;
-                setTimeout(() => {
-                    this.showToast = false;
-                },5000);
-            }
         }
     };
 </script>
