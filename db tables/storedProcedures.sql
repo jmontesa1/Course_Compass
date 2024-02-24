@@ -1,3 +1,108 @@
+
+/*Get users courses with their email for their Major progress*/
+delimiter //
+create procedure GetCoursesForProgress(
+    in userEmail varchar(255)
+)
+begin
+    select c.courseID, c.courseName, c.courseCode, c.Credits, c.Level, m.majorName, m.creditsReq, m.deptName
+    from tblCourses c
+    join tblMajor m on c.majorID = m.majorID
+    where m.majorID = (
+        select majorID
+        from tblUser
+        where Email = userEmail
+    );
+end //
+delimiter ;
+
+
+/*use case*/
+call GetCoursesForProgress('jose@gmail.com');
+
+---------------------------------------------------------
+delimiter //
+create procedure `GetMajorCompletionStatus`(
+    in userEmail varchar(150)
+)
+begin
+    select 
+        c.courseID, 
+        c.courseName, 
+        c.courseCode,
+        c.Credits,
+        (ucc.courseID is not null) as isCompleted -- 1 (true) if completed, 0 (false) if not
+    from 
+        tblCourses c
+    join 
+        tblMajor m on c.majorID = m.majorID
+    left join 
+        tblUserCompletedCourses ucc on c.courseID = ucc.courseID and ucc.Email = userEmail
+    where 
+        m.majorID = (
+            select majorID 
+            from tblUser 
+            where Email = userEmail
+        );
+end//
+delimiter ;
+
+
+/*use case*/
+
+call GetMajorCompletionStatus('jose@gmail.com')
+
+----------------------------------------------------------------------
+
+/*Retrives a user's current courses witht their email as argument*/
+delimiter //
+create procedure `GetUserSchedule`(
+    in userEmail varchar(150)
+)
+begin
+    select 
+        u.Email, 
+        u.Fname, 
+        u.Lname, 
+        cs.courseCode, 
+        cs.Section, 
+        cs.Credits, 
+        cs.Term, 
+        cs.startDate, 
+        cs.endDate, 
+        cs.meetingDays, 
+        cs.meetingTimes, 
+        cs.Location, 
+        cs.Instructor, 
+        cs.meetingFormat
+    from 
+        cs425.tblUserSchedule us
+    join 
+        cs425.tblcourseSchedule cs on us.scheduleID = cs.scheduleID
+    join 
+        cs425.tblUser u on us.Email = u.Email
+    where 
+        u.Email = userEmail
+    and 
+        cs.startDate <= curdate() 
+    and 
+        cs.endDate >= curdate();
+end //
+delimiter ;
+
+
+/*use case*/
+call GetUserSchedule('jose@gmail.com')
+---------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
 /*Get users by major*/
 delimiter //
 create procedure GetUsersByMajor (

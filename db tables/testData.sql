@@ -1,99 +1,215 @@
-use cs425;
+
+insert into cs425.tblDepartment (deptName, deptDesc, officeLocation, officePhone, deptChair) values
+('Department of Chemical & Materials Engineering', 'The Chemical & Materials Engineering Department explores chemical processes and material properties vital to industries. Students study reactions, synthesis, and design, with faculty leading research in nanotechnology and sustainability. Graduates innovate in manufacturing, energy, and environmental fields, supported by top labs and internships. The department fosters excellence, shaping leaders in science and industry.', 'William N. Pennington Engineering Building', '878-548-9845', 'Dr. John Smith'),
+('Department of Civil & Environmental Engineering','The Civil & Environmental Engineering Department focuses on sustainable infrastructure and environmental solutions. Students learn about structural design, transportation, water resources, and environmental remediation. Faculty research includes sustainable construction and urban planning. Graduates are equipped to design resilient infrastructure and promote environmental stewardship.', 'William N. Pennington Engineering Building', '878-567-2457', 'Dr. Emily Johnson'),
+('Department of Computer Science & Engineering', 'The Computer Science & Engineering Department specializes in computing systems and technology. Students explore programming, algorithms, data structures, and software engineering principles. Faculty research spans artificial intelligence, cybersecurity, computer networks, and human-computer interaction. Graduates are prepared for careers in software development, data science, cybersecurity, and technology innovation.', 'William N. Pennington Engineering Building', '878-678-9012', 'Dr. Michael Brown'),
+('Department of Electrical & Biomedical Engineering', 'The Electrical & Biomedical Engineering Department specializes in electrical systems and biomedical technology. Students study circuits, signals, medical devices, and bioinformatics. Faculty research includes medical imaging, neural engineering, and bioinstrumentation. Graduates work in medical device companies, healthcare, research, and technology development.', 'William N. Pennington Engineering Building', '456-789-0123', 'Dr. Sarah Martinez'),
+('Department of Mechanical Engineering', 'The Mechanical Engineering Department focuses on designing and analyzing mechanical systems and processes. Students learn about thermodynamics, fluid mechanics, materials science, and mechanical design principles. Faculty research areas include robotics, renewable energy, automotive engineering, and advanced manufacturing. Graduates are equipped for careers in aerospace, automotive, energy, and manufacturing industries.', 'William N. Pennington Engineering Building', '878-890-4387', 'Dr. David Wilson'),
+('Department of Chemistry', 'The Chemistry Department explores the properties, reactions, and composition of matter. Students delve into organic, inorganic, physical, and analytical chemistry. Faculty research spans areas like chemical synthesis, spectroscopy, and materials science. Graduates pursue careers in pharmaceuticals, research, academia, and various industries.', 'Department of Chemistry Building', '878-901-2384', 'Dr. Amanda Lee'),
+('Department of English', 'The English Department focuses on the study of literature, language, and writing. Students analyze literary works, explore language structure, and develop writing skills. Faculty research areas include literary theory, linguistics, and creative writing. Graduates pursue careers in education, publishing, journalism, and communication.', 'English Building', '878-012-3456', 'Dr. Robert Thompson'),
+('Department of Mathematics','The Mathematics Department focuses on the study of numbers, shapes, and patterns. Students explore algebra, calculus, geometry, and mathematical logic. Faculty research includes pure mathematics, applied mathematics, and mathematical modeling. Graduates pursue careers in academia, finance, technology, and research.', 'Davidson Mathematics & Science Center', '878-123-4567', 'Dr. Jennifer Garcia'),
+('Department of Physics', 'The Physics Department investigates the fundamental principles governing the universe. Students explore mechanics, electromagnetism, thermodynamics, and quantum mechanics. Faculty research encompasses particle physics, astrophysics, and condensed matter physics. Graduates pursue careers in research, academia, engineering, and technology.', 'Department of Physics Building', '878-234-5678', 'Dr. Daniel Clark'),
+('Department of Sociology', 'The Sociology Department examines human behavior and social structures. Students study topics like culture, inequality, institutions, and social change. Faculty research includes areas such as gender studies, race relations, and urban sociology. Graduates pursue careers in social services, research, education, and advocacy.', 'Sociology Building', '878-345-6789', 'Dr. Lisa Rodriguez'),
+('Department of History', 'The History Department explores past events, societies, and cultures. Students study various historical periods, civilizations, and themes. Faculty research areas encompass political, social, economic, and cultural history. Graduates pursue careers in education, research, journalism, and public service.', 'Department of History Building', '878-456-7890', 'Dr. Melissa Johnson'),
+('Department of Art', 'The Art Department focuses on creative expression and visual communication. Students explore various mediums, techniques, and art history. Faculty research encompasses contemporary art, traditional crafts, and visual culture. Graduates pursue careers as artists, designers, educators, and curators.', 'University Foundation Arts Building', '878-567-8901', 'Dr. Christopher Brown'),
+('Department of Business Administration', 'The Business Administration Department focuses on management and organizational principles. Students study finance, marketing, operations, and strategic planning. Faculty research areas include entrepreneurship, leadership, and corporate governance. Graduates pursue careers in management, consulting, finance, and entrepreneurship.',  'Ansari Busines Building', '878-678-9012', 'Dr. Emily Davis'),
+('Department of Economics', 'The Economics Department studies the production, distribution, and consumption of goods and services. Students analyze markets, policies, and economic theories. Faculty research areas include microeconomics, macroeconomics, and econometrics. Graduates pursue careers in banking, consulting, government, and academia.', 'Ansari Busines Building', '878-789-0123', 'Dr. Michael Smith'),
+('Department of Psychology', 'The Psychology Department examines human behavior and mental processes. Students study topics such as cognition, emotion, and development. Faculty research areas include clinical psychology, neuroscience, and social psychology. Graduates pursue careers in counseling, research, therapy, and human resources.', 'Psychology Building', '878-890-1234', 'Dr. Sarah Wilson');
 
 
-/*insert majors*/
-Insert into cs425.tblMajor (majorID, majorName)
-values
-(100, 'Accounting'),
-(200, 'Agricultural Science'),
-(300, 'Anthropology'),
-(400, 'Art'),
-(500, 'Biochemistry'),
-(600, 'Biology'),
-(700, 'Business Administration'),
-(800, 'Chemistry'),
-(900, 'Civil Engineering'),
-(1000, 'Computer Science'),
-(1100, 'Criminal Justice'),
-(1200,'Economics'),
-(1300,'Electrical Engineering'),
-(1400, 'English'),
-(1500, 'Environmental Science'),
-(1600, 'Finance'),
-(1700, 'Geography'),
-(1800, 'History'),
-(1900, 'Journalism'),
-(2000, 'Management'),
-(2100, 'Marketing'),
-(2200, 'Mathematics'),
-(2300, 'Mechanical Engineering'),
-(2400, 'Music'),
-(2500, 'Nursing'),
-(2600, 'Nutrition'),
-(2700, 'Philosophy'),
-(2800, 'Physics'),
-(2900, 'Political Science'),
-(3000, 'Psychology'),
-(3100, 'Social Work'),
-(3200, 'Sociology'),
-(3300, 'Spanish'),
-(3400, 'Statistics'),
-(3500, 'Theatre'),
-(3600, 'Wildlife Ecology and Conservation');
+insert into cs425.tblMajor (deptID, deptName, program, majorName, majorDesc, creditsReq) values
+(1, 'Chemical & Materials Engineering', 'Undergraduate','Biomedical Engineering', 'Biomedical Engineering combines biology and engineering to develop healthcare solutions. Students focus on medical imaging, biomaterials, and biomechanics. Graduates work in medical devices, hospitals, and research.', 122),
+(1, 'Chemical & Materials Engineering', 'Undergraduate', 'Materials Science and Engineering', 'Materials Science explores material properties and applications. Students learn about synthesis, characterization, and processing. Graduates work in manufacturing, aerospace, electronics, and research.', 128),
+(1, 'Chemical & Materials Engineering', 'Graduate', 'Masters of Chemical Engineering', 'Chemical Engineering blends principles of chemistry and engineering to design and optimize processes for various industries, including pharmaceuticals and petrochemicals. Graduates in Chemical Engineering find opportunities in diverse sectors, contributing to the development of new materials, energy sources, and environmental solutions.', 60),
+(1, 'Chemical & Materials Engineering', 'Undergraduate', 'Electronic Materials Engineering', 'Electronic Materials Engineering explores the properties and applications of materials used in electronic devices, such as semiconductors and nanomaterials. Graduates in Electronic Materials Engineering play crucial roles in semiconductor manufacturing, electronics design, and innovative technology development.', 122),
+(2, 'Civil & Environmental Engineering','Undergraduate', 'Civil Engineering', 'Civil Engineering focuses on designing, constructing, and maintaining infrastructure and public works projects like buildings, bridges, and roads. Graduates in Civil Engineering contribute to sustainable urban development, transportation systems, and environmental protection.', 122),
+(2, 'Civil & Environmental Engineering',  'Undergraduate', 'Environmental Engineering','Environmental Engineering addresses environmental challenges by developing solutions for pollution control, water and air quality, and waste management. Graduates in Environmental Engineering work to safeguard natural resources, promote sustainability, and mitigate the impact of human activities on the environment.', 122),
+(2, 'Civil & Environmental Engineering', 'Undergraduate','Construction Engineering', 'Construction Engineering involves planning, managing, and overseeing construction projects, ensuring they meet design specifications and safety standards. Graduates in Construction Engineering coordinate resources, schedules, and budgets to deliver infrastructure projects efficiently and effectively.', 128),
+(2, 'Civil & Environmental Engineering', 'Undergraduate', 'Structural Engineering', 'Structural Engineering focuses on designing and analyzing the structural components of buildings, bridges, and other infrastructure to ensure they withstand loads and environmental conditions. Graduates in Structural Engineering contribute to the safety, durability, and resilience of civil engineering projects worldwide.', 128),
+(3, 'Computer Science & Engineering', 'Undergraduate', 'Computer Science', 'Computer Science delves into the theory, design, and development of computer systems and software algorithms. Graduates in Computer Science pursue careers in software development, artificial intelligence, cybersecurity, and other technology-driven fields.', 122),
+(3, 'Computer Science & Engineering', 'Undergraduate', 'Computer Engineering', 'Computer Engineering combines principles of electrical engineering and computer science to design and develop hardware and software systems. Graduates in Computer Engineering work in areas such as computer architecture, embedded systems, and hardware-software integration.', 122),
+(3, 'Computer Science & Engineering', 'Undergraduate', 'Data Science', 'Data Science involves extracting insights and knowledge from large datasets using various techniques from statistics, machine learning, and computer science. Graduates in Data Science apply their skills in analyzing and interpreting data to inform decision-making and solve complex problems across diverse industries.', 128),
+(3, 'Computer Science & Engineering', 'Graduate', 'Masters of Artificial Intelligence', 'A Masters in Artificial Intelligence (AI) delves into advanced concepts and applications of machine learning, deep learning, natural language processing, and robotics. Graduates of this program are equipped to develop intelligent systems, analyze large datasets, and innovate in areas such as autonomous vehicles, healthcare, finance, and more.', 60),
+(4, 'Electrical & Biomedical Engineering', 'Undergraduate', 'Electrical Engineering',  'Electrical Engineering involves the study and application of electrical systems, circuits, and devices, ranging from power generation to electronics and telecommunications. Graduates in Electrical Engineering design, develop, and optimize electrical technologies for diverse industries, contributing to innovations in energy, communications, and automation.', 122),
+(4, 'Electrical & Biomedical Engineering', 'Undergraduate', 'Neural Engineering', 'Neural Engineering explores the interface between the nervous system and technology, aiming to understand and manipulate neural circuits for medical and scientific purposes. Professionals in Neural Engineering develop neural prosthetics, brain-computer interfaces, and neural imaging technologies to address neurological disorders and advance our understanding of the brain.', 122),
+(4, 'Electrical & Biomedical Engineering', 'Graduate', 'Masters of Biomedical Engineering', 'A Masters in Biomedical Engineering focuses on the application of engineering principles to healthcare, covering areas like medical devices, tissue engineering, and biomedical imaging. Graduates of this program contribute to the development of innovative solutions to medical challenges, working in research, industry, and healthcare settings.', 60),
+(4, 'Electrical & Biomedical Engineering', 'Undergraduate', 'Biomechanics', 'Biomechanics major descriptionBiomechanics investigates the mechanics of living organisms, studying how biological structures and systems interact with external forces. Professionals in biomechanics apply their knowledge to areas such as sports science, rehabilitation, orthopedics, and ergonomics, contributing to improved performance, injury prevention, and human health and safety.', 128),
+(5, 'Mechanical Engineering', 'Undergraduate', 'Automotive Engineering', 'Automotive Engineering focuses on the design, development, and manufacturing of vehicles and automotive systems. Professionals in this field work on improving vehicle performance, safety, and efficiency, contributing to advancements in transportation technology and sustainability', 122),
+(5, 'Mechanical Engineering', 'Graduate', 'Master of Energy Systems Engineering', 'A Masters in Energy Systems Engineering delves into the study of energy generation, distribution, and utilization across various sectors. Graduates of this program play key roles in addressing global energy challenges, optimizing energy systems, and promoting renewable energy sources and sustainability initiatives.', 30),
+(5, 'Mechanical Engineering', 'Undergraduate', 'Materials Science and Engineering', 'Materials Science and Engineering involves the study and manipulation of materials to design and develop new products and technologies. Professionals in this field work on improving material properties, performance, and sustainability, contributing to advancements in electronics, healthcare, energy, and beyond.', 128),
+(5, 'Mechanical Engineering', 'Undergraduate', 'Manufacturing Engineering', 'Manufacturing Engineering focuses on optimizing production processes and systems to efficiently manufacture goods. Professionals in this field work on improving productivity, quality, and cost-effectiveness in manufacturing operations, utilizing advanced technologies such as automation, robotics, and computer-aided design and manufacturing (CAD/CAM).', 122),
+(8, 'Department of Mathematics', 'Undergraduate', 'Mathematics', 'Pure Mathematics focuses on abstract structures and theoretical concepts within mathematics, exploring topics such as Calculus, analysis, number theory, and statistics. Professionals in this field often work in academia, research institutions, or industries requiring advanced mathematical modeling and problem-solving skills.', 122);
 
 
-/*set roles*/
 
-/*Insert majors*/
-insert into cs425.tblMajor(majorID, majorName)
-values
-(100, 'Computer Science & Engineering'),
-(200, 'Civil Engineering'),
-(300, 'Physics'),
-(400, 'Accounting'),
-(500, 'Chemistry'), 
-(600, 'Finance'),
-(700, 'Biology'),
-(800, 'Psychology'),
-(900, 'Business');
 
-/*Insert users*/
-insert into cs425.tblUser(Fname, Lname, DOB, Email, Passwd)
-values
-('Cindy', 'Portillo', '1989-12-23', 'potilloc89@gmail.com', 'djgh$kjj785'),
-('Dave', 'Smith', '1901-12-23', 'DSmith@gmail.com', 'SD23dg$'),
-('Jose', 'Urrutia', '1950-10-15', 'jurrutia@gmail.com', 'passEx123'),
-('Jessica', 'Aquil', '1980-11-11', 'aquil@gmail.com', 'urrutia45'),
-('John Nathan', 'Montesa', NULL, 'mediapop0@gmail.com', 'Password1234!'),
-('testing', 'lesting', NULL, 'test2@gmail.com', 'Lucky123#'),
-('Hossein', 'Demo', NULL, 'Bill.gate@microsoft.com', 'Password1234!'),
-('Lucas', 'Test', NULL, 'test@gmail.com', 'Testing1234!'),
-('lucas', 'video', NULL, 'lucaj@gmail.com', 'Testing123!'),
-('Lucas', 'Videtto', NULL, 'lucasjohnvidetto@gmail.com', 'Ozark21!'),
-('Jose', 'Urrutia', NULL, 'jose@gmail.com', '$2b$12$JTep2nnJpp5Rm9MTSVS14umnSqxOdNmJP.ML6V3wkAySIiDJhWfRe'),
-('Jose', 'Urrutia', NULL, 'jose12@gmail.com', 'solikj65');
+insert into cs425.tblCourses (deptID, courseCode, courseName, description, Credits, Level, majorID, Requirements) values 
+(3, 'CS 135', 'Computer Science I', 'Introduction to modern problem solving and programming methods. Emphasis is placed on algorithm development. Introduction to procedural and data abstraction, emphasizing design, testing, and documentation.', 3, '100+', 9, 'Prerequisite(s): MATH 127 or MATH 128 or MATH 181 or MATH 182 or ACT Math score of 28 or SAT score of 650 or Accuplacer QAS 276 and AFF 285 or ALEKS PPL 76 or Business major and MATH 176.'),
+(3, 'CS 202', 'Computer Science II', 'A writing course focusing on composition and rhetoric.Emphasis on problem solving and program development techniques. Typical numerical and non-numerical problems are examined. Design, implementation, and abstraction principles of elementary data structures.', 3, '200+', 9, 'Prerequisite(s): CS 135 with a "C" or better.  Corequisite(s): ENGR 100 for CSE majors. Recommended Preparation: Basic program design, understanding, ability to use functions, declaration, single, multidimensional arrays, basic stream I/O'),
+(3, 'CS 219', 'Computer Organization', 'Introduction to organization and integration of computer components. Topics include: computer abstractions and performance, arithmetic operations, instruction set architecture, assembly programming, datapath, pipelining, memory hierarchy, I/O, and parallel architectures.', 3, '200+', 9, 'Prerequisite(s): CPE 201 with a "C" or better; CS 202 with a "C" or better.'),
+(3, 'CS 252', 'Digital Forensics Fundamentals', 'Introduction to the basic computer and networking, forensic process, digital evidence collection, preserving the evidentiary chain, cybercrime statutes, and the legal aspects of search and seizure.', 3, '200+', 9, null),
+(3, 'CS 302', 'Data Structures', 'Data structures and algorithms fundamental to computer science; abstract data-type concepts; measures of program running time and time complexity; algorithm analysis and design techniques.', 3, '300+', 9, 'Prerequisite(s): CS 202 with a "C" or better.'),
+(3, 'CS 326', 'Programming Languages, Concepts and Implementation', 'An overview of programming languages; features, structures, and implementation; examples taken from various programming paradigms. Introduction to formal specifications of languages. ', 3, '300+', 9, 'Prerequisite(s): CS 302 with a "C" or better.'),
+(3, 'CS 333', 'Testing and DevOps', 'Introduction to software testing methods and infrastructure as code.', 3, '300+', 9, 'Prerequisite(s): CS 302 with a "C" or better.'),
+(3, 'CS 365', 'Mathematics of Computer Science', 'Computing related mathematical constructs and concepts. Topics covered include: propositional/predicate logic, proofs, sets functions algorithms, matrices, sequences, induction, recursion, combinatorics, probability, relations, graphs.', 3, '300+', 9, 'Prerequisite(s): CS 202 with a "C" or better; MATH 182 with a "C" or better.'),
+(3, 'CS 381', 'Game Engine Architecture', 'Introduction to the technical elements of modern videogame and the pipeline for assembling them, plus issues of interface design, quality assurance, and business practice.', 3, '300+', 9, 'Prerequisite(s): CS 202'),
+(3, 'CS 426', 'Senior Projects in Computer Science', 'Supervised group or team projects with emphasis on implementation of engineered design.', 3, '400+', 9, 'Prerequisite(s):  CSE major; Junior or Senior standing; CS 425 with a "C" or better.'),
+(3, 'CS 453', 'Mobile Computing Security and Privacy', 'Emerging topics on security and privacy in mobile computing, including misbehavior detection in wireless networks, wireless routing privacy, malicious access point detection, cognitive authentication, privacy protection.', 3, '400+', 9, 'Prerequisite(s): CPE 400 or CPE 401.'),
+(3, 'CS 446', 'Principles of Operating Systems', 'Concurrent processes, interprocess communication, processor management, virtual and real memory management, deadlock, file systems, disk management, performance issues, case studies. Practical experience with UNIX.', 3, '400+', 9, 'Prerequisite(s): CS 105 or ENGR 100; CS 219 with a "C" or better; CS 302 with a "C" or better. Corequisite(s): ENGR 301 (for CSE majors only).'),
+(3, 'CS 431', 'Introduction to Big Data', 'This course offers an introduction to big data techniques and applications. It covers basic topics like Big Data Overview, Big Data Management, Big Data Modeling, Big Data Analytics, Big Data Tools, and Big Data Applications.', 3, '400+', 9, 'Prerequisite(s): CS 302 with a "C" or better; STAT 352 or STAT 461 with a "C" or better'),
+(3, 'CS 456', 'Automata and Formal Languages', 'Fundamental concepts of computation. Relationship between grammars, languages and machines, emphasizing regular and context free languages, finite state acceptors and Turing machines. Complexity and computability.', 3, '400+', 9, 'Prerequisite(s): CS 302 with a "C" or better; CS 365 with a "C" or better; MATH 283.'),
+(3, 'CS 457', 'Database Management Systems', 'An overview of existing systems; physical data organization; relational, network and hierarchical models; data manipulation languages, data definition languages; database protection; database application using INGRES.', 3, '400+', 9, 'Prerequisite(s): CS 302 with a "C" or better; CS 365 or EE 291.'),
+(3, 'CS 477', 'Analysis of Algorithms', 'Analysis and design of algorithms on sequences, sets, graphs and trees. Geometric, algebraic and numeric algorithms, FFTs, reductions. Parallel algorithms.', 3, '400+', 9, 'Prerequisite(s): CS 302.'),
+(3, 'CS 479', 'Pattern Recognition', 'Pattern recognition systems, statistical methods, discrimination functions, clustering analysis, unsupervised learning, feature extraction and feature processing.', 3, '400+', 9, 'Prerequisite(s): CS 202 with a "C" or better; STAT 352 or STAT 461.'),
+(3, 'CS 484', 'Virtual Reality', 'Students will learn about sensor, display, and computing technology as well as human perceptual and motor processes that underlie virtual reality technology. (CS 484 and PSY 484 are cross-listed; credits may be earned in one of the two.)', 3, '400+', 9, 'Prerequisite(s): Junior or senior standing.'),
+(3, 'CS 485', 'Computer Vision', 'Principles, design and implementation of vision systems. Camera models and image formation, feature detection, segmentation. Camera calibration, 3-D reconstruction, stereo vision. Introduction to advanced topics.', 3, '400+', 9, 'Prerequisite(s): CS 302 with a "C" or better.'),
+(3, 'CS 487', 'Fundamentals of Deep Learning', 'Principles, design and implementation of vision systems. Camera models and image formation, feature detection, segmentation. Camera calibration, 3-D reconstruction, stereo vision. Introduction to advanced topics.', 3, '400+', 9, 'Prerequisite(s): CS 302 with "C" or better; MATH 330. Recommended Preparation: Machine Learning, solid mathematical background and good programming skills.'),
+(3, 'CS 631', 'Introduction to Big Data', 'This course offers an introduction to big data techniques and applications. It covers basic topics like Big Data Overview, Big Data Management, Big Data Modeling, Big Data Analytics, Big Data Tools, and Big Data Applications.', 4, '600+', 15, null),
+(3, 'CS 645', 'Internet Security', 'An introduction to the topics related to fundamentals of computer networks security, network protocols, vulnerabilities, security policy, risk assessment, management, and mechanisms for secure network infrastructures.', 3, '600+', 15, null),
+(3, 'CS 653', 'Mobile Computing Security and Privacy', 'Emerging topics on security and privacy in mobile computing, including misbehavior detection in wireless networks, wireless routing privacy, malicious access point detection, cognitive authentication, privacy protection.', 3, '600+', 15, null),
+(3, 'CS 655', 'Mobile Sensor Networks', 'Emerging topics on mobile sensor networks (MSNs) research. Study and apply research methods commonly used in MSNs. Understand basic sensor/robot localization, navigation, fusion and control techniques.', 3, '600+', 15, null),
+(3, 'CS 687', 'Fundamentals of Deep Learning', 'Principles, design and implementation of deep learning systems. Topics include statistical machine learning, multi-layer perceptron (MLP) and neural networks, deep neural networks, optimization and learning, convolutional neural networks (CNN), CNN architectures, CNN applications in classification, detection, segmentation, and advanced topics in recurrent networks and generative adversarial networks (GAN).', 3, '600+', 15, null),
+(4, 'EE 120', 'Fundamentals of Electrical Engineering', 'Transistors, op-amps used to build amplifiers and comparators, AM radio receivers, AC power generation and conversion, signals, power supply design, filters, intuitive NI-Multisim design projects.', 3, '100+', 13, 'Prerequisite(s): ENGR 100.'),
+(4, 'EE 220', 'Circuits I', 'Introduction to analysis methods and network theorems used to describe operation of electric circuits. Includes resistive, capacitive and inductive components in DC and AC circuits.', 3, '200+', 13, 'Prerequisite(s): PHYS 181 with a "C" or better. Corequisite(s): EE 120 (EE majors only); EE220L (BME and EE majors only).'),
+(4, 'EE 221', 'Circuits II', 'Time domain and Laplace transform methods for analysis of electric circuits. Applications to passive and active filters. Modeling, analysis and simulation of circuits and systems.', 3, '200+', 13, 'Prerequisite(s): EE 220 with a "C" or better; MATH 285 with a "C" or better.'),
+(4, 'EE 291', 'Numerical & Computational Methods for Electrical Engineering', 'Introduction to the numerical and computational methods needed to solve EE-related problems. Topics include: Numerical methods for systems of linear and non-linear equations; eigenvalues and eigenvectors; linear and nonlinear regression; integration and approximation methods; solving differential equations. These topics will be complemented through MATLAB and Python Programming.', 3, '200+', 13, 'Prerequisite(s): CS 135 with a "C" or better; MATH 182 with a "C" or better. Corequisite(s): MATH 330.'),
+(4, 'EE 340', 'Power System Fundamentals', 'Basic power system analytical concepts, three-phase systems, phasors, impedance, steady-state network analysis, normalization, transmission lines, transformers, synchronous machines.', 3, '300+', 13, 'Prerequisite(s): EE 220 with a "C" or better; EE 291; and EE 221.Prerequisite(s): PHYS 181 with a "C" or better. Corequisite(s): EE 120 (EE majors only); EE220L (BME and EE majors only).'),
+(4, 'EE 362', 'Signals and Systems', 'Frequency and time domain analysis of continuous and discrete signals and systems: orthogonal functions and Fourier series; continuous and discrete Fourier transforms; the z-transform; and introduction to modulation and modulating systems.', 3, '300+', 13, 'Prerequisite(s): EE 220.'),
+(4, 'EE 370', 'Control Systems', 'Analysis and modeling of engineering systems including input-output and state-variable descriptions. Root locus and frequency domain methods. Introduction to classical control design.', 3, '200+', 13, 'Prerequisite(s): EE 221. Corequisite(s): EE 370L.');
 
-/*Set roles*/
 
-insert into cs425.tblRoles(userID, roleCode)
+
+
+insert into cs425.tblcourseSchedule
+(courseCode, startDate, endDate, Term, Credits, meetingDays, startTime, endTime, meetingTimes, Section, Location, Instructor, meetingFormat, status, classCapacity, enrollmentTotal, availableSeats, waitList, Rating, classAttributes, materials) 
 values 
-(1, 'STU'),
-(2, 'INST'),
-(3, 'STU'),
-(4, 'ADM'),
-(5, 'STU'),
-(6, 'STU'),
-(7, 'STU'),
-(8, 'ADM');
+('CS 135', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Tuesday, Thursday', '11:00:00', '12:15:00', '11:00 AM - 12:15 PM', 1002, 'SEM 101', 'Erin Keith', 'In-person', 'Open', 218, 200, 18, 0, 4.0, 'Lab fee for this course is $30', 'TBD'),
+('CS 202', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Monday, Wednesday', '09:00:00', '10:30:00', '9:00 AM - 10:30 AM', 1102, 'WPEB 100', 'Bashira Akter Anima', 'In-person', 'Closed', 30, 30, 0, 0, 4.0, 'Lab fee for this course is $35', 'TBD'),
+('CS 219', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Monday, Wednesday', '16:00:00', '17:15:00', '4:00 PM - 5:15 PM', 1001, 'SLH 2', 'Bashira Akter Anima', 'In-person', 'Open', 100, 60, 40, 0, 4.2, 'Lab fee for this course is $25', 'TBD'),
+('CS 252', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Tuesday, Thursday', '10:30:00', '11:45:00', '10:30 AM - 11:45 AM', 1002, 'LME 321', 'Nancy Latourrette', 'In-person', 'Closed', 32, 32, 0, 0, 4.5, null, 'TBD'),
+('CS 302', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Monday, Wednesday', '13:00:00', '14:15:00', '1:00 PM - 2:15 PM', 1101, 'MS 215', 'Erin Keith', 'In-person', 'Open', 114, 102, 12, 0, 4.1, '$85.00/credit differential undergraduate fee', 'TBD'),
+('CS 326', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Monday, Wednesday', '09:00:00', '10:15:00', '9:00 AM - 10:15 AM', 1001, 'DMSC 105', 'Mircea Nicolescu', 'In-person', 'Open', 83, 62, 21, 0, 4.0, '$85.00/credit differential undergraduate fee', 'TBD'),
+('CS 333', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Monday, Wednesday', '16:30:00', '19:15:00', '4:30 PM - 7:15 PM', 1001, 'WPEB 100', 'Erin Keith', 'In-person', 'Open', 58, 55, 3, 0, 4.3, '$85.00/credit differential undergraduate fee', 'TBD'),
+('CS 365', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Monday, Wednesday, Friday', '10:00:00', '13:00:00', '10:00 AM - 1:15 PM', 1001, 'WPEB 2008', 'Diana Moss', 'In-person', 'Open', 50, 30, 20, 0, 4.3, 'This is a Direct Access course. Fees will vary.$85.00/credit differential undergraduate fee', 'TBD'),
+('CS 381', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Monday, Wednesday', '14:30:00', '15:45:00', '2:30 PM - 3:45 PM', 1001, 'WPEB 100', 'Joshua Dahl', 'In-person', 'Open', 57, 55, 2, 0, 4.2, '$85.00/credit differential undergraduate fee', 'TBD'),
+('CS 426', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Tuesday, Thursday', '10:30:00', '11:45:00', '10:30 AM - 11:45 AM', 1001, 'SEM 101', 'Dave Feil-Seifer, Devrin Lee, Sara Davis', 'Hybrid', 'Closes', 100, 100, 0, 0, 4.4, 'May satisfy Application (CO14) requirement. $85.00/credit differential undergraduate fee', 'TBD'),
+('CS 453', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Tuesday, Thursday', '15:00:00', '16:15:00', '3:00 PM - 4:15 PM', 1001, 'WPEB 100', 'William Doherty', 'In-person', 'Open', 43, 30, 13, 0, 4.2, null, 'TBD'),
+('CS 446', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Tuesday, Thursday', '15:00:00', '16:15:00', '3:00 PM - 4:15 PM', 1001, 'JTB 100', 'Sara Davis', 'In-person', 'Open', 140, 91, 49, 0, 4.2, 'May satisfy Ethics (CO12) requirement. $85.00/credit differential undergraduate fee', 'TBD'),
+('CS 431', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Tuesday, Thursday', '16:30:00', '17:45:00', '4:30 PM - 5:45 PM', 1001, 'DMSC 102', 'Lei Yang', 'In-person', 'Open', 62, 51, 11, 0, 4.4, 'May satisfy Ethics (CO12) requirement. $85.00/credit differential undergraduate fee', 'TBD'),
+('CS 456', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Tuesday, Thursday', '15:00:00', '16:15:00', '3:00 PM - 4:15 PM', 1001, 'SLH 2', 'Nancy Latourrette', 'In-person', 'Open', 105, 97, 8, 0, 4.0, '$85.00/credit differential undergraduate fee', 'TBD'),
+('CS 457', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Monday, Wednesday', '13:30:00', '14:45:00', '1:30 PM - 2:45 PM', 1001, 'DMSC 110', 'Erin Keith', 'In-person', 'Open', 83, 81, 2, 0, 4.2, '$85.00/credit differential undergraduate fee', 'TBD'),
+('CS 477', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Tuesday, Thursday', '14:30:00', '15:45:00', '2:30 PM - 3:45 PM', 1001, 'DMSC 110', 'Monica Nicolescu', 'In-person', 'Open', 140, 113, 27, 0, 4.0, '$85.00/credit differential undergraduate fee', 'TBD'),
+('CS 479', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Monday, Wednesday', '13:00:00', '14:15:00', '1:00 PM - 2:15 PM', 1001, 'WPEB 200', 'George Bebis', 'In-person', 'Open', 37, 30, 7, 0, 4.0, '$85.00/credit differential undergraduate fee', 'TBD'),
+('CS 484', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Tuesday, Thursday', '13:30:00', '14:45:00', '1:30 PM - 2:45 PM', 1001, 'AB 101', 'Eelke Folmer', 'In-person', 'Open', 80, 66, 14, 0, 4.1, '$85.00/credit differential undergraduate fee', 'TBD'),
+('CS 485', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Tuesday, Thursday', '09:00:00', '10:15:00', '9:00 AM - 10:15 AM', 1001, 'WPEB 200', 'Emily Hand', 'In-person', 'Open', 36, 25, 11, 0, 4.2, '$85.00/credit differential undergraduate fee', 'TBD'),
+('CS 487', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Monday, Wednesday', '16:00:00', '17:15:00', '4:00 PM - 5:15 PM', 1001, 'DMSC 102', 'Alireza Tavakkoli', 'In-person', 'Open', 60, 50, 10, 0, 4.2, '$85.00/credit differential undergraduate fee', 'TBD'),
+('CS 631', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Tuesday, Thursday', '16:30:00', '17:45:00', '4:30 PM - 5:45 PM', 1001, 'DMSC 102', 'Lei Yang', 'In-person', 'Open', 62, 51, 11, 0, 4.0, '$100.00/credit differential graduate fee', 'TBD'),
+('CS 645', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Monday, Wednesday', '13:00:00', '14:15:00', '1:00 PM - 2:15 PM', 1001, 'SLH 3', 'Shamik Sengupta', 'In-person', 'Open', 57, 45, 12, 0, 4.0, '$100.00/credit differential graduate fee', 'TBD'),
+('CS 653', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Tuesday, Thursday', '15:00:00', '16:15:00', '3:00 PM - 4:15 PM', 1001, 'WPEB 100', 'William Doherty', 'In-person', 'Open', 40, 30, 10, 0, 4.2, '$100.00/credit differential graduate fee', 'TBD'),
+('CS 655', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Tuesday, Thursday', '09:00:00', '10:15:00', '9:00 AM - 10:15 AM', 1001, 'WRB 2023', 'Hung La', 'In-person', 'Open', 50, 39, 11, 0, 4.3, '$100.00/credit differential graduate fee', 'TBD'),
+('CS 687', '2024-01-22', '2024-05-07', 'Spring 2024', 3, 'Monday, Wednesday', '14:00:00', '15:15:00', '2:00 PM - 3:15 PM', 1001, 'DMSC 102', 'Alireza Tavakkoli', 'In-person', 'Open', 61, 56, 5, 0, 4.4, '$100.00/credit differential graduate fee', 'TBD');
 
-/*Insert students*/
-insert into cs425.tblStudents(studentID, userID, username, majorID, majorName, GPA)
+
+insert into cs425.tblAdmin (Fname, Lname, Email, deptID, officeLocation, phoneNum, jobDesc) values
+('Kyle', 'McDermid', 'kyle.mcdermid@unr.com', 1, 'Building A, Room 101', '878-456-7890', 'Administrator responsible for department operations'),
+('Jane', 'Smith', 'jane.smith@unr.com', 2, 'Building B, Room 201', '878-654-3210', 'Responsible for managing department resources'),
+('Alice', 'Johnson', 'alice.johnson@unr.com', 3, 'Building C, Room 301', '878-555-5555', 'Handles administrative tasks within the department'),
+('David', 'Brown', 'david.brown@unr.com', 1, 'Building A, Room 102', '111-222-3333', 'Coordinates departmental events and activities'),
+('Emily', 'Wilson', 'emily.wilson@unr.com', 2, 'Building B, Room 202', '444-555-6666', 'Manages departmental budget and finances');
+
+
+
+
+
+insert into cs425.tblInstructor (Fname, Lname, Email, deptID, officeLocation, phoneNum, officeHours, isAdmin) values
+('Erin', 'Keith', 'erin.keith@unr.edu', 3, 'WPEB 433', '878-232-7890', 'Tuesdays 2:00 PM - 3:00 PM', true),
+('Sara', 'Davis', 'sara.davis@unr.edu', 3, 'WPEB 315', '878-589-8901', 'Monday 1:00 PM - 2:30 PM', true),
+('Lei', 'Yang', 'lei.yang@unr.edu', 3, 'WPEB 427', '878-964-9012', 'Friday 11:00 AM - 12:30 PM', true),
+('Nancy', 'Latourrette', 'nancy.latourrette@unr.edu', 3, 'WPEB 419', '878-874-0123', 'Wednesday 12:30 PM - 1:30 PM', true),
+('Bashira', 'Akter Anima', 'bashira.akter@unr.edu', 3, 'WPEB 317', '878-890-3478', 'Wednesday 1:00 PM - 2:30 PM', true),
+('Mircea', 'Nicolescu', 'mircea.nicolescu@unr.edu', 3, 'WPEB 413', '878-901-5493', 'Tuesday 9:30 AM - 11:30 AM', true),
+('Joshua', 'Dahl', 'joshua.dahl@unr.edu', 8, 'WPEB 301', '878-012-3412', 'Monday 10:00 AM - 11:00 AM', true),
+('Dave', 'Feilseifer', 'dave.feilseifer@unr.edu', 3, 'WPEB 303', '878-987-1794', 'Monday 11:00 AM - 12:00 PM', true),
+('Devrin', 'Lee', 'devrin.lee@unr.edu', 3, 'WPEB 302', '878-642-8715', 'Monday 9:00 AM - 11:00 AM', true),
+('William', 'Doherty', 'william.doherty@unr.edu', 3, 'WPEB 304', '878-951-3574', 'Wednesday 1:00 PM - 2:30 PM', true),
+('Monica', 'Nicolescu', 'monica.nicolescu@unr.edu', 3, 'WPEB 307', '878-147-6587', 'Friday 9:00 AM - 11:00 AM', true),
+('George', 'Bebis', 'george.bebis@unr.edu', 3, 'WPEB 411', '878-652-8901', 'Wednesday 9:00 AM - 11:00 AM', true),
+('Shamik', 'Sengupta', 'shamik.sengupta@unr.edu', 3, 'WPEB 313', '878-741-9012', 'Tuesday 10:00 AM - 11:30 AM', true),
+('Hung', 'La', 'hung.la@unr.edu', 3, 'WPEB 305', '878-789-0123', 'Friday 11:00 AM - 12:30 PM', true),
+('Alireza', 'Tavakkoli', 'alireza.tavakkoli@unr.edu', 3, 'WPEB 417', '878-890-1234', 'Tuesday 2:00 PM - 4:00 PM', true),
+('Emily', 'Hand', 'emily.hand@unr.edu', 3, 'WPEB 415', '878-901-2345', 'Monday 1:00 PM - 3:00 PM', true),
+('Diana', 'Moss', 'diana.moss@unr.edu', 8, 'DMSC 235', '878-123-4567', 'Thursday 10:00 AM - 11:30 AM', true),
+('Eelke', 'Folmer', 'eelke.folmer@unr.edu', 3, 'WPEB 403', '878-234-5678', 'Wednesday 10:00 AM - 12:00 PM', true);
+
+
+insert into cs425.tblNotifications 
+(instructorID, announceDate, source, message, createDate, lastModify, expireDate) 
+values 
+(3, '2024-05-15', 'UNR', 'Instruction Ends', '2024-02-17', '2024-02-17', '2024-05-20'),
+(3, '2024-03-01', 'UNR', 'Deadline to apply for May graduation', '2024-02-17', '2024-02-17', '2024-03-31'),
+(2, '2024-02-26', 'UNR', 'Campus closed due to weather.', '2024-02-17', '2024-02-17', '2024-02-27'),
+(18, '2024-03-19', 'Department', 'New elective courses added for next semester.', '2024-02-17', '2024-02-17', '2024-03-19');
+
+insert into cs425.tblUser (Fname, Lname, DOB, Email, Passwd, majorName, majorID)
 values
-(123123123, 1, 'urrutia123', 100, 'Computer Science', 3.5),
-(123456789, 3, 'userexample', 200, 'Civil Engineering', 3.6),
-(351651165, 5, 'anotheruser', 900, 'Business', 4.0),
-(254887148, 6, 'user123', 500, 'Chemistry', 3.8),
-(452412214, 7, 'example123', 800, 'Physchology', 3.4),
-(561452135, 8, 'testtest', 100, 3.7),
-(124578325, 9, 'user4245', 100, 3.7),
-(245412154, 10, 'user7515', 200, 4.0);
+('Jose', 'Urrutia', '2000-01-01', 'jose@gmail.com', '$2b$12$deqE039XdfQuP9Cg.3iJT.bQajtpv5EM9RyauLs/yQR8M5UJdbjV6', 'Computer Science', 9),
+('David', 'Jones', '2000-01-01', 'david@gmail.com', '$2b$12$deqE039XdfQuP9Cg.3iJT.bQajtpv5EM9RyauLs/yQR8M5UJdbjV6', 'Computer Science', 9);
+
+
+
+insert into cs425.tblUserSchedule (scheduleID, Email, courseCode, Section, Credits, Term, startDate, endDate, meetingDays, meetingTimes, Location, Instructor, meetingFormat, Grade, paymentStatus) 
+values 
+(1, 'jose@gmail.com', 'CS 426', 1001, 3, 'Spring 2024', '2024-01-22', '2024-05-07', 'Tuesday, Thursday', '10:30 AM - 11:45 AM', 'SEM 101', 'Dave Feil-Seifer, Devrin Lee, Sara Davis', 'Hybrid', null, 'Paid'),
+(12, 'jose@gmail.com', 'CS 446', 1001, 3, 'Spring 2024', '2024-01-22', '2024-05-07', 'Tuesday, Thursday', '3:00 PM - 4:15 PM', 'JTB 100', 'Sara Davis', 'In-person', null, 'Paid'),
+(15, 'jose@gmail.com', 'CS 457', 1001, 3, 'Spring 2024', '2024-01-22', '2024-05-07', 'Monday, Wednesday', '1:30 PM - 2:45 PM', 'DMSC 110', 'Erin Keith', 'In-person', null, 'Paid'),
+(6, 'jose@gmail.com', 'CS 326', 1001, 3, 'Spring 2024', '2024-01-22', '2024-05-07', 'Monday, Wednesday', '9:00 AM - 10:15 AM', 'DMSC 105', 'Mircea Nicolescu', 'In-person', null, 'Paid'),
+(15, 'david@gmail.com', 'CS 365', 1001, 3, 'Spring 2024', '2024-01-22', '2024-05-07', 'Monday, Wednesday, Friday', '10:00 AM - 1:15 PM', 'WPEB 2008', 'Sara Davis', 'In-person', null, 'Paid'),
+(8, 'david@gmail.com', 'CS 457', 1001, 3, 'Spring 2024', '2024-01-22', '2024-05-07', 'Monday, Wednesday', '1:30 PM - 2:45 PM', 'DMSC 110', 'Erin Keith', 'In-person', null, 'Paid'),
+(13, 'david@gmail.com', 'CS 431', 1001, 3, 'Spring 2024', '2024-01-22', '2024-05-07', 'Tuesday, Thursday', '4:30 PM - 5:45 PM', 'DMSC 102', 'Lei Yang', 'In-person', null, 'Paid'),
+(15, 'david@gmail.com', 'CS 485', 1001, 3, 'Spring 2024', '2024-01-22', '2024-05-07', 'Tuesday, Thursday', '9:00 AM - 10:15 AM', 'WPEB 200', 'Emily Hand', 'In-person', null, 'Paid');
+
+
+
+
+insert into cs425.tblAdvisors (deptID, Fname, Lname, Email, office, officeHours, phoneNum, isAdmin) 
+values 
+(1, 'John', 'Doe', 'john.doe@unr.edu', 'SEM 130A', 'Mon-Fri 9:00AM - 5:00PM', '878-487-9871', TRUE),
+(2, 'Jane', 'Smith', 'jane.smith@unr.edu', 'SEM 253B', 'Tue-Thu 10:00AM - 3:00PM', '878-572-6978', FALSE),
+(3, 'Mike', 'Brown', 'mike.brown@unr.edu', 'SEM 127', 'Mon-Wed 9:00PM - 5:00PM', '878-521-9817', TRUE),
+(4, 'Sarah', 'Lee', 'sarah.lee@unr.edu', 'SEM 253C', 'Wed-Fri 9:00AM - 2:00PM', '878-871-1875', FALSE),
+(5, 'David', 'Wilson', 'david.wilson@unr.edu', 'SEM 131C', 'Thu-Fri 8:00AM - 4:00PM', '878-587-6873', TRUE);
+
+
+
+insert into cs425.tblPlanner (Email, Title, Priority, Date, Notes, status, Attachments, reminderDatetime) 
+values 
+('david@gmail.com', 'Finish homework for CS 365', 'High', '2024-02-15', 'Problem 4, 5 question on...', 'In Progress', 'hwExample.pdf', '2024-02-20 18:00:00'),
+('jose@gmail.com', 'Meeting with Advisor', 'Medium', '2024-02-16', 'Discuss course selection for next semester.', 'Incomplete', null, '2024-02-21 10:00:00'),
+('jose@gmail.com', 'Attend Career Fair', 'Low', '2024-02-16', 'Network with employers and explore job opportunities.',  'Incomplete', null, '2024-02-22 15:00:00'),
+('david@gmail.com', 'Prepare Presentation', 'High', '2024-02-17', 'Prepare slides for the upcoming presentation for CS 485.', 'Incomplete', null, '2024-02-23 14:00:00'),
+('david@gmail.com', 'Study for Math Exam', 'Medium', '2024-02-17',  'Review chapters 1-5 for the upcoming math exam', 'In Progress', 'example.com/lecture_notes.pdf', '2024-02-24 07:00:00');
+
+
+
+insert into cs425.tblRatings (courseID, courseCode, rating, ratingText, ratingDate, Keywords, upVotes, downVotes) values
+(1, 'CS 135', 3, 'One of the best courses I have taken, highly recommended!', '2023-02-17', 'Lecture Heavy, Attendance, lots of Homework', 15, 2),
+(3, 'CS 219', 3, 'The content was okay, but the assignments were challenging.', '2024-02-16', 'Lecture Heavy, Test Heavy, Textbook Required,', 8, 5),
+(10, 'CS 426', 5, 'Excellent professors, very clear explanations.', '2024-02-15', 'Attendance, Projects, Tough Grading', 20, 0),
+(9, 'CS 381', 3, 'Interesting material, but labs were too long.', '2024-02-14', 'Test Heavy, Group Projects, Attendance Not Required', 12, 3),
+(19, 'CS 485', 4, 'Great lectures, engaging and easy to follow.', '2024-02-13', 'Would Take Again, Interesting, Tough Grader', 3, 10);
+
+
+
+
+
+/*Courses under multiple Majors*/
+INSERT INTO cs425.tblCourses (deptID, courseCode, courseName, description, Credits, Level, majorID, Requirements) 
+VALUES 
+(4, 'EE 220', 'Fundamentals of Electrical Engineering', 'Introduction to analysis methods and network theorems used to describe operation of electric circuits. Includes resistive, capacitive and inductive components in DC and AC circuits.', 3, '200+', 9, 'Prerequisite(s): PHYS 181 with a "C" or better. Corequisite(s): EE 120 (EE majors only); EE220L (BME and EE majors only).'),
+(8, 'MATH 281', 'Calculus I', 'Introduction to differential calculus. Topics include limits, continuity, derivatives, applications of derivatives, and an introduction to integration.', 3, '100+', 21, 'Prerequisite(s): MATH 127 or equivalent..'),
+(8, 'MATH 282', 'Calculus II', 'Continuation of calculus I. Topics include techniques of integration, applications of integration, sequences, series, and an introduction to multivariable calculus.', 4, '100+', 21, 'Prerequisite(s): MATH 181 or equivalent.'),
+(8, 'MATH 283', 'Calculus III', 'Introduction to multivariable calculus. Topics include vectors, partial derivatives, multiple integrals, vector calculus, and applications.', 4, '200+', 21, 'Prerequisite(s): MATH 182 or equivalent.'),
+(8, 'MATH 281', 'Calculus I', 'Introduction to differential calculus. Topics include limits, continuity, derivatives, applications of derivatives, and an introduction to integration.', 3, '100+', 9, 'Prerequisite(s): MATH 127 or equivalent..'),
+(8, 'MATH 282', 'Calculus II', 'Continuation of calculus I. Topics include techniques of integration, applications of integration, sequences, series, and an introduction to multivariable calculus.', 4, '100+', 9, 'Prerequisite(s): MATH 181 or equivalent.'),
+(8, 'MATH 283', 'Calculus III', 'Introduction to multivariable calculus. Topics include vectors, partial derivatives, multiple integrals, vector calculus, and applications.', 4, '200+', 9, 'Prerequisite(s): MATH 182 or equivalent.');
+
