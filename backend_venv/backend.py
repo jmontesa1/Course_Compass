@@ -222,3 +222,4 @@ def connectToDB():
 
 # Launch development server
 app.run(debug=True)
+
