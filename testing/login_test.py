@@ -1,3 +1,7 @@
+# Author: Lucas Videtto
+# Course Compass
+# Unit tests for login functionality
+
 import pytest
 from flask import Flask, session
 from app.backend import app, connectToDB, bcrypt
@@ -20,7 +24,7 @@ def db():
 
 @pytest.fixture
 def test_user(db):
-    email = "lucastestemail@gmail.com"
+    email = "team38testemail@gmail.com"
     password = "Test0.0$"
     hashed_password = hash_password(password)
     cursor = db.cursor()
@@ -47,9 +51,21 @@ def test_valid_login(client, db, test_user):
     
 
 # test for invalid email
-def test_login_with_invalid_email(client, db, test_user):
+def test_invalid_email(client, db, test_user):
     invalid_email = "userNotInDB@gmail.com"
     response = client.post('/login', json={'email': invalid_email, 'password': test_user['password']})
+    assert response.status_code == 401
+    assert b"Invalid email or password" in response.data
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM tblUser WHERE Email = %s", (test_user['email'],))
+    db.commit()
+    cursor.close()
+    
+    
+# test for incorrect password
+def test_incorrect_password(client, db, test_user):
+    incorrect_password = "incorrectPw1$"
+    response = client.post('/login', json={'email': test_user['email'], 'password': incorrect_password})
     assert response.status_code == 401
     assert b"Invalid email or password" in response.data
     cursor = db.cursor()
