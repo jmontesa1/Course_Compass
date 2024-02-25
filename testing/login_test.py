@@ -66,3 +66,31 @@ def test_email_field(client, test_user):
     response = client.post('/login', json={'email': '', 'password': test_user['password']})
     assert response.status_code == 400
     assert b"Missing email or password" in response.data
+
+
+# test for empty password field
+def test_password_field(client, test_user):
+    response = client.post('/login', json={'email': test_user['email'], 'password': ''})
+    assert response.status_code == 400
+    assert b"Missing email or password" in response.data
+    
+    
+# test for preventing SQL injection
+def test_sql_injection(client, db):
+    cursor = db.cursor()
+    cursor.execute(("CREATE TEMPORARY TABLE IF NOT EXISTS temp_tblUser LIKE tblUser;"))
+    db.commit()
+    injection = "'; DROP TABLE temp_tblUser; --"
+    response = client.post('/login', json={'email': injection, 'password': 'validPasswd1$'})
+    assert response.status_code == 401
+    assert b"Invalid email or password" in response.data
+    
+    
+# test for user session creation at login
+def test_session(client, test_user):
+    response = client.post('/login', json={'email': test_user['email'], 'password': test_user['password']})
+    assert response.status_code == 200
+    assert b"Login successful" in response.data
+    with client.session_transaction() as sess:
+        assert sess['user_id'] is not None
+     
