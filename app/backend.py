@@ -122,6 +122,7 @@ def signup():
     print("INVALID REQUEST")
     return jsonify({"message": "Invalid request"}), 400
 
+
 #fetch user information
 @app.route('/getUserInfo', methods=['GET'])
 def getUserInfo():
@@ -206,6 +207,7 @@ def logout():
     print('Logut Successful')
     return jsonify({"message": "Logout successful"}), 200
 
+
 #Developed by John
 #tests to see if the user is logged in for front end usability
 @app.route('/check_login', methods=['GET'])
@@ -214,6 +216,7 @@ def check_login():
         return jsonify({'logged_in': True, 'user_id': session['user_id'], 'email': session['email']}), 200
     else:
         return jsonify({'logged_in': False}), 401
+    
     
 # Connect to database
 def connectToDB():
@@ -229,8 +232,7 @@ def connectToDB():
         print("Error while connecting to database", err)
         return None
 
+
 # Launch development server
 if __name__ == '__main__':
     app.run(debug=True)
-
-
