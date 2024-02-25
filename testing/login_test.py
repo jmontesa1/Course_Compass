@@ -1,9 +1,13 @@
+# Author: Lucas Videtto
+# Course Compass
+# Unit tests for login functionality
+
 import pytest
 from flask import Flask, session
 from app.backend import app, connectToDB, bcrypt
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def client():
     app.config['TESTING'] = True
     with app.test_client() as client:
@@ -11,49 +15,54 @@ def client():
             yield client
             
             
-@pytest.fixture
+@pytest.fixture(scope="module")
 def db():
     connection = connectToDB()
     yield connection
     connection.close()
         
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def test_user(db):
-    email = "lucastestemail@gmail.com"
+    email = "team38testemail@gmail.com"
     password = "Test0.0$"
-    hashed_password = hash_password(password)
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
     cursor = db.cursor()
-    cursor.execute("INSERT INTO tblUser (Email, Passwd) VALUES (%s, %s)", (email, hashed_password))
-    db.commit()
-    cursor.close()
-    return {"email": email, "password": password, "hashed_password": hashed_password}
-
-        
-# hashes user password for test cases
-def hash_password(password):
-    return bcrypt.generate_password_hash(password).decode('utf-8')
+    try:
+        cursor.execute("INSERT INTO tblUser (Email, Passwd) VALUES (%s, %s)", (email, hashed_password))
+        db.commit()
+        yield {"email": email, "password": password, "hashed_password": hashed_password}
+    finally:
+        cursor.execute("DELETE FROM tblUser WHERE Email = %s", (email,))
+        db.commit()
+        cursor.close()
 
 
 # test for valid email and password
-def test_valid_login(client, db, test_user):
+def test_valid_login(client, test_user):
     response = client.post('/login', json={'email': test_user['email'], 'password': test_user['password']})
     assert response.status_code == 200
     assert b"Login successful" in response.data
-    cursor = db.cursor()
-    cursor.execute("DELETE FROM tblUser WHERE Email = %s", (test_user['email'],))
-    db.commit()
-    cursor.close()
     
 
 # test for invalid email
-def test_login_with_invalid_email(client, db, test_user):
+def test_invalid_email(client, test_user):
     invalid_email = "userNotInDB@gmail.com"
     response = client.post('/login', json={'email': invalid_email, 'password': test_user['password']})
     assert response.status_code == 401
     assert b"Invalid email or password" in response.data
-    cursor = db.cursor()
-    cursor.execute("DELETE FROM tblUser WHERE Email = %s", (test_user['email'],))
-    db.commit()
-    cursor.close()
     
+    
+# test for incorrect password
+def test_incorrect_password(client, test_user):
+    incorrect_password = "incorrectPw1$"
+    response = client.post('/login', json={'email': test_user['email'], 'password': incorrect_password})
+    assert response.status_code == 401
+    assert b"Invalid email or password" in response.data
+    
+    
+# test for empty email field
+def test_email_field(client, test_user):
+    response = client.post('/login', json={'email': '', 'password': test_user['password']})
+    assert response.status_code == 400
+    assert b"Missing email or password" in response.data
