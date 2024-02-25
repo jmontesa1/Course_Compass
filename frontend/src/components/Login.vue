@@ -80,6 +80,7 @@
                 })
                 .catch(error => {
                     if (error.response && error.response.status === 401) {
+                        PRINT("ERROR HERE")
                         this.$emit("show-toast","Invalid email or password.");
                     } else {
                         console.error("Login error: ", error);

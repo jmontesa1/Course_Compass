@@ -1,8 +1,8 @@
 # Created by Lucas Videtto
 # Backend functionality for Course Compass
 
-from flask import Flask, jsonify, request, session
-from flask_jwt_extended import JWTManager,create_access_token
+from flask import Flask, jsonify, request, session, make_response
+from flask_jwt_extended import JWTManager, create_access_token, set_access_cookies, get_jwt_identity, jwt_required
 from flask_cors import CORS
 from mysql.connector import connect, Error
 from datetime import datetime
@@ -11,12 +11,41 @@ from flask_bcrypt import Bcrypt
 
 # Under construction !!!
 app = Flask(__name__)
-app.secret_key = '123456789'
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'
-app.config['SESSION_COOKIE_SECURE'] = True
-CORS(app, supports_credentials=True)
+app.secret_key = '1234567890'
+app.config['JWT_SECRET_KEY'] = '0987654321'
+CORS(app, resources={r"/*": {"origins": ["http://localhost:8080"]}}, supports_credentials=True)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
+
+
+@app.route('/getUserInfo', methods=['GET'])
+@jwt_required()
+def get_user_info():
+    user_id = get_jwt_identity()
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT userID, Fname, Lname, Email, majorName FROM tblUser WHERE userID = %s", (user_id,))
+        user = cursor.fetchone()
+        
+        if user:
+            print("User info successfully retrieved")
+            user_info = {
+                "FirstName": user['Fname'],
+                "LastName": user['Lname'],
+                "Email": user['Email'],
+                "Major": user['majorName']
+            }
+            return jsonify(user_info), 200
+        else:
+            print("User information not found")
+            return jsonify({"message": "User information not found"}), 500
+    except Error as err:
+        print(err)
+        return jsonify({"message": "Error occurred while connecting to database"})
+    finally:
+        cursor.close()
+        connection.close()
 
 
 # Login functionality for backend
@@ -40,12 +69,11 @@ def login():
             user = cursor.fetchone()
             
             if user and bcrypt.check_password_hash(user['Passwd'], password):
-                session['user_id'] = user['userID']
-                session['email'] = user['Email']
-                
-                #access_token = create_access_token(identity={"email": user['Email'], "userID": user['userID']})
+                access_token = create_access_token(identity=user['userID'])
+                response = jsonify({"message": "Login successful"})
+                set_access_cookies(response, access_token)
                 print("LOGIN SUCCESSFUL")
-                return jsonify({"message": "Login successful"}), 200
+                return response, 200
             else:
                 print("INVALID EMAIL OR PASSWORD")
                 return jsonify({"message": "Invalid email or password"}), 401
@@ -59,6 +87,13 @@ def login():
     else:
         print("INVALID REQUEST")
         return jsonify({"message": "Invalid request"}), 400
+    
+
+@app.route('/protected', methods=['GET'])
+@jwt_required()
+def protected():
+    current_user = get_jwt_identity()
+    return jsonify(logged_in_as=current_user), 200
             
 
 # Signup functionality for backend
@@ -122,32 +157,6 @@ def signup():
     print("INVALID REQUEST")
     return jsonify({"message": "Invalid request"}), 400
 
-#fetch user information
-@app.route('/getUserInfo', methods=['GET'])
-def getUserInfo():
-    if 'user_id' in session and 'email' in session:
-        userid = session['user_id']
-        useremail = session['email']
-        connection = connectToDB()
-        if connection:
-            cursor = connection.cursor(dictionary=True)
-            try:
-                cursor.execute("SELECT Fname, Lname, Email, majorName FROM cs425.tblUser WHERE userID = %s AND Email = %s", (userid, useremail))
-                user_info = cursor.fetchone()
-                if user_info:
-                    return jsonify(user_info), 200
-                else:
-                    return jsonify({"error": "User not found"}), 404
-            except Error as err:
-                return jsonify({"error": "Error while fetching data: " + str(err)}), 500
-            finally:
-                cursor.close()
-                connection.close()
-        else:
-            return jsonify({"error": "DB connection failed"}), 500
-    else:
-        return jsonify({"error": "User not logged in"}), 401
-
 
 # Retrieve majors
 @app.route('/majors', methods=['GET'])
@@ -209,8 +218,10 @@ def logout():
 #Developed by John
 #tests to see if the user is logged in for front end usability
 @app.route('/check_login', methods=['GET'])
+@jwt_required(optional=True)
 def check_login():
-    if 'user_id' in session and 'email' in session:
+    current_user = get_jwt_identity()
+    if current_user:
         return jsonify({'logged_in': True, 'user_id': session['user_id'], 'email': session['email']}), 200
     else:
         return jsonify({'logged_in': False}), 401
@@ -231,5 +242,3 @@ def connectToDB():
 
 # Launch development server
 app.run(debug=True)
-
-

@@ -1,7 +1,7 @@
 <template>
   <!-- Display the navbar and the router view on every page -->
   <NavBar :isLoggedIn="isLoggedIn" @logout="handleLogout"/>
-  <router-view @login-status-changed="updateLoginStatus" @show-toast="showToastMessage" />
+  <router-view @login-status-changed="updateLoginStatus" @show-toast="showToastMessage" :user="user" />
   <Footer></Footer>
   <Toast :showToast="showToast" :toastMessage="toastMessage" />
 
@@ -26,6 +26,7 @@
             isLoggedIn: false,
             showToast: false,
             toastMessage: "",
+            user: {},
         };
     },
     mounted() {

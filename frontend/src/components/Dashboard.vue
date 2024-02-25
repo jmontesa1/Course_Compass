@@ -82,10 +82,10 @@
             return {
                 currentDate: null,
                 user: {
-                    firstname: 'John',
+                    firstname: '',
                     lastname: '',
                     major: '',
-                    term: 'Fall 2023',
+                    term: 'Spring 2024',
                     avatar: require('@/assets/profile-picture.jpg'),
                 },
 

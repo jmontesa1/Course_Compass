@@ -16,10 +16,14 @@
                 <div class="col d-flex flex-column">
                     <h2>My Account</h2>
 
-                    <div>
+                    <div v-if="loading">
+                        Loading...
+                    </div>
+
+                    <div v-else>
                         <br>
                         <br>
-                        <p><strong>First Name:</strong> {{ user.firstname }}</p>
+                        <p><strong>First Name:</strong> {{ this.user.firstname }}</p>
                         <p><strong>Last Name:</strong> {{ user.lastname }}</p>
                         <p><strong>Email:</strong> {{ user.email }}</p>
                         <p><strong>Major:</strong> {{ user.major }}</p>
@@ -55,7 +59,7 @@
                     major: '',
                     profilePicture: require('../assets/profile-picture.jpg'),
                 },
-                error: null,
+                loading: false,
             };
         },
         created() {
@@ -63,14 +67,16 @@
         },
         methods: {
             async fetchUserInfo() {
+                const token = localStorage.getItem('access_token');
                 try {
-                    const response = await axios.get('http://127.0.0.1:5000/getUserInfo', { withCredentials: true });
-                    console.log(response.data.message);
+                    const response = await axios.get('http://127.0.0.1:5000/getUserInfo', { headers: {'Authorization': 'Bearer ' + token }, withCredentials: true });
+                    console.log(response.data)
                     if (response.data) {
-                        this.user.firstname = response.data.Fname;
-                        this.user.lastname = response.data.Lname;
-                        this.user.email = response.data.Email;
-                        this.user.major = response.data.majorName;
+                            this.user.firstname = response.data.FirstName;
+                            this.user.lastname = response.data.LastName;
+                            this.user.email = response.data.Email;
+                            this.user.major = response.data.Major;
+                            this.loading = false;
                     }
                 } catch (error) {
                     console.error("Error fetching info: ", error);

@@ -167,3 +167,20 @@ delimiter ;
 
 /*Use case*/
 call UpdateUserEmail(1, 'newemail@gmail.com');
+
+
+/* get user information for My Account page */
+delimiter //
+create procedure GetUserInfo(IN userEmail VARCHAR(150))
+begin
+    select
+        user.Fname AS FirstName,
+        user.Lname AS LastName,
+        user.Email,
+        user.majorName AS Major
+    from
+        cs425.tblUser user
+    where
+        user.Email = userEmail;
+end //
+delimiter;
