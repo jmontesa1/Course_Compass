@@ -85,3 +85,12 @@ def test_sql_injection(client, db):
     assert response.status_code == 401
     assert b"Invalid email or password" in response.data
     
+    
+# test for user session creation at login
+def test_session(client, test_user):
+    response = client.post('/login', json={'email': test_user['email'], 'password': test_user['password']})
+    assert response.status_code == 200
+    assert b"Login successful" in response.data
+    with client.session_transaction() as sess:
+        assert sess['user_id'] is not None
+     
