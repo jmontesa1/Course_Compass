@@ -84,10 +84,11 @@
             return {
                 currentDate: null,
                 user: {
-                    firstname: 'John',
+                    firstname: '',
                     lastname: '',
+                    dob: '',
                     major: '',
-                    term: 'Fall 2023',
+                    term: 'Spring 2024',
                     avatar: require('@/assets/profile-picture.jpg'),
                 },
 
@@ -120,7 +121,10 @@
             fetchDashboardData() {
                 axios.get('http://127.0.0.1:5000/dashboard', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                 .then(response => {
-                    this.user = response.data.user;
+                    this.user.firstname = response.data.Fname;
+                    this.user.lastname = response.data.Lname;
+                    this.user.major = response.data.majorName;
+                    this.user.dob = response.data.DOB;
                     console.log('Dashboard loaded successfully', response.data);
                 })
                 .catch(error => {
