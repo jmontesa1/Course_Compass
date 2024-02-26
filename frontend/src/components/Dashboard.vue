@@ -3,7 +3,7 @@
 <!-- This page will contain brief information -->
 
 <template>
-    <v-row>
+    <v-row v-if="user && user.firstname">
         <h1 class="welcome-text">
             <v-avatar size="50" >
                 <v-img :src="user.avatar" alt="User profile picture"></v-img>
@@ -77,6 +77,8 @@
 </template>
 
 <script>
+    import axios from 'axios';
+    
     export default {
         data() {
             return {
@@ -114,7 +116,18 @@
                 ],
             };
         },
-
+        methods: {
+            fetchDashboardData() {
+                axios.get('http://127.0.0.1:5000/dashboard', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
+                .then(response => {
+                    this.user = response.data.user;
+                    console.log('Dashboard loaded successfully', response.data);
+                })
+                .catch(error => {
+                    console.error("Error fetching dashboard data", error);
+                });
+            }
+        },
         computed:{
             currentDate(){
                 const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -187,6 +200,13 @@
                     return timeComparison;
                 });
             },
+        },
+        mounted(){
+            if (!localStorage.getItem('access_token')) {
+                this.$router.push('/login');
+            } else {
+                this.fetchDashboardData();
+            }
         },
     }
 </script>

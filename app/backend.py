@@ -2,7 +2,7 @@
 # Backend functionality for Course Compass
 
 from flask import Flask, jsonify, request, session
-from flask_jwt_extended import JWTManager, create_access_token
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_cors import CORS
 from mysql.connector import connect, Error
 from datetime import datetime
@@ -42,9 +42,10 @@ def login():
             if user and bcrypt.check_password_hash(user['Passwd'], password):
                 session['email'] = email
                 
-                #access_token = create_access_token(identity={"email": user['Email'], "userID": user['userID']})
                 print("LOGIN SUCCESSFUL")
-                return jsonify({"message": "Login successful"}), 200
+                
+                access_token = create_access_token(identity={"email": user['Email'], "userID": user['userID']})
+                return jsonify({"message": "Login successful", "access_token": access_token}), 200
             else:
                 print("INVALID EMAIL OR PASSWORD")
                 return jsonify({"message": "Invalid email or password"}), 401
@@ -215,6 +216,16 @@ def check_login():
         return jsonify({'logged_in': True, 'user_id': session['user_id'], 'email': session['email']}), 200
     else:
         return jsonify({'logged_in': False}), 401
+    
+
+# User session for dashboard
+@app.route('/dashboard', methods=['GET'])
+@jwt_required()
+def user_dashboard():
+    current_user_email = get_jwt_identity()
+    if current_user_email is not None:
+        print("STILL LOGGED IN BIATCH")
+        return jsonify(current_user_email), 200    
     
     
 # Connect to database
