@@ -33,7 +33,6 @@
                         <!-- right-aligned menu items -->
                         <li class="nav-item" @click="dashboardRefresh">
                             <a class="nav-link" style="cursor:pointer;">Dashboard</a>
-                            
                         </li>
                         <li class="nav-item">
                             <router-link to="/courses" class = "nav-link">Courses</router-link>
@@ -52,7 +51,8 @@
                                 Account
                             </a>
                             <ul class="dropdown-menu">
-                                <li><router-link to="/myaccount" class = "dropdown-item">My Account</router-link></li>
+                                <li>
+                                <router-link to="/myaccount" class = "dropdown-item">My Account</router-link></li>
                                 <li><a href="#" class="dropdown-item" @click.prevent="handleLogout">Log Out</a></li>
                             </ul>
                         </li>
