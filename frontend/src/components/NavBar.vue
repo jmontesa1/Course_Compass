@@ -51,7 +51,8 @@
                                 Account
                             </a>
                             <ul class="dropdown-menu">
-                                <li><router-link to="/myaccount" class = "dropdown-item">My Account</router-link></li>
+                                <li>
+                                <router-link to="/myaccount" class = "dropdown-item">My Account</router-link></li>
                                 <li><a href="#" class="dropdown-item" @click.prevent="handleLogout">Log Out</a></li>
                             </ul>
                         </li>

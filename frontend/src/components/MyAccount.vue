@@ -62,23 +62,21 @@
             this.fetchUserInfo();
         },
         methods: {
-            async fetchUserInfo() {
-                try {
-                    const response = await axios.get('http://127.0.0.1:5000/getUserInfo', { withCredentials: true });
-                    console.log(response.data.message);
-                    if (response.data) {
-                        this.user.firstname = response.data.Fname;
-                        this.user.lastname = response.data.Lname;
-                        this.user.email = response.data.Email;
-                        this.user.major = response.data.majorName;
-                    }
-                } catch (error) {
-                    console.error("Error fetching info: ", error);
-                    this.error = error.response ? error.response.data.error : "Unknown error";
-                }
-            },
-        },
-    };
+            fetchUserInfo() {
+                axios.get('http://127.0.0.1:5000/myaccount', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
+                .then(response => {
+                    this.user.firstname = response.data.Fname;
+                    this.user.lastname = response.data.Lname;
+                    this.user.email = response.data.Email;
+                    this.user.major = response.data.majorName;
+                    console.log('My Account page loaded successfully', response.data);
+                })
+                .catch(error => {
+                    console.error("Error loading My Account page", error);
+                });        
+            }
+        }
+    }
 </script>
 
 <style scoped>

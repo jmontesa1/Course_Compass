@@ -11,7 +11,7 @@ from flask_bcrypt import Bcrypt
 
 # Under construction !!!
 app = Flask(__name__)
-app.secret_key = '123456789'
+app.secret_key = '123456789' # Change key to secure value for production environment
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = True
 CORS(app, supports_credentials=True)
@@ -56,6 +56,7 @@ class User:
             "Email": self.Email,
             "majorName": self.majorName
         }
+        
 
 # Login functionality for backend
 # Under construction !!!
@@ -265,8 +266,22 @@ def user_dashboard():
     print(f"Extracted email: {current_user_email}")
     user = User.get_user_by_email(current_user_email)
     if user:
-        print("STILL LOGGED IN BIATCH")
+        print("STILL LOGGED IN SUCCESS")
         return jsonify(user.conv_to_json()), 200    
+    else:
+        return jsonify({"message": "User not found"}), 404
+    
+    
+@app.route('/myaccount', methods=['GET'])
+@jwt_required()
+def myAccount():
+    identity = get_jwt_identity()
+    current_user_email = identity['email']
+    print(f"Extracted email: {current_user_email}")
+    user = User.get_user_by_email(current_user_email)
+    if user:
+        print("STILL LOGGED IN MY ACCOUNT")
+        return jsonify(user.conv_to_json()), 200
     else:
         return jsonify({"message": "User not found"}), 404
     
@@ -286,6 +301,6 @@ def connectToDB():
         return None
 
 
-# Launch development server
+# Launch backend development server
 if __name__ == '__main__':
     app.run(debug=True)
