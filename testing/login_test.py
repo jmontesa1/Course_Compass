@@ -92,5 +92,5 @@ def test_session(client, test_user):
     assert response.status_code == 200
     assert b"Login successful" in response.data
     with client.session_transaction() as sess:
-        assert sess['user_id'] is not None
+        assert sess['email'] is not None
      

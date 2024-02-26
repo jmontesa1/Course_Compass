@@ -2,7 +2,7 @@
 # Backend functionality for Course Compass
 
 from flask import Flask, jsonify, request, session
-from flask_jwt_extended import JWTManager, create_access_token
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_cors import CORS
 from mysql.connector import connect, Error
 from datetime import datetime
@@ -40,12 +40,12 @@ def login():
             user = cursor.fetchone()
             
             if user and bcrypt.check_password_hash(user['Passwd'], password):
-                session['user_id'] = user['userID']
-                session['email'] = user['Email']
+                session['email'] = email
                 
-                #access_token = create_access_token(identity={"email": user['Email'], "userID": user['userID']})
                 print("LOGIN SUCCESSFUL")
-                return jsonify({"message": "Login successful"}), 200
+                
+                access_token = create_access_token(identity={"email": user['Email'], "userID": user['userID']})
+                return jsonify({"message": "Login successful", "access_token": access_token}), 200
             else:
                 print("INVALID EMAIL OR PASSWORD")
                 return jsonify({"message": "Invalid email or password"}), 401
@@ -121,6 +121,7 @@ def signup():
             
     print("INVALID REQUEST")
     return jsonify({"message": "Invalid request"}), 400
+
 
 #fetch user information
 @app.route('/getUserInfo', methods=['GET'])
@@ -206,14 +207,26 @@ def logout():
     print('Logut Successful')
     return jsonify({"message": "Logout successful"}), 200
 
+
 #Developed by John
 #tests to see if the user is logged in for front end usability
 @app.route('/check_login', methods=['GET'])
 def check_login():
-    if 'user_id' in session and 'email' in session:
+    if 'email' in session:
         return jsonify({'logged_in': True, 'user_id': session['user_id'], 'email': session['email']}), 200
     else:
         return jsonify({'logged_in': False}), 401
+    
+
+# User session for dashboard
+@app.route('/dashboard', methods=['GET'])
+@jwt_required()
+def user_dashboard():
+    current_user_email = get_jwt_identity()
+    if current_user_email is not None:
+        print("STILL LOGGED IN BIATCH")
+        return jsonify(current_user_email), 200    
+    
     
 # Connect to database
 def connectToDB():
@@ -229,8 +242,7 @@ def connectToDB():
         print("Error while connecting to database", err)
         return None
 
+
 # Launch development server
 if __name__ == '__main__':
     app.run(debug=True)
-
-
