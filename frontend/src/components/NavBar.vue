@@ -31,8 +31,9 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <!-- right-aligned menu items -->
-                        <li class="nav-item">
-                            <router-link to="/dashboard" class = "nav-link">Dashboard</router-link>
+                        <li class="nav-item" @click="dashboardRefresh">
+                            <a class="nav-link" style="cursor:pointer;">Dashboard</a>
+                            
                         </li>
                         <li class="nav-item">
                             <router-link to="/courses" class = "nav-link">Courses</router-link>
@@ -123,6 +124,14 @@
         },
 
         methods:{
+            dashboardRefresh() {
+                if (this.$route.path === '/dashboard') {
+                    this.$router.go();
+                } else {
+                    this.$router.push('/dashboard');
+                }
+            },
+
             dismissBanner(){
                 this.isBannerVisible = false;
             },
