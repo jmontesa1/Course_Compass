@@ -260,10 +260,15 @@ def check_login():
 @app.route('/dashboard', methods=['GET'])
 @jwt_required()
 def user_dashboard():
-    current_user_email = get_jwt_identity()
-    if current_user_email is not None:
+    identity = get_jwt_identity()
+    current_user_email = identity['email']
+    print(f"Extracted email: {current_user_email}")
+    user = User.get_user_by_email(current_user_email)
+    if user:
         print("STILL LOGGED IN BIATCH")
-        return jsonify(current_user_email), 200    
+        return jsonify(user.conv_to_json()), 200    
+    else:
+        return jsonify({"message": "User not found"}), 404
     
     
 # Connect to database
