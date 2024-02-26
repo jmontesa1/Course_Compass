@@ -33,7 +33,6 @@
                         <!-- right-aligned menu items -->
                         <li class="nav-item" @click="dashboardRefresh">
                             <a class="nav-link" style="cursor:pointer;">Dashboard</a>
-                            
                         </li>
                         <li class="nav-item">
                             <router-link to="/courses" class = "nav-link">Courses</router-link>

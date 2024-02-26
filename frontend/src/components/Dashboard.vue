@@ -8,7 +8,7 @@
             <v-avatar size="50" >
                 <v-img :src="user.avatar" alt="User profile picture"></v-img>
             </v-avatar>
-            Welcome, {{ user.firstname }}!
+            Welcome, {{ user.firstname }}
         </h1>
     </v-row>
 
@@ -70,7 +70,7 @@
 
     <v-container class="dashboard-container2">
         <v-row>
-            Hello Hi
+            
         </v-row>
     </v-container>
 
