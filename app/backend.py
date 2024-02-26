@@ -19,6 +19,44 @@ bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
 
+# User class to store user information
+class User:
+    def __init__(self, userID=None, Fname=None, Lname=None, DOB=None, Email=None, majorName=None):
+        self.userID = userID
+        self.Fname = Fname
+        self.Lname = Lname
+        self.DOB = DOB
+        self.Email = Email
+        self.majorName = majorName
+        
+    @staticmethod
+    def get_user_by_email(email):
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary=True)
+        try:
+            cursor.execute("SELECT userID, Fname, Lname, DOB, Email, majorName FROM cs425.tblUser WHERE Email = %s", (email,))
+            user_data = cursor.fetchone()
+            if user_data:
+                user = User(**user_data)
+                return user
+            return None
+        except Exception as e:
+            print(e)
+            return None
+        finally:
+            cursor.close()
+            connection.close()
+            
+    def conv_to_json(self):
+        return{
+            "userID": self.userID,
+            "Fname": self.Fname,
+            "Lname": self.Lname,
+            "DOB": self.DOB.strftime('%Y-%m-%d') if self.DOB else None,
+            "Email": self.Email,
+            "majorName": self.majorName
+        }
+
 # Login functionality for backend
 # Under construction !!!
 # Check backend development notes (Lucas)
