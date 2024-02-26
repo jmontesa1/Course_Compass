@@ -2,6 +2,7 @@
 <!-- This component creates the filter menu that the user will interact with -->
 
 <template>
+  <!--<p>Applied Filters: {{ selected }}</p>-->
   <v-card class="menu">
     <v-list v-model:opened="open">
       <v-list-item v-for="(menuItem, index) in menuItems" :key="index">
@@ -11,7 +12,7 @@
           </template>
 
           <v-list-item v-for="(childItem, childIndex) in menuItem.children" :key="childIndex">
-            <v-checkbox v-model="selected" class="child-checkbox" :label="childItem.label" :value="childItem.label" @change="handleCheckboxChange(childItem.label)"></v-checkbox>
+            <v-checkbox class="child-checkbox" :checked="isChecked(childItem.label)"  :label="childItem.label" :value="childItem.label" @change="handleCheckboxChange(childItem.label)"></v-checkbox>
           </v-list-item>
         </v-list-group>
       </v-list-item>
@@ -20,16 +21,30 @@
 </template>
 
 <script setup>
-  import { ref, defineEmits } from 'vue';
-
-  const open = ref(['Filters']);
-  const selected = ref([]);
+  import { ref, defineEmits, defineProps } from 'vue';
+  
+  const { selectedFilters } = defineProps(['selectedFilters']);
   const emit = defineEmits();
 
+  const open = ref(['Filters']);
+  const selected = ref(selectedFilters);
+
+  const isChecked = (label) => selected.value.includes(label);
+
   const handleCheckboxChange = (value) => {
-    emit('itemSelected', value);
-  };
-  
+      const updatedSelected = [...selected.value];
+
+      if (updatedSelected.includes(value)) {
+        updatedSelected.splice(updatedSelected.indexOf(value), 1);
+      } else {
+        updatedSelected.push(value);
+      }
+
+      selected.value = updatedSelected;
+
+      emit('itemSelected', value);
+      emit('update:selectedFilters', selected.value);
+    };
 </script>
 
 <script>
@@ -59,7 +74,7 @@
 
       methods: {
           filterPress(item) {
-          this.$emit('itemSelected', item);
+            this.$emit('itemSelected', item);
           },
       },
     };
