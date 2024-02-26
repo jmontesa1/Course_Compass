@@ -40,8 +40,7 @@ def login():
             user = cursor.fetchone()
             
             if user and bcrypt.check_password_hash(user['Passwd'], password):
-                session['user_id'] = user['userID']
-                session['email'] = user['Email']
+                session['email'] = email
                 
                 #access_token = create_access_token(identity={"email": user['Email'], "userID": user['userID']})
                 print("LOGIN SUCCESSFUL")
@@ -212,7 +211,7 @@ def logout():
 #tests to see if the user is logged in for front end usability
 @app.route('/check_login', methods=['GET'])
 def check_login():
-    if 'user_id' in session and 'email' in session:
+    if 'email' in session:
         return jsonify({'logged_in': True, 'user_id': session['user_id'], 'email': session['email']}), 200
     else:
         return jsonify({'logged_in': False}), 401
