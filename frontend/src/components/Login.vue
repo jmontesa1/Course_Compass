@@ -69,7 +69,7 @@
                     console.log(response.data.message);
                     if (response.status === 200) {
                         localStorage.setItem('access_token', response.data.access_token);
-                        this.$emit("show-toast","Login successful. Welcome back!", "#51da6e");
+                        this.$emit("show-toast", { message: "Login successful. Welcome back!", color: "#51da6e" });
                         setTimeout(() => {
                             this.$router.push('/dashboard');
                             this.$emit('login-status-changed', true);                        

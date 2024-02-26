@@ -22,6 +22,7 @@
                         <p><strong>First Name:</strong> {{ user.firstname }}</p>
                         <p><strong>Last Name:</strong> {{ user.lastname }}</p>
                         <p><strong>Email:</strong> {{ user.email }}</p>
+                        <p><strong>Birthdate:</strong> {{ user.dob }}</p>
                         <p><strong>Major:</strong> {{ user.major }}</p>
                         <!-- Add other user information fields as needed -->
                         <button type="submit">Edit Profile</button>
@@ -52,6 +53,7 @@
                     firstname: '',
                     lastname: '',
                     email: '',
+                    dob: '',
                     major: '',
                     profilePicture: require('../assets/profile-picture.jpg'),
                 },
@@ -68,6 +70,7 @@
                     this.user.firstname = response.data.Fname;
                     this.user.lastname = response.data.Lname;
                     this.user.email = response.data.Email;
+                    this.user.dob = response.data.DOB;
                     this.user.major = response.data.majorName;
                     console.log('My Account page loaded successfully', response.data);
                 })
