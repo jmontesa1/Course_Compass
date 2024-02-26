@@ -70,8 +70,41 @@
 
     <v-container class="dashboard-container2">
         <v-row>
-            Hello Hi
+            <h2>Personal Planner</h2>
+            <p>Last modified:</p>
         </v-row>
+        <v-row>
+        </v-row>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </v-container>
+
+    <v-container class="dashboard-container3">
+        <v-row>
+            <h2>Major Progress</h2>
+        </v-row>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
     </v-container>
 
 </template>
@@ -233,13 +266,21 @@
     }
 
     .dashboard-container2{
-        background-color: rgba(184, 184, 184, 0.247);
         margin: 10px auto;
         position: relative;
         max-width: 95%;
         border-radius: 1px;
         border-top: 1px solid black;
         border-right: 1px solid black;
+    }
+
+    .dashboard-container3{
+        margin: 10px auto;
+        position: relative;
+        max-width: 95%;
+        border-radius: 1px;
+        border-top: 1px solid black;
+        border-left: 1px solid black;
     }
 
     .deadlines-container{

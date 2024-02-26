@@ -5,7 +5,7 @@
 <template>
     <v-banner v-if="isBannerVisible" color="grey-darken-1" icon="mdi-account-box" lines="two">
         <template v-slot:prepend>
-            <span class="material-icons" style="color:white">notifications</span>
+            <span class="material-icons" style="color:white; margin-top:5px;">notifications</span>
         </template>
 
         <v-banner-text class="notification-text">
@@ -213,7 +213,7 @@
     }
 
     .v-banner{
-        margin-top: -5px; /* Adjust the maximum width as needed */
+        margin-top: -5px; 
         margin-bottom: -20px;
         background-color: rgb(53, 53, 53);
     }
@@ -229,6 +229,7 @@
     .notification-text{
         font-family: Poppins;
         color: rgb(185, 185, 185);
+        margin-top: 6px;
     }
 
     .notification-button{
