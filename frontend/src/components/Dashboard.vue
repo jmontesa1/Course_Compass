@@ -130,7 +130,16 @@
                 .catch(error => {
                     console.error("Error fetching dashboard data", error);
                 });
+            },
+            goToDashboard() {
+                this.$router.push('/dashboard')
             }
+        },
+        beforeRouteUpdate(to, from, next) {
+            if (to.path === '/dashboard') {
+                this.fetchDashboardData();
+            }
+            next();
         },
         computed:{
             currentDate(){
