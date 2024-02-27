@@ -11,7 +11,6 @@
                 </div>
 
 
-
                 <!--RIGHT SIDE OF PAGE-->
                 <div class="col d-flex flex-column">
                     <h2>My Account</h2>
@@ -26,7 +25,7 @@
                         <p><strong>Major:</strong> {{ user.major }}</p>
                         <!-- Add other user information fields as needed -->
                         <button type="button" @click="navigateToEditProfile">Edit Profile</button>
-                        <button type="submit">Change Password</button>
+                        <button type="button" @click="navigateToChangePassword">Change Password</button>
                     </div>
                 </div>
 
@@ -80,6 +79,9 @@
             },
             navigateToEditProfile() {
                 this.$router.push('/editprofile');
+            },
+            navigateToChangePassword() {
+                this.$router.push('/changepassword');
             }
         }
     }

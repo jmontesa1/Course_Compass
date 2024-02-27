@@ -9,6 +9,7 @@ import Signup from '../views/SignupView.vue'
 import MyAccount from '../views/MyAccountView.vue'
 import Dashboard from '../views/DashboardView.vue'
 import EditProfile from '../views/EditProfileView.vue'
+import ChangePassword from '../views/ChangePasswordView.vue'
 
 const routes = [
   {
@@ -60,6 +61,11 @@ const routes = [
     path: '/editprofile',
     name: 'editprofile',
     component: EditProfile
+  },
+  {
+    path: '/changepassword',
+    name: 'changepassword',
+    component: ChangePassword
   }
 ]
 
