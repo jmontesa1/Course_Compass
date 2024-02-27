@@ -2,7 +2,7 @@
 # Backend functionality for Course Compass
 
 from flask import Flask, jsonify, request, session
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token
 from flask_cors import CORS
 from mysql.connector import connect, Error
 from datetime import datetime
@@ -11,52 +11,13 @@ from flask_bcrypt import Bcrypt
 
 # Under construction !!!
 app = Flask(__name__)
-app.secret_key = '123456789' # Change key to secure value for production environment
+app.secret_key = '123456789'
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = True
 CORS(app, supports_credentials=True)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
-
-# User class to store user information
-class User:
-    def __init__(self, userID=None, Fname=None, Lname=None, DOB=None, Email=None, majorName=None):
-        self.userID = userID
-        self.Fname = Fname
-        self.Lname = Lname
-        self.DOB = DOB
-        self.Email = Email
-        self.majorName = majorName
-        
-    @staticmethod
-    def get_user_by_email(email):
-        connection = connectToDB()
-        cursor = connection.cursor(dictionary=True)
-        try:
-            cursor.execute("SELECT userID, Fname, Lname, DOB, Email, majorName FROM cs425.tblUser WHERE Email = %s", (email,))
-            user_data = cursor.fetchone()
-            if user_data:
-                user = User(**user_data)
-                return user
-            return None
-        except Exception as e:
-            print(e)
-            return None
-        finally:
-            cursor.close()
-            connection.close()
-            
-    def conv_to_json(self):
-        return{
-            "userID": self.userID,
-            "Fname": self.Fname,
-            "Lname": self.Lname,
-            "DOB": self.DOB.strftime('%Y-%m-%d') if self.DOB else None,
-            "Email": self.Email,
-            "majorName": self.majorName
-        }
-        
 
 # Login functionality for backend
 # Under construction !!!
@@ -79,12 +40,12 @@ def login():
             user = cursor.fetchone()
             
             if user and bcrypt.check_password_hash(user['Passwd'], password):
-                session['email'] = email
+                session['user_id'] = user['userID']
+                session['email'] = user['Email']
                 
+                #access_token = create_access_token(identity={"email": user['Email'], "userID": user['userID']})
                 print("LOGIN SUCCESSFUL")
-                
-                access_token = create_access_token(identity={"email": user['Email'], "userID": user['userID']})
-                return jsonify({"message": "Login successful", "access_token": access_token}), 200
+                return jsonify({"message": "Login successful"}), 200
             else:
                 print("INVALID EMAIL OR PASSWORD")
                 return jsonify({"message": "Invalid email or password"}), 401
@@ -160,7 +121,6 @@ def signup():
             
     print("INVALID REQUEST")
     return jsonify({"message": "Invalid request"}), 400
-
 
 #fetch user information
 @app.route('/getUserInfo', methods=['GET'])
@@ -246,59 +206,14 @@ def logout():
     print('Logut Successful')
     return jsonify({"message": "Logout successful"}), 200
 
-
 #Developed by John
 #tests to see if the user is logged in for front end usability
 @app.route('/check_login', methods=['GET'])
 def check_login():
-    if 'email' in session:
+    if 'user_id' in session and 'email' in session:
         return jsonify({'logged_in': True, 'user_id': session['user_id'], 'email': session['email']}), 200
     else:
         return jsonify({'logged_in': False}), 401
-    
-
-# User session for dashboard
-@app.route('/dashboard', methods=['GET'])
-@jwt_required()
-def user_dashboard():
-    identity = get_jwt_identity()
-    current_user_email = identity['email']
-    print(f"Extracted email: {current_user_email}")
-    user = User.get_user_by_email(current_user_email)
-    if user:
-        print("STILL LOGGED IN SUCCESS")
-        return jsonify(user.conv_to_json()), 200    
-    else:
-        return jsonify({"message": "User not found"}), 404
-    
-    
-@app.route('/myaccount', methods=['GET'])
-@jwt_required()
-def myAccount():
-    identity = get_jwt_identity()
-    current_user_email = identity['email']
-    print(f"Extracted email: {current_user_email}")
-    user = User.get_user_by_email(current_user_email)
-    if user:
-        print("STILL LOGGED IN MY ACCOUNT")
-        return jsonify(user.conv_to_json()), 200
-    else:
-        return jsonify({"message": "User not found"}), 404
-    
-    
-@app.route('/editprofile', methods=['GET'])
-@jwt_required()
-def editProfile():
-    identity = get_jwt_identity()
-    current_user_email = identity['email']
-    print(f"Extracted email: {current_user_email}")
-    user = User.get_user_by_email(current_user_email)
-    if user:
-        print("STILL LOGGED IN MY ACCOUNT")
-        return jsonify(user.conv_to_json()), 200
-    else:
-        return jsonify({"message": "User not found"}), 404
-    
     
 # Connect to database
 def connectToDB():
@@ -314,7 +229,8 @@ def connectToDB():
         print("Error while connecting to database", err)
         return None
 
-
-# Launch backend development server
+# Launch development server
 if __name__ == '__main__':
     app.run(debug=True)
+
+
