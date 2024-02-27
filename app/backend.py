@@ -21,13 +21,14 @@ jwt = JWTManager(app)
 
 # User class to store user information
 class User:
-    def __init__(self, userID=None, Fname=None, Lname=None, DOB=None, Email=None, majorName=None):
+    def __init__(self, userID=None, Fname=None, Lname=None, DOB=None, Email=None, majorName=None, majorID=None):
         self.userID = userID
         self.Fname = Fname
         self.Lname = Lname
         self.DOB = DOB
         self.Email = Email
         self.majorName = majorName
+        self.majorID = majorID
         
     @staticmethod
     def get_user_by_email(email):
@@ -55,6 +56,44 @@ class User:
             "DOB": self.DOB.strftime('%Y-%m-%d') if self.DOB else None,
             "Email": self.Email,
             "majorName": self.majorName
+        }
+        
+    def get_major_courses(self):
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary=True)
+        try:
+            cursor.execute("""
+                SELECT
+                    c.courseID,
+                    c.courseCode,
+                    c.courseName,
+                    c.description,
+                    c.Credits,
+                    c.Level,
+                    c.Requirements
+                FROM
+                    cs425.tblUser u
+                JOIN
+                    cs425.tblMajor m ON u.majorID = m.majorID
+                JOIN
+                    cs425.tblMajorCourses mc ON m.majorID = mc.majorID
+                JOIN
+                    cs425.tblCourses c ON mc.courseID = c.courseID
+                WHERE
+                    u.Email = %s
+            """, (self.Email,))
+            courses = cursor.fetchall()
+            return courses
+        except Exception as e:
+            print(e)
+            return []
+        finally:
+            cursor.close()
+            connection.close()
+            
+    def courses_to_json(self):
+        return {
+            "courses": self.get_major_courses()
         }
         
 
@@ -208,9 +247,9 @@ def get_majors():
         return jsonify({"error": "DB connection failed"}), 500
     
 
-#fetch course information, not finished
-@app.route('/getCourseInfo', methods=['GET'])
-def get_courses():
+# fetch course information, not finished
+# @app.route('/getCourseInfo', methods=['GET'])
+# def get_courses():
     connection = connectToDB()
     if connection:
         cursor = connection.cursor()
@@ -272,6 +311,21 @@ def user_dashboard():
         return jsonify({"message": "User not found"}), 404
     
     
+# Load courses page with user-specific course list
+@app.route('/courses', methods=['GET'])
+@jwt_required()
+def loadCourses():
+    identity = get_jwt_identity()
+    current_user_email = identity['email']
+    print(f"Extracted email: {current_user_email}")
+    user = User.get_user_by_email(current_user_email)
+    if user:
+        print("STILL LOGGED IN MY ACCOUNT")
+        return jsonify(user.courses_to_json()), 200
+    else:
+        return jsonify({"message": "User not found"}), 404
+    
+    
 @app.route('/myaccount', methods=['GET'])
 @jwt_required()
 def myAccount():
@@ -289,6 +343,20 @@ def myAccount():
 @app.route('/editprofile', methods=['GET'])
 @jwt_required()
 def editProfile():
+    identity = get_jwt_identity()
+    current_user_email = identity['email']
+    print(f"Extracted email: {current_user_email}")
+    user = User.get_user_by_email(current_user_email)
+    if user:
+        print("STILL LOGGED IN MY ACCOUNT")
+        return jsonify(user.conv_to_json()), 200
+    else:
+        return jsonify({"message": "User not found"}), 404
+    
+    
+@app.route('/changepassword', methods=['GET'])
+@jwt_required()
+def changePassword():
     identity = get_jwt_identity()
     current_user_email = identity['email']
     print(f"Extracted email: {current_user_email}")

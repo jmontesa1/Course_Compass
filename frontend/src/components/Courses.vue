@@ -84,6 +84,7 @@
 <script>
     import FilterMenu from '@/components/FilterMenu.vue'
     import CourseList from '@/components/CourseList.vue'
+    import axios from 'axios';
 
 
     export default{
@@ -108,6 +109,7 @@
         },
         data() {
             return {
+                courseList: [],
                 departmentSearch: '',
                 professorSearch: '',
                 sortByMajorRequirements: false,
@@ -120,28 +122,29 @@
                         keywords: ['Attendance', 'Lecture Heavy', 'Textbook Required', 'Projects'], location: 'WPEB 130', format: 'In-Person', requirement: 'N/A',
                         term: 'Fall 2023', program: 'Undergraduate', days: ['Tuesday', 'Thursday'], meetingtime:'10:30 AM - 11:45 AM', units: '3.0',
                         prerequisites: 'CS 446', status: 'Waitlist', section: '1001' },
-        
-                        { name: 'this is a projected course'},
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        //Add more courses as needed
                     ],
             };
         },
 
         methods: {
+            fetchCourses() {
+                axios.get('http://127.0.0.1:5000/courses', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
+                .then(response => {
+                    this.courseList = response.data.map(course => ({
+                    id: course.courseID,
+                    code: course.courseCode,
+                    name: course.courseName,
+                    description: course.description,
+                    credits: course.Credits,
+                    level: course.Level,
+                    requirements: course.Requirements,
+                    }));
+                    console.log('My Account page loaded successfully', response.data)
+                })
+                .catch(error => {
+                console.error("Failed to load:", error);
+                });
+            },
             addToSchedule(course) {
                 if (!this.schedule.some((c) => c.name === course.name)) {
                     this.schedule.push(course);
@@ -167,6 +170,9 @@
                     this.selectedFilters.push(filter);
                 }
 },
+        },
+        created() {
+            this.fetchCourses();
         },
     }
 </script>
