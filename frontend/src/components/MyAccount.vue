@@ -25,7 +25,7 @@
                         <p><strong>Birthdate:</strong> {{ user.dob }}</p>
                         <p><strong>Major:</strong> {{ user.major }}</p>
                         <!-- Add other user information fields as needed -->
-                        <button type="submit">Edit Profile</button>
+                        <button type="button" @click="navigateToEditProfile">Edit Profile</button>
                         <button type="submit">Change Password</button>
                     </div>
                 </div>
@@ -77,6 +77,9 @@
                 .catch(error => {
                     console.error("Error loading My Account page", error);
                 });        
+            },
+            navigateToEditProfile() {
+                this.$router.push('/editprofile');
             }
         }
     }

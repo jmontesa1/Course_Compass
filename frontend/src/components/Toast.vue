@@ -2,7 +2,7 @@
 <!-- This is the template for all of the toast notifications on the website, reusable with different messages!-->
 
 <template>
-    <div :class="{ 'toast-container': true, 'fade-in': showToast, 'fade-out': !showToast }" :style="{ backgroundColor: toastColor }">
+    <div :class="{ 'toast-container': true, 'fade-in': showToast, 'fade-out': !showToast }">
         <div class="toast-content" :style="{ height: showToast ? 'auto' : '40px' }">
             <p>{{ toastMessage }}</p>
         </div>
@@ -63,6 +63,7 @@
         top: 10%;
         left: 50%;
         transform: translateX(-50%);
+        background-color: var(--toast-color, #da4d4d);
         color: #ffffff;
         border-radius: 5px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
@@ -104,4 +105,3 @@
         transition: width 0.05s linear;
     }
 </style>
-
