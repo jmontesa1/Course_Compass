@@ -34,10 +34,11 @@
             <div class="filter-row">
                 <div class="filter-chips-container">
                     <p class="selected-filters">Applied Filters: {{ selectedFilters }}</p>
-                    <v-chip v-for="filter in selectedFilters" :key="filter.id" color="darkgrey" closable
-                        class="filter-chips"
-                        @click:close="handleFilterSelected(filter)">
+                    <v-chip class="filter-chips" v-for="(filter, index) in selectedFilters" :key="index" color="darkgrey">
                         {{ filter }}
+                        <v-icon @click="handleFilterSelected(filter)" class="cancel-icon">
+                            <span class="material-icons" style="color:black;">cancel</span>
+                        </v-icon>
                     </v-chip>
                 </div>
             </div>
@@ -50,7 +51,7 @@
         <div class="col-md-2 d-flex flex-column">
             <!--Sort by Major Requirements Row-->
 
-            <FilterMenu :selected="selectedFilters" @itemSelected="handleFilterSelected" :open="filterMenuOpen" ></FilterMenu>
+            <FilterMenu v-model:selectedFilters="selectedFilters" @itemSelected="handleFilterSelected" :open="filterMenuOpen" ></FilterMenu>
 
             <div class="form-check mb-3">
                 <label class="form-check-label" for="sortMajorRequirements">
@@ -92,6 +93,18 @@
         {
             FilterMenu,
             CourseList,
+        },
+
+        props: {
+            selectedFilters: {
+            type: Array,
+            default: () => [],
+            },
+        },
+        watch: {
+            selectedFilters(newFilters) {
+            this.selectedFilters = newFilters;
+            },
         },
         data() {
             return {
@@ -240,4 +253,7 @@
         white-space: nowrap;
     }
 
+    .cancel-icon{
+        margin-left: 6px;
+    }
 </style>

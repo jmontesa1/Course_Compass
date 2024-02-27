@@ -58,7 +58,7 @@
             </div>
         </div>
     </div>
-
+    <br>
 </template>
 
 <script>
@@ -225,11 +225,12 @@
 
     h1 {
         white-space: nowrap;
-        text-align: center;
+        text-align: left;
         font-family: coolvetica;
         font-size: 30px;
         margin-top: 2px;
         margin-bottom: -6px;
+        margin-left: 16px;
     }
 
     .schedule-days { /* outer part of the schedule*/

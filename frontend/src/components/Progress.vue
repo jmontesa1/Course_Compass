@@ -48,6 +48,52 @@
         </div>
     </div>
     <br>
+
+    <v-container class="gpa-calculator">
+        <v-row>
+            <h1>GPA Calculator</h1>
+        </v-row>
+
+        <v-row no-gutters>
+            <v-col>Course</v-col>
+            <v-col>Credits</v-col>
+            <v-col>Grade</v-col>
+            <v-col cols="1"></v-col>
+        </v-row>
+
+    <v-form ref="form">
+        <v-row style="height:70px;" v-for="(courseGPA, index) in coursesGPA" :key="index">
+            <v-col>
+                <v-text-field v-model="courseGPA.name" label="Course Name (Optional)"></v-text-field>
+            </v-col>
+            <v-col>                
+                <v-text-field v-model="courseGPA.credits" label="Credits"></v-text-field>
+            </v-col>
+            <v-col>
+              <v-select v-model="courseGPA.grade" :items="grades.map(item => item.grade)" label="Grade" required></v-select>
+            </v-col>
+            <v-col cols="1">
+                <v-btn class="close-btn" @click="removeCourseGPA">
+                    <span class="material-icons" style="color:black">close</span>
+                </v-btn>
+            </v-col>
+        </v-row>
+
+        <v-row>
+            <v-col cols="2">
+                <v-btn @click="addCourseGPA">Add a course</v-btn>
+            </v-col>
+            <v-col></v-col>
+            <v-col cols="2">
+                <v-btn @click="calculateGPA">Calculate</v-btn>
+            </v-col>
+        </v-row>
+
+    </v-form>
+
+        <v-row>{{GPA}}</v-row>
+
+    </v-container>
 </template>
 
 <script>
@@ -90,7 +136,64 @@
                 ],
 
                 selectedMajor: null,
+                grades:[
+                    { grade: 'A', weight: 4.0 },
+                    { grade: 'A-', weight: 3.67 },
+                    { grade: 'B+', weight: 3.33 },
+                    { grade: 'B', weight: 3.0 },
+                    { grade: 'B-', weight: 2.67 },
+                    { grade: 'C+', weight: 2.33 },
+                    { grade: 'C', weight: 2.0 },
+                    { grade: 'C-', weight: 1.67 },
+                    { grade: 'D+', weight: 1.33 },
+                    { grade: 'D', weight: 1.0 },
+                    { grade: 'D-', weight: 0.67 },
+                    { grade: 'F', weight: 0.0 },
+                    { grade: 'S', weight: 0.0 },
+                    { grade: 'U', weight: 0.0 }
+                ],
+
+                coursesGPA:[
+                    {name:'', credits:'', grade:''},
+                    {name:'', credits:'', grade:''},
+                    {name:'', credits:'', grade:''},
+                    {name:'', credits:'', grade:''},
+                ],
+                GPA: 0,
             };
+        },
+
+        methods:{
+            addCourseGPA(){
+                this.coursesGPA.push({name:'', credits:'', grade:''});
+                this.$refs.form.reset()
+            },
+
+            removeCourseGPA(index){
+                this.coursesGPA.splice(index, 1);
+                this.$refs.form.reset()
+            },
+
+            calculateGPA(){
+            let totalCredits = 0;
+                let totalWeightedPoints = 0;
+
+                this.coursesGPA.forEach((course) => {
+                const credits = parseFloat(course.credits);
+                const gradeInfo = this.grades.find((item) => item.grade === course.grade);
+
+                if (!isNaN(credits) && gradeInfo) {
+                    totalCredits += credits;
+                    totalWeightedPoints += credits * gradeInfo.weight;
+                }
+                });
+
+                if (totalCredits > 0) {
+                this.GPA = totalWeightedPoints / totalCredits;
+                } else {
+                this.GPA = 0;
+                }
+            },
         },
     
         created() {
@@ -120,6 +223,11 @@
 </script>
 
 <style scoped>
+    .gpa-calculator{
+        border: 1px black solid;
+        min-height: 400px;
+    }
+
     h2 {
         font-family: 'coolvetica', coolvetica;
         text-align: left;
