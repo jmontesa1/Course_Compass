@@ -58,6 +58,12 @@ class User:
             "majorName": self.majorName
         }
         
+        
+    # REWRITE SQL STATEMENT TO CORRECTLY RETRIEVE COURSES
+    # SHOULD RETURN ONLY COURSES BELONGING TO USER MAJOR
+    # WHEN RUNNING DEV APP, CLICK COURSES IN NAV BAR, AND CHECK PRINT STATEMENT IN BACKEND.PY TERMINAL
+    # WILL DISPLAY '{'courses': [list of courses]}' AFTER LOGIN COMFIRM STATEMENT
+    # THIS PRINT STATEMENT IS LOCATED IN loadCourses FUNCTION BELOW
     def get_major_courses(self):
         connection = connectToDB()
         cursor = connection.cursor(dictionary=True)
@@ -320,7 +326,9 @@ def loadCourses():
     print(f"Extracted email: {current_user_email}")
     user = User.get_user_by_email(current_user_email)
     if user:
-        print("STILL LOGGED IN MY ACCOUNT")
+        print("STILL LOGGED IN SUCCESS")
+        test = user.courses_to_json()
+        print(test)
         return jsonify(user.courses_to_json()), 200
     else:
         return jsonify({"message": "User not found"}), 404
