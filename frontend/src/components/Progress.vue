@@ -61,38 +61,82 @@
             <v-col cols="1"></v-col>
         </v-row>
 
-    <v-form ref="form">
-        <v-row style="height:70px;" v-for="(courseGPA, index) in coursesGPA" :key="index">
-            <v-col>
-                <v-text-field v-model="courseGPA.name" label="Course Name (Optional)"></v-text-field>
-            </v-col>
-            <v-col>                
-                <v-text-field v-model="courseGPA.credits" label="Credits"></v-text-field>
-            </v-col>
-            <v-col>
-              <v-select v-model="courseGPA.grade" :items="grades.map(item => item.grade)" label="Grade" required></v-select>
-            </v-col>
-            <v-col cols="1">
-                <v-btn class="close-btn" @click="removeCourseGPA">
-                    <span class="material-icons" style="color:black">close</span>
-                </v-btn>
-            </v-col>
-        </v-row>
+        <v-form ref="form">
+            <v-row style="height:70px;" v-for="(courseGPA, index) in coursesGPA" :key="index">
+                <v-col>
+                    <v-text-field v-model="courseGPA.name" label="Course Name (Optional)"></v-text-field>
+                </v-col>
+                <v-col>                
+                    <v-text-field v-model="courseGPA.credits" label="Credits"></v-text-field>
+                </v-col>
+                <v-col>
+                <v-select v-model="courseGPA.grade" :items="grades.map(item => item.grade)" label="Grade" required></v-select>
+                </v-col>
+                <v-col cols="1">
+                    <v-btn class="close-btn" @click="removeCourseGPA">
+                        <span class="material-icons" style="color:black">close</span>
+                    </v-btn>
+                </v-col>
+            </v-row>
 
-        <v-row>
-            <v-col cols="2">
-                <v-btn @click="addCourseGPA">Add a course</v-btn>
-            </v-col>
-            <v-col></v-col>
-            <v-col cols="2">
-                <v-btn @click="calculateGPA">Calculate</v-btn>
-            </v-col>
-        </v-row>
+            <v-row>
+                <v-col cols="2">
+                    <v-btn @click="addCourseGPA">Add a course</v-btn>
+                </v-col>
+                <v-col></v-col>
+                <v-col cols="2">
+                    <v-btn @click="calculateGPA">Calculate</v-btn>
+                </v-col>
+            </v-row>
 
     </v-form>
 
         <v-row>{{GPA}}</v-row>
 
+    </v-container>
+
+    <v-container class="exam-calculator">
+        <v-row>
+            <h1>GPA Calculator</h1>
+        </v-row>
+
+        <v-row no-gutters>
+            <v-col>Course</v-col>
+            <v-col>Credits</v-col>
+            <v-col>Grade</v-col>
+            <v-col cols="1"></v-col>
+        </v-row>
+
+        <v-form ref="form">
+            <v-row style="height:70px;" v-for="(courseGPA, index) in coursesGPA" :key="index">
+                <v-col>
+                    <v-text-field v-model="courseGPA.name" label="Course Name (Optional)"></v-text-field>
+                </v-col>
+                <v-col>                
+                    <v-text-field v-model="courseGPA.credits" label="Credits"></v-text-field>
+                </v-col>
+                <v-col>
+                <v-select v-model="courseGPA.grade" :items="grades.map(item => item.grade)" label="Grade" required></v-select>
+                </v-col>
+                <v-col cols="1">
+                    <v-btn class="close-btn" @click="removeCourseGPA">
+                        <span class="material-icons" style="color:black">close</span>
+                    </v-btn>
+                </v-col>
+            </v-row>
+
+            <v-row>
+                <v-col cols="2">
+                    <v-btn @click="addCourseGPA">Add a course</v-btn>
+                </v-col>
+                <v-col></v-col>
+                <v-col cols="2">
+                    <v-btn @click="calculateGPA">Calculate</v-btn>
+                </v-col>
+            </v-row>
+        </v-form>
+
+        <v-row>{{GPA}}</v-row>
     </v-container>
 </template>
 
@@ -224,6 +268,11 @@
 
 <style scoped>
     .gpa-calculator{
+        border: 1px black solid;
+        min-height: 400px;
+    }
+
+    .exam-calculator{
         border: 1px black solid;
         min-height: 400px;
     }
