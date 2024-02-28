@@ -3,62 +3,97 @@
 <!-- This page will show the scheudle of the specific user in a time table/ time block style -->
 
 <template>
-    <div class="header-container">
-        <div class="row justify-content-center">
-            <div class="col d-flex flex-column"><h1>{{ user.firstname }} {{ user.lastname }}'s Schedule | {{ user.term }}</h1></div>
-                <button class="print-btn" @click="downloadPDF">
-                    <img class ="printer" src="../assets/printer.png" alt="Print Button">
-                </button>
-        </div>
-    </div>
+    <v-row no-gutters>
+        <v-col cols="2">
+        <v-tabs v-model="tab" direction="vertical" color="primary">
+            <v-tab value="class-schedule" @click="chooseClassSchedule">
+                <v-icon start>
+                    <span class="material-icons" style="color:black">calendar_view_day</span>
+                </v-icon>
+                Class Schedule
+            </v-tab>
 
-    <div id="schedule-page" ref="schedulePage">
-        <div class="container-fluid mt-3">
-            <div class="schedule-days">
-                <!-- This is the very top of the schedule, showing the days -->
-                <div class="row">
-                    <div class="col-sm-1"></div>
-                    <div v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']" :key="day" class="col d-flex flex-column">
-                        {{ day }}
+            <v-tab value="calendar" @click="chooseCalendar()">
+                <v-icon start>
+                    <span class="material-icons" style="color:black">calendar_month</span>
+                </v-icon>
+                Calendar
+            </v-tab>
+        </v-tabs>
+        </v-col>
+
+        <v-col>
+            <div class="right-side1" v-if="classSchedule">
+                <div class="header-container">
+                    <div class="row justify-content-center">
+                        <div class="col d-flex flex-column"><h1>{{ user.firstname }} {{ user.lastname }}'s Schedule | {{ user.term }}</h1></div>
+                            <button class="print-btn" @click="downloadPDF">
+                                <img class ="printer" src="../assets/printer.png" alt="Print Button">
+                            </button>
                     </div>
                 </div>
 
-                <!-- This is the rest of the schedule, showing the time and blocks of courses -->
-                <div class="row">
-                    <!-- This is the time on the left side -->
-                    <div class="col-sm-1">
-                            <div class="time-slot" v-for="time in ['8', '9', '10', '11', '12', '1', '2', '3', '4', '5', '6', 
-                            '7']" :key="time">
-                                <div class="time-slot-hour"><h2> {{ time }} </h2></div> <!-- height of each row-->
-                                <div class="time-slot-bar"></div> <!-- bars for time -->
-                            </div>
-                    </div>
-
-
-                    <div v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']" :key="day" class="col">
-                                <div class="time-slot" v-for="time in ['8', '9', '10', '11', '12', '1', '2', '3', '4', '5', '6', '7']" :key="time">
-                                    <div class="day-slot-hour"></div> <!-- height of each row-->
-                                    <div class="day-slot-bar"></div> <!-- bars for time -->
-                                    <template v-if="time === '8' && day === 'Monday' || time === '8' && day === 'Tuesday'
-                                            || time === '8' && day === 'Wednesday' || time === '8' && day === 'Thursday'
-                                            || time === '8' && day === 'Friday'">
-                                        <div v-for="classBlock in generateBlocks(day)" :key="classBlock.id" :style="classBlock.style">
-                                            <div class="class-info">
-                                                {{ classBlock.classes.map(item => item.course).join(', ') }}
-                                                <br>
-                                                {{ classBlock.classes[0].time }}
-                                                <br>
-                                                {{ classBlock.classes[0].location }}
-                                            </div>
-                                        </div>
-                                    </template>
+                <div id="schedule-page" ref="schedulePage">
+                    <div class="container-fluid mt-3">
+                        <div class="schedule-days">
+                            <!-- This is the very top of the schedule, showing the days -->
+                            <div class="row">
+                                <div class="col-sm-1"></div>
+                                <div v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']" :key="day" class="col d-flex flex-column">
+                                    {{ day }}
                                 </div>
+                            </div>
+
+                            <!-- This is the rest of the schedule, showing the time and blocks of courses -->
+                            <div class="row">
+                                <!-- This is the time on the left side -->
+                                <div class="col-sm-1">
+                                        <div class="time-slot" v-for="time in ['8', '9', '10', '11', '12', '1', '2', '3', '4', '5', '6', 
+                                        '7']" :key="time">
+                                            <div class="time-slot-hour"><h2> {{ time }} </h2></div> <!-- height of each row-->
+                                            <div class="time-slot-bar"></div> <!-- bars for time -->
+                                        </div>
+                                </div>
+
+
+                                <div v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']" :key="day" class="col">
+                                            <div class="time-slot" v-for="time in ['8', '9', '10', '11', '12', '1', '2', '3', '4', '5', '6', '7']" :key="time">
+                                                <div class="day-slot-hour"></div> <!-- height of each row-->
+                                                <div class="day-slot-bar"></div> <!-- bars for time -->
+                                                <template v-if="time === '8' && day === 'Monday' || time === '8' && day === 'Tuesday'
+                                                        || time === '8' && day === 'Wednesday' || time === '8' && day === 'Thursday'
+                                                        || time === '8' && day === 'Friday'">
+                                                    <div v-for="classBlock in generateBlocks(day)" :key="classBlock.id" :style="classBlock.style">
+                                                        <div class="class-info">
+                                                            {{ classBlock.classes.map(item => item.course).join(', ') }}
+                                                            <br>
+                                                            {{ classBlock.classes[0].time }}
+                                                            <br>
+                                                            {{ classBlock.classes[0].location }}
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+            <br>
             </div>
-        </div>
-    </div>
-    <br>
+
+            <div class="right-side2" v-if="calendar">
+                <h2>HaHAHAHAHA</h2>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+            </div>
+
+        </v-col>
+    </v-row>
 </template>
 
 <script>
@@ -68,22 +103,26 @@
     export default {
         data() {
             return {
-            user: {
-                firstname: '',
-                lastname: '',
-                major: '',
-                term: 'Fall 2023',
-            },
+                tab: 'class-schedule',
+                classSchedule: true,
+                calendar: false,
 
-            schedule: [
-                { course: 'CS 135', days: ['Monday','Wednesday','Friday'], time: '10:00 AM - 10:50 AM', start: '10:00 AM', end: '10:50 AM', location: 'SEM 104' },
-                { course: 'CS 425', days: ['Tuesday','Thursday'], time: '10:30 AM - 11:45 AM', start: '10:30 AM', end: '11:45 AM', location: 'WPEB 101' },
-                { course: 'CS 302', days: ['Monday', 'Wednesday'], time: '3:00 PM - 4:15 PM', start: '3:00 PM', end: '4:15 PM', location: 'PSAC 1002' },
-                { course: 'ENG 101', days: ['Monday', 'Wednesday', 'Friday'], time: '6:00 PM - 6:50 PM', start: '6:00 PM', end: '6:50 PM', location: 'MKIC 320' },
-                { course: 'EE 165', days: ['Monday', 'Wednesday', 'Friday'], time: '8:30 AM - 9:45 AM', start: '8:30 AM', end: '9:45 AM', location: 'SLC 102' },
-                { course: 'MUS 123', days: ['Tuesday', 'Thursday', 'Friday'], time: '1:00 PM - 1:50 PM', start: '1:00 PM', end: '1:50 PM', location: 'CFA 102' },
-                // Add more events as needed
-            ],
+                user: {
+                    firstname: '',
+                    lastname: '',
+                    major: '',
+                    term: 'Fall 2023',
+                },
+
+                schedule: [
+                    { course: 'CS 135', days: ['Monday','Wednesday','Friday'], time: '10:00 AM - 10:50 AM', start: '10:00 AM', end: '10:50 AM', location: 'SEM 104' },
+                    { course: 'CS 425', days: ['Tuesday','Thursday'], time: '10:30 AM - 11:45 AM', start: '10:30 AM', end: '11:45 AM', location: 'WPEB 101' },
+                    { course: 'CS 302', days: ['Monday', 'Wednesday'], time: '3:00 PM - 4:15 PM', start: '3:00 PM', end: '4:15 PM', location: 'PSAC 1002' },
+                    { course: 'ENG 101', days: ['Monday', 'Wednesday', 'Friday'], time: '6:00 PM - 6:50 PM', start: '6:00 PM', end: '6:50 PM', location: 'MKIC 320' },
+                    { course: 'EE 165', days: ['Monday', 'Wednesday', 'Friday'], time: '8:30 AM - 9:45 AM', start: '8:30 AM', end: '9:45 AM', location: 'SLC 102' },
+                    { course: 'MUS 123', days: ['Tuesday', 'Thursday', 'Friday'], time: '1:00 PM - 1:50 PM', start: '1:00 PM', end: '1:50 PM', location: 'CFA 102' },
+                    // Add more events as needed
+                ],
 
             };
         },
@@ -93,6 +132,18 @@
         },
 
         methods: {
+            chooseClassSchedule(){
+                this.tab = 'class-schedule';
+                this.calendar = false;
+                this.classSchedule = true;
+            },
+
+            chooseCalendar(){
+                this.tab = 'calendar';
+                this.classSchedule = false;
+                this.calendar = true;
+            },
+
             async downloadPDF() {
                 await this.$nextTick();
                 const content = this.$refs.schedulePage;
@@ -239,7 +290,6 @@
         text-align: center;
         padding: 10px;
         border: 1px solid #000000; 
-        border-radius: 8px;
     }
 
     .col {
@@ -327,5 +377,17 @@
         .class-info {
             font-size: 12px; /* Adjust the font size for smaller screens */
         }
+    }
+
+    .right-side1{
+        border-left: 1px solid black;
+    }
+
+    .right-side2{
+        border-left: 1px solid black;
+    }
+
+    .v-tab{
+        font-family: Poppins;
     }
 </style>
