@@ -219,6 +219,7 @@ def get_user_schedule_stored_procedure():
                     "startTime": str(schedule[14]),#time needs to be a string
                     "endTime": str(schedule[15]),
                     "Location": schedule[11],
+                    "Term": schedule[6],
                 }
                 schedule_list.append(schedule_dict)
                 

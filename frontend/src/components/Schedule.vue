@@ -26,7 +26,7 @@
             <div class="right-side1" v-if="classSchedule">
                 <div class="header-container">
                     <div class="row justify-content-center">
-                        <div class="col d-flex flex-column"><h1>{{ user.firstname }} {{ user.lastname }}'s Schedule | {{ user.term }}</h1></div>
+                        <div class="col d-flex flex-column"><h1>{{ user.firstname }} {{ user.lastname }}'s Schedule | {{ schedule.length > 0 ? schedule[0].term : 'No term available' }}</h1></div>
                             <button class="print-btn" @click="downloadPDF">
                                 <img class ="printer" src="../assets/printer.png" alt="Print Button">
                             </button>
@@ -111,7 +111,7 @@
                     firstname: '',
                     lastname: '',
                     major: '',
-                    term: 'Fall 2023',
+                    //term: 'Fall 2023',
                 },
 
                 schedule: [],
@@ -182,6 +182,7 @@
                                 start: item.startTime, 
                                 end: item.endTime,  
                                 location: item.Location,
+                                term: item.Term,
                             };
                         });
                     }
