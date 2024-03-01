@@ -19,6 +19,7 @@ bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
 
+
 # User class to store user information
 class User:
     def __init__(self, userID=None, Fname=None, Lname=None, DOB=None, Email=None, majorName=None):
@@ -187,6 +188,48 @@ def getUserInfo():
             return jsonify({"error": "DB connection failed"}), 500
     else:
         return jsonify({"error": "User not logged in"}), 401
+    
+
+#retrive user schedule
+@app.route('/getUserSchedule', methods=['GET'])
+@jwt_required()
+def get_user_schedule_stored_procedure():
+    identity = get_jwt_identity()
+    current_user_email = identity['email']
+    current_user_email = get_jwt_identity()['email']
+
+    print("Current user email:", current_user_email)#to see if correct email
+
+    connection = connectToDB()
+    if connection:
+        cursor = connection.cursor()
+        try:
+            cursor.callproc('GetUserSchedule', [current_user_email])
+            
+            user_schedule = []
+            for result in cursor.stored_results():
+                user_schedule = result.fetchall()
+            
+            schedule_list = []
+            for schedule in user_schedule:
+                schedule_dict = {
+                    "courseCode": schedule[3],
+                    "meetingDays": schedule[9],
+                    "meetingTimes": schedule[10],
+                    "startTime": str(schedule[14]),#time needs to be a string
+                    "endTime": str(schedule[15]),
+                    "Location": schedule[11],
+                }
+                schedule_list.append(schedule_dict)
+                
+            return jsonify({"user_schedule": schedule_list}), 200
+        except Error as err:
+            return jsonify({"error": "Error while fetching user schedule: " + str(err)}), 500
+        finally:
+            cursor.close()
+            connection.close()
+    else:
+        return jsonify({"error": "DB connection failed"}), 500
 
 
 # Retrieve majors
@@ -198,7 +241,7 @@ def get_majors():
         try:
             cursor.execute("SELECT majorName FROM cs425.tblMajor")
             majors = [row[0] for row in cursor.fetchall()]
-            return jsonify({"majors": majors}), 200  
+            return jsonify({"majors": sorted(majors)}), 200  
         except Error as err:
             return jsonify({"error": "Error while fetching majors: " + str(err)}), 500
         finally:
@@ -207,37 +250,6 @@ def get_majors():
     else:
         return jsonify({"error": "DB connection failed"}), 500
     
-
-#fetch course information, not finished
-@app.route('/getCourseInfo', methods=['GET'])
-def get_courses():
-    connection = connectToDB()
-    if connection:
-        cursor = connection.cursor()
-        try:
-            cursor.execute("SELECT * FROM cs425.tblCourses")
-            courses = cursor.fetchall()
-
-            courses_list = []
-            for course in courses:
-                course_dict = {
-                    "courseCode" : course[1],
-                    "courseName" : course[2],
-                    "description" : course[4],
-                    "Room" : course[14],
-                    "instructor" : course[15],
-                    "section" : course[13]
-                }
-                courses_list.append(course_dict)
-            return jsonify({"courses": courses_list}), 200  
-        except Error as err:
-            return jsonify({"error": "Error while fetching courses: " + str(err)}), 500
-        finally:
-            cursor.close()
-            connection.close()
-    else:
-        return jsonify({"error": "DB connection failed"}), 500
-
 
 #logout route
 @app.route('/logout', methods=['POST'])
