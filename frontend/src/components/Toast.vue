@@ -2,7 +2,7 @@
 <!-- This is the template for all of the toast notifications on the website, reusable with different messages!-->
 
 <template>
-    <div :class="{ 'toast-container': true, 'fade-in': showToast, 'fade-out': !showToast }">
+    <div :class="{ 'toast-container': true, 'fade-in': showToast, 'fade-out': !showToast }" :style="{ backgroundColor: toastColor }">
         <div class="toast-content" :style="{ height: showToast ? 'auto' : '40px' }">
             <p>{{ toastMessage }}</p>
         </div>

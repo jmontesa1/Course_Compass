@@ -31,6 +31,7 @@
             </div>
         </div>
 
+        <br>
         <div class="roles-container">
             <div class="text3-container">
                 <h1 class="hero2">Students</h1>
@@ -42,6 +43,8 @@
             </p>
         </div>
 
+        <br>
+        <br>
         <div class="roles-container2">
             <div class="text4-container">
                 <h1 class="hero2">Professors</h1>
@@ -52,13 +55,14 @@
             </p>
         </div>
 
+        <br>
         <h1 class="hero3">Features:</h1>
 
         <div class="features-container">
             <v-card>
                 <v-tabs v-model="tab" bg-color="transparent" color="white" grow>
                     <v-tab v-for="item in items" :key="item.value" :value="item.value"
-                        :class="{ 'features-tab': true, 'features-tab--active': tab === item.value }">
+                        :class="{ 'features-tab': true, 'features-tab--active': tab === item.value }" style="font-family: Poppins;">
                         {{ item.label }}
                     </v-tab>
                 </v-tabs>
@@ -76,10 +80,15 @@
                 </v-window>
             </v-card>
         </div>
+
+        <br>
+        <br>
+        <br>
 </template>
 
 <script setup>
     import { ref } from 'vue'
+import About from './About.vue';
 
     const tab = ref('Features')
 
@@ -93,6 +102,7 @@
 
 <script>
     export default {
+  components: { About },
         data () {
         return {
             tab: 'Features',
@@ -214,9 +224,9 @@
 
 
     .text1-container{
-        position:absolute;
-        right: 8%;
-        top: 10%;
+        position:relative;
+        top: 7%;
+        left: 45%;
         z-index: 2;
     }
 
@@ -250,7 +260,7 @@
     button {
         font-family: coolvetica, sans-serif;
         font-size: 25px;
-        background-color: #000000;
+        background-color: #292b86;
         color: #ffffff;
         padding: 5px 15px;
         border: none;
@@ -260,7 +270,7 @@
     }
 
     button:hover {
-        background-color: #555555;
+        background-color: black;/*#555555;*/
     }
 
     .laptop{

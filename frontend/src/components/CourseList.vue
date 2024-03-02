@@ -60,6 +60,7 @@
             handleCourseClick(course) {
                 this.selectedCourse = course;
             },
+            
             closePopup() {
                 this.selectedCourse = null;
                 this.notification = null;

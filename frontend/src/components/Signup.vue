@@ -135,7 +135,7 @@
 
         validateForm() {
             if (this.email !== this.confirmEmail || this.password !== this.confirmPass) {
-                this.$emit("show-toast", "Emails and Passwords must match.");
+                this.$emit("show-toast", { message: "Emails and Passwords must match."});
                 return false;
             }
             return true;
@@ -157,7 +157,7 @@
                     .then(response => {
                         console.log(response.data.message);
                         if(response.status === 200){
-                        this.$emit("show-toast", "Welcome to Course Compass!", "#51da6e");
+                        this.$emit("show-toast", { message: "Welcome to Course Compass!", color: '#51da6e' });
                         setTimeout(() => {
                             this.$router.push('/login');
                         }, 2500);
@@ -165,11 +165,11 @@
                     })
                     .catch(error => {
                         if (error.response && error.response.status ===409){
-                            this.$emit("show-toast","Signup failed: " + error.response.data.message);
+                            this.$emit("show-toast",{ message: "Signup failed: " + error.response.data.message});
                         }
                         else{
                             console.error("A problem has ocurred: Unable to sign up:", error);
-                            this.$emit("show-toast","Signup failed: " + error.message);
+                            this.$emit("show-toast",{ message: "Signup failed: " + error.message});
                         }
                     });
             }
@@ -189,7 +189,7 @@
         const minimumAge = 18;
 
         if (age < minimumAge) {
-            this.$emit("show-toast", "You must be at least 18 years old to sign up.");
+            this.$emit("show-toast", { message: "You must be at least 18 years old to sign up."});
             return false;
         }
         return true;

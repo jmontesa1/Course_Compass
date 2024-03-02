@@ -14,8 +14,8 @@ import { VCalendar } from 'vuetify/labs/VCalendar'
 const vuetify = createVuetify({
     components:{
       VCalendar,
+      ...components,
     },
-    components,
     directives,
     icons: {
         defaultSet: 'mdi',

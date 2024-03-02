@@ -3,7 +3,7 @@
   <NavBar :isLoggedIn="isLoggedIn" @logout="handleLogout"/>
   <router-view @login-status-changed="updateLoginStatus" @show-toast="showToastMessage" />
   <Footer></Footer>
-  <Toast :showToast="showToast" :toastMessage="toastMessage" />
+  <Toast :showToast="showToast" :toastMessage="toastMessage" :toastColor="toastColor" />
 
 
 </template>
@@ -26,6 +26,7 @@
             isLoggedIn: false,
             showToast: false,
             toastMessage: "",
+            toastColor: '#da4d4d',
         };
     },
     mounted() {
@@ -49,8 +50,9 @@
           localStorage.removeItem('isLoggedIn');
         },
 
-        showToastMessage(message){
-                this.toastMessage = message;
+        showToastMessage(payload){
+                this.toastMessage = payload.message;
+                this.toastColor = payload.color;
                 this.showToast = true;
                 setTimeout(() => {
                     this.showToast = false;

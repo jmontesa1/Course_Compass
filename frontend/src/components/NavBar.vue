@@ -78,14 +78,11 @@
                         <li class="nav-item">
                             <router-link to="/about" class = "nav-link">About</router-link>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Account
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><router-link to="/login" class = "dropdown-item">Log in</router-link></li>
-                                <li><router-link to="/signup" class = "dropdown-item">Sign Up</router-link></li>
-                            </ul>
+                        <li class="nav-item">
+                            <router-link to="/login" class = "nav-link">Log In</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link to="/signup" class = "nav-link">Sign Up</router-link>
                         </li>
                     </ul>
                 </div>
@@ -193,11 +190,13 @@
         margin-right: 10px;
     }
 
+
     .nav-link:hover {
         color: #ffffff;
         background-color: #000000;
         margin-top: -5px;
         margin-bottom: -5px;
+
     }
 
     .dropdown-menu {
