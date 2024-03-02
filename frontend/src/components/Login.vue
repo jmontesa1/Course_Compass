@@ -69,22 +69,22 @@
                     console.log(response.data.message);
                     if (response.status === 200) {
                         localStorage.setItem('access_token', response.data.access_token);
-                        this.$emit("show-toast", "Login successful. Welcome back!");
+                        this.$emit("show-toast", { message: "Login successful. Welcome back!", color: '#51da6e' });
                         setTimeout(() => {
                             this.$router.push('/dashboard');
                             this.$emit('login-status-changed', true);                        
                         }, 2500);
                     } else{
                         console.error("Unexpected response during login: ", response);
-                        this.$emit("show-toast","An error occurred during login. Please try again.");
+                        this.$emit("show-toast",{ message: "An error occurred during login. Please try again."});
                     }
                 })
                 .catch(error => {
                     if (error.response && error.response.status === 401) {
-                        this.$emit("show-toast","Invalid email or password.");
+                        this.$emit("show-toast",{ message: "Invalid email or password."});
                     } else {
                         console.error("Login error: ", error);
-                        this.$emit("show-toast","An error occurred during login.");
+                        this.$emit("show-toast",{ message: "An error occurred during login."});
                     }
                     });
             },

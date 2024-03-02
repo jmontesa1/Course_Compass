@@ -68,10 +68,11 @@
 
         <div class="col-md-2 flex-column">
             <div class="enrolled">
-                <p>Enrolled:</p>
+                <p>Cart:</p>
                 <v-chip class="form-control" v-for="course in schedule" :key="course.id" color="darkgrey" closable @click:close="removeFromSchedule(course)">
                         <div class="chip-text">{{ course.name }}</div>
                 </v-chip>
+                <v-btn @click="enrollCourses()">Enroll</v-btn>
             </div>
         </div>
 
@@ -147,7 +148,7 @@
                     this.schedule.push(course);
                 }
                 else if (this.schedule.some((c) => c.name === course.name)) {
-                    this.$emit("show-toast", course.name + " is already added to your schedule.");
+                    this.$emit("show-toast", { message: course.name + " is already added to your cart."});
                 }
             },
 
@@ -166,7 +167,17 @@
                 } else {
                     this.selectedFilters.push(filter);
                 }
-},
+            },
+
+            enrollCourses(){
+                //PUSH THE SCHEDULE ARRAY TO THE BACKEND
+                this.$emit("show-toast", {message: "Courses Enrolled!", color:'#51da6e' });
+
+                //CREATE AN ELSE STATEMENT HERE IF COURSES ALREADY ENROLLED
+                //if(){
+                    //this.$emit("show-toast", {message: "One or more courses already enrolled."})
+                //}
+            }
         },
     }
 </script>

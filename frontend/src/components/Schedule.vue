@@ -83,12 +83,19 @@
             </div>
 
             <div class="right-side2" v-if="calendar">
-                <h2>HaHAHAHAHA</h2>
-                <br>
-                <br>
-                <br>
-                <br>
-                <br>
+                <v-row class="fill-height">
+                    <v-col>
+                        <v-sheet class="calendar-container">
+                            <v-calendar
+                            ref="calendar"
+                            v-model="today"
+                            color="primary"
+                            type="month"
+                            :events="events"
+                            ></v-calendar>
+                        </v-sheet>
+                    </v-col>
+                </v-row>
                 <br>
             </div>
 
@@ -99,10 +106,12 @@
 <script>
     import html2pdf from 'html2pdf.js';
     import axios from 'axios';
+    import { useDate } from 'vuetify';
+    import { ref } from 'vue';
 
     export default {
-        data() {
-            return {
+        data:() => ({
+            
                 tab: 'class-schedule',
                 classSchedule: true,
                 calendar: false,
@@ -124,12 +133,28 @@
                     // Add more events as needed
                 ],
 
-            };
-        },
+                //Every data that involves calendar under this
+                today: ref(new Date()),
+                focus: '',
+                events: [
+                    {
+                        title: 'Cheese',
+                        start: new Date(),  // Start time
+                        end: new Date(),    // End time
+                        color: 'blue',      // Event color
+                        allDay: false       // Whether it's an all-day event
+                    },
+                ],
+                colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
+                names: ['Cheese', 'Holiday', 'PTO', 'Travel', 'Event', 'Birthday', 'Conference', 'Party'],
+        }),
 
         mounted() {
             this.fetchUserInfo();
-        },
+            
+            const adapter = useDate()
+            this.fetchEvents({ start: adapter.startOfDay(adapter.startOfMonth(new Date())), end: adapter.endOfDay(adapter.endOfMonth(new Date())) })
+            },
 
         methods: {
             chooseClassSchedule(){
@@ -174,7 +199,7 @@
                 }
             },
 
-    
+            //This is for the class Schedule
             generateBlocks(day) {
                 const blocks = [];
                 const colors = ['#F1948A', '#AED6F1', '#A3E4D7', '#F9E79F', '#BB8FCE', '#F8C471', '#AEB6BF', '#FADBD8'];
@@ -254,6 +279,7 @@
                                 'transform': `translateY(${yTransformation}px)`, // Apply Y transformation
                                 'position': 'absolute',
                                 'top': `0`,
+                                'z-index': '1',
                             },
                             classes: [course],
                         });
@@ -261,8 +287,43 @@
                 });
                 return blocks;
             },
-        },
 
+
+            //Any method under this are for the calendar
+            getEventColor (event) {
+                return event.color
+            },
+            
+            fetchEvents ({ start, end }) {
+                const events = []
+
+                const min = start
+                const max = end
+                const days = (max.getTime() - min.getTime()) / 86400000
+                const eventCount = this.rnd(days, days + 20)
+
+                for (let i = 0; i < eventCount; i++) {
+                const allDay = this.rnd(0, 3) === 0
+                const firstTimestamp = this.rnd(min.getTime(), max.getTime())
+                const first = new Date(firstTimestamp - (firstTimestamp % 900000))
+                const secondTimestamp = this.rnd(2, allDay ? 288 : 8) * 900000
+                const second = new Date(first.getTime() + secondTimestamp)
+
+                events.push({
+                    title: this.names[this.rnd(0, this.names.length - 1)],
+                    start: first,
+                    end: second,
+                    color: this.colors[this.rnd(0, this.colors.length - 1)],
+                    allDay: !allDay,
+                })
+                }
+
+                this.events = events
+            },
+            rnd (a, b) {
+                return Math.floor((b - a + 1) * Math.random()) + a
+            },
+        },
     };
 </script>
 
@@ -285,16 +346,15 @@
     }
 
     .schedule-days { /* outer part of the schedule*/
-        font-family: coolvetica;
+        font-family: Poppins;
         font-size: 20px;
         text-align: center;
         padding: 10px;
-        border: 1px solid #000000; 
+        border: 1px solid #d3d3d3; 
     }
 
     .col {
         padding: 10px;
-        border: 1px solid #eeeeee72;
     }
 
     .print-btn {
@@ -321,7 +381,7 @@
     h2{
         position: static;
         text-align: left;
-        font-family: coolvetica;
+        font-family: Poppins;
         font-size: 23px;
         transform: translateY(-12%);
         margin-top: 2px;
@@ -339,7 +399,7 @@
         left: 30%; /*time slot black bar*/
         right: 0;
         height: 1px;
-        background-color: #333;
+        background-color: #d3d3d3;
     }
 
     .day-slot-bar {
@@ -387,7 +447,14 @@
         border-left: 1px solid black;
     }
 
+    .calendar-container{
+        margin-left: 10px;
+        margin-right: 10px;
+        font-family: Poppins;
+    }
+
     .v-tab{
         font-family: Poppins;
     }
+
 </style>
