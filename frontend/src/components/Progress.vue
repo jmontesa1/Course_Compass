@@ -5,145 +5,193 @@
 <!-- The user can check off the courses that they have completed and the progress bar and units completed will update accordingly -->
 
 <template>
-    <div class="progress-page">
-        <div v-for="(major, index) in filteredMajors" :key="index">
-        <h1>{{ major.name }}</h1>
-        <div class="container-fluid mt-3">
-            <div class="row">
-            <div class="col-md d-flex flex-column">
-                <br>
-                <h2>Career</h2>
-                <p><strong>Units Completed:</strong> {{ unitsCompleted }}/{{ major.units }}</p>
-            </div>
-            <div class="col-md-5 d-flex flex-column">
-                <br>
-                <h2>Courses</h2>
-                <div class="scroll">
-                    <div class="course-container" v-for="(course, courseIndex) in major.courses" :key="courseIndex">
-                        <input type="checkbox" v-model="course.completed" />
-                        <label>{{ course.name }}</label>
-                    </div>
-                </div>
-            </div>
-            </div>
-        </div>
-        </div>
-    </div>
+    <v-row no-gutters>
+            <v-col cols="2">
+            <v-tabs v-model="tab" direction="vertical" color="primary" selected-class="selected-tab" slider-color="black">
+                <v-tab value="progress" @click="chooseProgress">
+                    <v-icon start>
+                        <span class="material-icons" style="color:black">task_alt</span>
+                    </v-icon>
+                    Progress
+                </v-tab>
 
-    <div class="footer">
-        <div class="container-fluid mt-3">
-            <div class="row">
-                <div v-if="selectedMajor === user.major" class="col-sm-2 d-flex">
-                    <div class="completion-text">Progress:</div>
-                </div>
+                <v-tab value="calculators" @click="chooseCalculators()">
+                    <v-icon start>
+                        <span class="material-icons" style="color:black">calculate</span>
+                    </v-icon>
+                    Grade Calculators
+                </v-tab>
 
-                <div class="col d-flex flex-column">
-                    <div class="progress-container">
-                        <div v-if="selectedMajor === user.major" class="progress-bar" :style="{ width: `${progressPercentage}%` }">
-                            <span class="progress-text">{{ Math.round(progressPercentage) }}%</span>
+                <v-tab value="analytics" @click="chooseAnalytics()">
+                    <v-icon start>
+                        <span class="material-icons" style="color:black">analytics</span>
+                    </v-icon>
+                    Analytics
+                </v-tab>
+            </v-tabs>
+            </v-col>
+
+            <v-col>
+                <div class="progress-page" v-if="this.progress === true">
+                        <div v-for="(major, index) in filteredMajors" :key="index">
+                        <h1>{{ major.name }}</h1>
+                        <div class="container-fluid mt-3">
+                            <div class="row">
+                            <div class="col-md d-flex flex-column">
+                                <br>
+                                <h2>Career</h2>
+                                <p><strong>Units Completed:</strong> {{ unitsCompleted }}/{{ major.units }}</p>
+                            </div>
+                            <div class="col-md-5 d-flex flex-column">
+                                <br>
+                                <h2>Courses</h2>
+                                <div class="scroll">
+                                    <div class="course-container" v-for="(course, courseIndex) in major.courses" :key="courseIndex">
+                                        <input type="checkbox" v-model="course.completed" />
+                                        <label>{{ course.name }}</label>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+
+                    <div class="footer">
+                        <div class="container-fluid mt-3">
+                            <div class="row">
+                                <div v-if="selectedMajor === user.major" class="col-sm-2 d-flex">
+                                    <div class="completion-text">Progress:</div>
+                                </div>
+
+                                <div class="col d-flex flex-column">
+                                    <div class="progress-container">
+                                        <div v-if="selectedMajor === user.major" class="progress-bar" :style="{ width: `${progressPercentage}%` }">
+                                            <span class="progress-text">{{ Math.round(progressPercentage) }}%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    <br>
                 </div>
-            </div>
-        </div>
-    </div>
-    <br>
 
-    <v-container class="gpa-calculator">
-        <v-row>
-            <h1>GPA Calculator</h1>
-        </v-row>
 
-        <v-row no-gutters>
-            <v-col>Course</v-col>
-            <v-col>Credits</v-col>
-            <v-col>Grade</v-col>
-            <v-col cols="1"></v-col>
-        </v-row>
+                <div class="calculators-page" v-if="this.calculators === true">
+                    <br>
+                    <v-container class="gpa-calculator">
+                        <v-row>
+                            <h1 class="calculator-heading">GPA Calculator</h1>
+                        </v-row>
 
-        <v-form ref="form">
-            <v-row style="height:70px;" v-for="(courseGPA, index) in coursesGPA" :key="index">
-                <v-col>
-                    <v-text-field v-model="courseGPA.name" label="Course Name (Optional)"></v-text-field>
-                </v-col>
-                <v-col>                
-                    <v-text-field v-model="courseGPA.credits" label="Credits"></v-text-field>
-                </v-col>
-                <v-col>
-                <v-select v-model="courseGPA.grade" :items="grades.map(item => item.grade)" label="Grade" required></v-select>
-                </v-col>
-                <v-col cols="1">
-                    <v-btn class="close-btn" @click="removeCourseGPA">
-                        <span class="material-icons" style="color:black">close</span>
-                    </v-btn>
-                </v-col>
-            </v-row>
+                        <v-row class="calculator-subheading">
+                            <v-col>Course</v-col>
+                            <v-col>Credits</v-col>
+                            <v-col>Grade</v-col>
+                            <v-col cols="1"></v-col>
+                        </v-row>
 
-            <v-row>
-                <v-col cols="2">
-                    <v-btn @click="addCourseGPA">Add a course</v-btn>
-                </v-col>
-                <v-col></v-col>
-                <v-col cols="2">
-                    <v-btn @click="calculateGPA">Calculate</v-btn>
-                </v-col>
-            </v-row>
+                        <v-form ref="form">
+                            <v-row style="height:70px;" v-for="(courseGPA, index) in coursesGPA" :key="index">
+                                <v-col>
+                                    <v-text-field v-model="courseGPA.name" label="Course Name (Optional)"></v-text-field>
+                                </v-col>
+                                <v-col>                
+                                    <v-text-field v-model="courseGPA.credits" label="Credits"></v-text-field>
+                                </v-col>
+                                <v-col>
+                                <v-select v-model="courseGPA.grade" :items="grades.map(item => item.grade)" label="Grade" required></v-select>
+                                </v-col>
+                                <v-col cols="1">
+                                    <v-btn class="close-btn" @click="removeCourseGPA">
+                                        <span class="material-icons" style="color:black">close</span>
+                                    </v-btn>
+                                </v-col>
+                            </v-row>
 
-    </v-form>
+                            <v-row>
+                                <v-col cols="2">
+                                    <v-btn @click="addCourseGPA">Add a course</v-btn>
+                                </v-col>
+                                <v-col></v-col>
+                                <v-col cols="2">
+                                    <v-btn @click="calculateGPA">Calculate</v-btn>
+                                </v-col>
+                            </v-row>
+                        </v-form>
 
-        <v-row>{{GPA}}</v-row>
+                        <v-row>
+                            <p class="gpa-text">Your GPA is: {{GPA}}</p>
+                        </v-row>
+                    </v-container>
 
-    </v-container>
+                    <br>
+                    <v-container class="exam-calculator">
+                            <v-row>
+                                <h1 class="calculator-heading">Final Grade Calculator</h1>
+                            </v-row>
 
-    <v-container class="exam-calculator">
-        <v-row>
-            <h1>GPA Calculator</h1>
-        </v-row>
+                            <v-row class="calculator-subheading">
+                                <v-col>Course</v-col>
+                                <v-col>Credits</v-col>
+                                <v-col>Grade</v-col>
+                                <v-col cols="1"></v-col>
+                            </v-row>
 
-        <v-row no-gutters>
-            <v-col>Course</v-col>
-            <v-col>Credits</v-col>
-            <v-col>Grade</v-col>
-            <v-col cols="1"></v-col>
-        </v-row>
+                            <v-form ref="form">
+                                <v-row style="height:70px;" v-for="(courseGPA, index) in coursesGPA" :key="index">
+                                    <v-col>
+                                        <v-text-field v-model="courseGPA.name" label="Course Name (Optional)"></v-text-field>
+                                    </v-col>
+                                    <v-col>                
+                                        <v-text-field v-model="courseGPA.credits" label="Credits"></v-text-field>
+                                    </v-col>
+                                    <v-col>
+                                    <v-select v-model="courseGPA.grade" :items="grades.map(item => item.grade)" label="Grade" required></v-select>
+                                    </v-col>
+                                    <v-col cols="1">
+                                        <v-btn class="close-btn" @click="removeCourseGPA">
+                                            <span class="material-icons" style="color:black">close</span>
+                                        </v-btn>
+                                    </v-col>
+                                </v-row>
 
-        <v-form ref="form">
-            <v-row style="height:70px;" v-for="(courseGPA, index) in coursesGPA" :key="index">
-                <v-col>
-                    <v-text-field v-model="courseGPA.name" label="Course Name (Optional)"></v-text-field>
-                </v-col>
-                <v-col>                
-                    <v-text-field v-model="courseGPA.credits" label="Credits"></v-text-field>
-                </v-col>
-                <v-col>
-                <v-select v-model="courseGPA.grade" :items="grades.map(item => item.grade)" label="Grade" required></v-select>
-                </v-col>
-                <v-col cols="1">
-                    <v-btn class="close-btn" @click="removeCourseGPA">
-                        <span class="material-icons" style="color:black">close</span>
-                    </v-btn>
-                </v-col>
-            </v-row>
+                                <v-row>
+                                    <v-col cols="2">
+                                        <v-btn @click="addCourseGPA">Add a course</v-btn>
+                                    </v-col>
+                                    <v-col></v-col>
+                                    <v-col cols="2">
+                                        <v-btn @click="calculateGPA">Calculate</v-btn>
+                                    </v-col>
+                                </v-row>
+                            </v-form>
 
-            <v-row>
-                <v-col cols="2">
-                    <v-btn @click="addCourseGPA">Add a course</v-btn>
-                </v-col>
-                <v-col></v-col>
-                <v-col cols="2">
-                    <v-btn @click="calculateGPA">Calculate</v-btn>
-                </v-col>
-            </v-row>
-        </v-form>
+                            <v-row>{{GPA}}</v-row>
+                        </v-container>
+                        <br>
+                </div>
 
-        <v-row>{{GPA}}</v-row>
-    </v-container>
+                <div class="analytics-page" v-if="this.analytics === true">
+
+                </div>
+
+            </v-col>
+    </v-row>
+    
+    
+    
 </template>
 
 <script>
     export default {
         data() {
             return {
+                tab: 'progress',
+                progress: true,
+                calculators: false,
+                analytics: false,
+
                 unitsCompleted: 0,
                 user: {
                     firstname: 'John',
@@ -203,11 +251,33 @@
                     {name:'', credits:'', grade:''},
                     {name:'', credits:'', grade:''},
                 ],
+
                 GPA: 0,
             };
         },
 
         methods:{
+            chooseProgress(){
+                this.tab = 'progress';
+                this.calculators = false;
+                this.analytics = false;
+                this.progress = true;
+            },
+
+            chooseCalculators(){
+                this.tab = 'calculators';
+                this.progress = false;
+                this.analytics = false;
+                this.calculators = true;
+            },
+
+            chooseAnalytics(){
+                this.tab = 'analytics';
+                this.calculators = false;
+                this.progress = false;
+                this.analytics = true;
+            },
+
             addCourseGPA(){
                 this.coursesGPA.push({name:'', credits:'', grade:''});
                 this.$refs.form.reset()
@@ -267,24 +337,50 @@
 </script>
 
 <style scoped>
+    .calculators-page{
+        border-left: 1px solid black;
+    }
+
+    .calculator-heading{
+        font-family: Poppins;
+        font-size: 25px;
+        margin-left: 9px;
+    }
+
+    .calculator-subheading{
+        margin-top: -13px;
+    }
+
     .gpa-calculator{
-        border: 1px black solid;
+        font-family: Poppins;
+        border-radius: 8px;
         min-height: 400px;
+        background-color:#e2e2e234;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .gpa-text{
+        margin-top: 9px;
+        font-size: 22px;
     }
 
     .exam-calculator{
-        border: 1px black solid;
+        font-family: Poppins;
+        border-radius: 8px;
         min-height: 400px;
+        background-color:#e2e2e234;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
     h2 {
-        font-family: 'coolvetica', coolvetica;
+        font-family: Poppins;
         text-align: left;
     }
 
     h1{
-        font-family: 'coolvetica', coolvetica;
-        text-align: center;
+        font-family: Poppins;
+        text-align: left;
+        margin-left: 9px;
     }
 
     p{
@@ -294,7 +390,7 @@
 
     .progress-page {
         width: 100%;
-        margin: 10px auto;
+        border-left: 1px solid black;
     }
 
     input[type="checkbox"] {
@@ -326,7 +422,7 @@
     }
 
     .completion-text {
-        font-family: coolvetica;
+        font-family: Poppins;
         font-size: 25px;
         color: #000;
         margin-left: 10px;
@@ -357,4 +453,11 @@
         width: 100%;
     }
 
+    .v-tab{
+        font-family: Poppins;
+    }
+
+    .selected-tab{
+        background-color: rgb(224, 224, 224);
+    }
 </style>
