@@ -260,7 +260,7 @@ import About from './About.vue';
     button {
         font-family: coolvetica, sans-serif;
         font-size: 25px;
-        background-color: #292b86;
+        background-color: #364db3;
         color: #ffffff;
         padding: 5px 15px;
         border: none;

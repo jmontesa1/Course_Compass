@@ -70,29 +70,26 @@
 
     <v-container class="dashboard-container2">
         <v-row>
-            
-            <h2>Personal Planner</h2>
-            <p>Last modified:</p>
+            <h1 class="header-text">Enrolled Courses</h1>
         </v-row>
+
         <v-row>
+            <v-card class="enrolled-cards" v-for="(course, index) in schedule" :key="index" :title="course.course" :subtitle="course.location">
+                <v-card-text>
+                    {{ formatDays(course.days) }}<br>
+                    {{ course.time }}
+                </v-card-text>
+                <v-card-actions>
+                <!--<v-btn @click="viewCourseDetails(course)">View Details</v-btn>-->
+                </v-card-actions>
+            </v-card>
         </v-row>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
         <br>
     </v-container>
 
     <v-container class="dashboard-container3">
         <v-row>
-            <h2>Major Progress</h2>
+            <h1 class="header-text">Major Progress</h1>
         </v-row>
         <br>
         <br>
@@ -152,6 +149,10 @@
             };
         },
         methods: {
+            formatDays(days){
+                return days.map(day => day.slice(0,3)).join('');
+            },
+
             fetchDashboardData() {
                 axios.get('http://127.0.0.1:5000/dashboard', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                 .then(response => {
@@ -175,6 +176,8 @@
             }
             next();
         },
+
+        
         computed:{
             currentDate(){
                 const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -293,7 +296,7 @@
     .dashboard-container{
         margin: 10px auto;
         position: relative;
-        max-width: 95%;
+        max-width: 90%;
         border-radius: 1px;
         border-top: 1px solid black;
         border-left: 1px solid black;
@@ -302,7 +305,7 @@
     .dashboard-container2{
         margin: 10px auto;
         position: relative;
-        max-width: 95%;
+        max-width: 90%;
         border-radius: 1px;
         border-top: 1px solid black;
         border-right: 1px solid black;
@@ -311,7 +314,7 @@
     .dashboard-container3{
         margin: 10px auto;
         position: relative;
-        max-width: 95%;
+        max-width: 90%;
         border-radius: 1px;
         border-top: 1px solid black;
         border-left: 1px solid black;
@@ -326,5 +329,17 @@
     .deadline-title {
         font-family: Poppins;
         display: inline-block;
+    }
+
+    .header-text{
+        font-family: Coolvetica;
+        font-size: 25px;
+    }
+
+    .enrolled-cards{
+        margin-right: 6px;
+        font-family: Poppins;
+        background-color: rgb(236, 236, 236);
+
     }
 </style>
