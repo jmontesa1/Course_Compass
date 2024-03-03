@@ -22,7 +22,26 @@ delimiter ;
 /*use case*/
 call GetCoursesForProgress('jose@gmail.com');
 
----------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------
+/*Post a course as completed */
+delimiter //
+create procedure CompleteCourseByCourseCode(
+    in userEmail varchar(150),
+    in userCourseCode varchar(25)
+)
+begin
+    update cs425.tblUserCompletedCourses
+    set isCompleted = 1
+    where Email = userEmail and courseCode = userCourseCode;
+end //
+delimiter ;
+
+/*use case*/
+call CompleteCourseByCourseCode('jose@gmail.com', 'CS 219') 
+/*for multiple courses at a time iterate through a list of courses in the endpoint and call it once for each course*/
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
 delimiter //
 create procedure `GetMajorCompletionStatus`(
     in userEmail varchar(150)
@@ -54,7 +73,7 @@ delimiter ;
 
 call GetMajorCompletionStatus('jose@gmail.com')
 
-----------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------
 
 /*Retrives a user's current courses witht their email as argument*/
 delimiter //
@@ -95,7 +114,7 @@ delimiter ;
 
 /*use case*/
 call GetUserSchedule('jose@gmail.com')
----------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 

@@ -196,7 +196,7 @@ def getUserInfo():
 def get_user_schedule_stored_procedure():
     identity = get_jwt_identity()
     current_user_email = identity['email']
-    current_user_email = get_jwt_identity()['email']
+    #current_user_email = get_jwt_identity()['email']
 
     print("Current user email:", current_user_email)#to see if correct email
 

@@ -194,6 +194,7 @@ create table cs425.tblUserSchedule(
     foreign key (scheduleID) references tblcourseSchedule(scheduleID)
 );
 
+/*course History*/
 CREATE TABLE cs425.tblUserCompletedCourses(
     completionID int primary key auto_increment,
     Email varchar(150),
@@ -257,7 +258,7 @@ create table cs425.tblshoppingCart(
 
 /*Announcements table*/
 create table cs425.tblNotifications(
-    announcementID int primary key auto_increment,
+    notificationID int primary key auto_increment,
     instructorID int,
 	announceDate date,
     source varchar(50),
