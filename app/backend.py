@@ -311,8 +311,46 @@ def editProfile():
         return jsonify(user.conv_to_json()), 200
     else:
         return jsonify({"message": "User not found"}), 404
-    
-    
+
+
+#retrieve courses with completion status
+@app.route('/getCourseProgress', methods=['GET'])
+@jwt_required()
+def courses_for_progress_page():
+    identity = get_jwt_identity()
+    current_user_email = identity['email']
+
+    connection = connectToDB()
+    if connection:
+        cursor = connection.cursor()
+        try:
+            cursor.callproc('GetCoursesForProgress', [current_user_email])
+
+            user_courses = []
+            for result in cursor.stored_results():
+                user_courses = result.fetchall()
+
+            course_list = []
+            for courses in user_courses:
+                course_dict = {
+                    "courseName": courses[1],
+                    "courseCode": courses[2],
+                    "credits": courses[3],
+                    'majorName': courses[5],
+                    'creditsReq': courses[6],
+                    'isCompleted': courses[7],
+                }
+                course_list.append(course_dict)
+
+            return jsonify({"user_courses": course_list}), 200
+        except Error as err:
+            return jsonify({"error": "Error while fetching user's courses: " + str(err)}), 500
+        finally:
+            cursor.close()
+            connection.close()
+    else:
+        return jsonify({"error": "DB connection failed"}), 500
+
 # Connect to database
 def connectToDB():
     try:

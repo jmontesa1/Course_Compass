@@ -5,9 +5,10 @@ create procedure GetCoursesForProgress(
     in userEmail varchar(255)
 )
 begin
-    select c.courseID, c.courseName, c.courseCode, c.Credits, c.Level, m.majorName, m.creditsReq, m.deptName
+    select c.courseID, c.courseName, c.courseCode, c.Credits, c.Level, m.majorName, m.creditsReq,
+        coalesce(ucc.isCompleted, 0) as isCompleted --coalesce returns completed as 1 or 0 if null
     from tblCourses c
-    join tblMajor m on c.majorID = m.majorID
+    join tblMajor m on c.majorID = m.majorID 
     where m.majorID = (
         select majorID
         from tblUser
