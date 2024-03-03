@@ -141,6 +141,8 @@
 </template>
 
 <script>
+    import axios from 'axios'
+
     export default {
         data() {
             return {
@@ -149,24 +151,13 @@
                     firstname: 'John',
                     lastname: 'Montesa',
                     email: '',
-                    major: 'Computer Science & Engineering',
+                    major: 'Computer Science',
                 },
                 majors: [
                 {
-                    name: 'Computer Science & Engineering',
+                    name: 'Computer Science',
                     units: 120.0,
-                    courses: [
-                        { name: 'CS 135: Introduction to Computing', completed: false },
-                        { name: 'CS 202: Computing II', completed: false },
-                        { name: 'CS 219: Storage Management', completed: false },
-                        { name: 'CS 302: Data Structures', completed: false },
-                        { name: 'CS 365: Math to Computer Science', completed: false },
-                        { name: 'CS 425: Senior Projects I', completed: false },
-                        { name: 'CS 426: Senior Projects II', completed: false },
-                        { name: 'CS 446: Principles of Data', completed: false },
-                        { name: 'CS 456: Automata and Formal Languages', completed: false },
-                        { name: 'CS 477: Analysis of Algorithms', completed: false },
-                    ],
+                    courses: [],
                 },
                 {
                     name: 'Electrical Engineering',
@@ -238,10 +229,34 @@
                 this.GPA = 0;
                 }
             },
+
+            async fetchUserCourses(){
+                try{
+                    const response = await axios.get('http://127.0.0.1:5000/getCourseProgress', 
+                    {headers: {Authorization: `Bearer ${localStorage.getItem('access_token')}`}
+                    });
+
+                let majorToUpdate = this.majors.find(major => major.name === this.user.major);
+
+                if(majorToUpdate){
+                    majorToUpdate.courses = response.data.user_courses.map(course => ({
+                        name: `${course.courseCode}: ${course.courseName}`,
+                        completed: course.isCompleted === 1
+                    }));
+
+                        if(response.data.user_courses.length > 0){
+                        majorToUpdate.units = response.data.user_courses.reduce((total, course) => total + course.creditsReq, 0) / response.data.user_courses.length;
+                        }
+                    }
+                }   catch (error){
+                        console.error("Error fetching user courses", error.message);
+                    }
+            }
         },
     
         created() {
             this.selectedMajor = this.user.major; 
+            this.fetchUserCourses(); 
         },
 
         computed: {
