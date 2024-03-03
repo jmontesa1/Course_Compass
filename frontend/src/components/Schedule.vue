@@ -10,7 +10,7 @@
                 <v-icon start>
                     <span class="material-icons" style="color:black">calendar_view_day</span>
                 </v-icon>
-                Class Schedule
+                Weekly Schedule
             </v-tab>
 
             <v-tab value="calendar" @click="chooseCalendar()">
@@ -26,10 +26,16 @@
             <div class="right-side1" v-if="classSchedule">
                 <div class="header-container">
                     <div class="row justify-content-center">
-                        <div class="col d-flex flex-column"><h1>{{ user.firstname }} {{ user.lastname }}'s Schedule | {{ schedule.length > 0 ? schedule[0].term : 'No term available' }}</h1></div>
-                            <button class="print-btn" @click="downloadPDF">
-                                <img class ="printer" src="../assets/printer.png" alt="Print Button">
-                            </button>
+                        <div class="col d-flex flex-column">
+                            <h1>                            
+                                <select>
+                                    <option v-for="schedule in userSchedules" :key="schedule" :value="userschedule" >{{ schedule }}</option>
+                                </select>
+                            </h1>
+                        </div>
+                        <button class="print-btn" @click="downloadPDF">
+                            <img class ="printer" src="../assets/printer.png" alt="Print Button">
+                        </button>
                     </div>
                 </div>
 
@@ -83,6 +89,36 @@
             </div>
 
             <div class="right-side2" v-if="calendar">
+
+                <v-dialog v-model="dialog" max-width="1000" style="font-family: Poppins;">
+                    <template v-slot:activator="{ props: activatorProps }">
+                        <v-btn class="add-event" v-bind="activatorProps">Add an event</v-btn>
+                    </template>
+                    <!--Pop up -->
+                    <v-card title="Enter event details">
+                        <v-card-text>
+                        <v-row dense>
+                            <v-col cols = "12" md="6">  
+                                <v-text-field v-model="eventTitle" label="Event Title" required></v-text-field>
+                                <v-select v-model="eventColor" :items="this.colors" label="Color" required></v-select>
+                                <v-textarea v-model="eventDescription" label="Event Description" single-line rows="8"></v-textarea>
+                                <v-checkbox v-model="allDay" label="Is this event all day?" hint="All day events are blue and square."></v-checkbox>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-date-picker v-model="eventDate" width="100%"></v-date-picker>
+                            </v-col>
+                        </v-row>
+
+                        </v-card-text>
+                            
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
+                            <v-btn color="primary" text="Add" variant="tonal" @click="newEvent()"></v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+                    
                 <v-row class="fill-height">
                     <v-col>
                         <v-sheet class="calendar-container">
@@ -92,13 +128,13 @@
                             color="primary"
                             type="month"
                             :events="events"
+                            @click:day="(event)=>dateClick(event,true)"
                             ></v-calendar>
                         </v-sheet>
                     </v-col>
                 </v-row>
                 <br>
             </div>
-
         </v-col>
     </v-row>
 </template>
@@ -113,8 +149,8 @@
         data:() => ({
             
                 tab: 'class-schedule',
-                classSchedule: true,
-                calendar: false,
+                classSchedule: false,
+                calendar: true,
 
                 user: {
                     firstname: '',
@@ -124,22 +160,31 @@
                 },
 
                 schedule: [],
+                userSchedules:["Class Schedule"],
+
+                schedule: [
+                    { course: 'CS 135', days: ['Monday','Wednesday','Friday'], time: '10:00 AM - 10:50 AM', start: '10:00 AM', end: '10:50 AM', location: 'SEM 104' },
+                    { course: 'CS 425', days: ['Tuesday','Thursday'], time: '10:30 AM - 11:45 AM', start: '10:30 AM', end: '11:45 AM', location: 'WPEB 101' },
+                    { course: 'CS 302', days: ['Monday', 'Wednesday'], time: '3:00 PM - 4:15 PM', start: '3:00 PM', end: '4:15 PM', location: 'PSAC 1002' },
+                    { course: 'ENG 101', days: ['Monday', 'Wednesday', 'Friday'], time: '6:00 PM - 6:50 PM', start: '6:00 PM', end: '6:50 PM', location: 'MKIC 320' },
+                    { course: 'EE 165', days: ['Monday', 'Wednesday', 'Friday'], time: '8:30 AM - 9:45 AM', start: '8:30 AM', end: '9:45 AM', location: 'SLC 102' },
+                    { course: 'MUS 123', days: ['Tuesday', 'Thursday', 'Friday'], time: '1:00 PM - 1:50 PM', start: '1:00 PM', end: '1:50 PM', location: 'CFA 102' },
+                    // Add more events as needed
+                ],
 
                 //Every data that involves calendar under this
                 today: ref(new Date()),
                 focus: '',
-                events: [
-                    {
-                        title: 'Cheese',
-                        start: new Date(),  // Start time
-                        end: new Date(),    // End time
-                        color: 'blue',      // Event color
-                        allDay: false       // Whether it's an all-day event
-                    },
-                ],
-                colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
-                names: ['Cheese', 'Holiday', 'PTO', 'Travel', 'Event', 'Birthday', 'Conference', 'Party'],
-        }),
+                events: [],
+                colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey'],
+                dialog: false,
+                eventTitle: '',
+                eventColor: 'blue',
+                eventDescription: '',
+                allDay: false,
+                eventDate: new Date(),
+
+                }),
 
         mounted() {
             this.fetchUserInfo();
@@ -150,6 +195,13 @@
             },
 
         methods: {
+            dateClick(event, Boolean) {
+                // Access the clicked event and handle the click
+                console.log('Clicked day:', event);
+
+                // You can perform additional actions here, such as opening a dialog
+                // or navigating to a detailed view of the event.
+            },
             chooseClassSchedule(){
                 this.tab = 'class-schedule';
                 this.calendar = false;
@@ -311,36 +363,24 @@
             getEventColor (event) {
                 return event.color
             },
-            
-            fetchEvents ({ start, end }) {
-                const events = []
-
-                const min = start
-                const max = end
-                const days = (max.getTime() - min.getTime()) / 86400000
-                const eventCount = this.rnd(days, days + 20)
-
-                for (let i = 0; i < eventCount; i++) {
-                const allDay = this.rnd(0, 3) === 0
-                const firstTimestamp = this.rnd(min.getTime(), max.getTime())
-                const first = new Date(firstTimestamp - (firstTimestamp % 900000))
-                const secondTimestamp = this.rnd(2, allDay ? 288 : 8) * 900000
-                const second = new Date(first.getTime() + secondTimestamp)
-
-                events.push({
-                    title: this.names[this.rnd(0, this.names.length - 1)],
-                    start: first,
-                    end: second,
-                    color: this.colors[this.rnd(0, this.colors.length - 1)],
-                    allDay: !allDay,
-                })
-                }
-
-                this.events = events
+            newEvent(){
+                const newEvent = {
+                    title: this.eventTitle,
+                    description: this.eventDescription,
+                    start: this.eventDate, // Assuming the eventDate is already a Date object
+                    end: this.eventDate,   // You might need to adjust this based on your requirements
+                    color: this.eventColor,
+                    allDay: this.allDay,
+                };
+                this.events.push(newEvent);
+                this.fetchEvents(newEvent);
+                this.dialog = false;
             },
-            rnd (a, b) {
-                return Math.floor((b - a + 1) * Math.random()) + a
+
+            fetchEvents (newEvent) {
+                this.events.push();
             },
+
         },
     };
 </script>
@@ -356,7 +396,7 @@
     h1 {
         white-space: nowrap;
         text-align: left;
-        font-family: coolvetica;
+        font-family: Poppins;
         font-size: 30px;
         margin-top: 2px;
         margin-bottom: -6px;
@@ -475,4 +515,25 @@
         font-family: Poppins;
     }
 
+    select {
+        width: 40%;
+        margin: 10px 0;
+        box-sizing: border-box;
+        border: 1px solid rgba(0, 0, 0, 0.089);
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%23000000"><path d="M1 5h14L8 12z"/></svg>');
+        background-position: right 10px center;
+        background-size: 15px;
+        cursor: pointer;
+        padding-left: 8px;
+    }
+
+    .add-event{
+        position: absolute;
+        right: 10px;
+        top: 165px;
+        font-family: Poppins;
+        color: white;
+        background-color: black;
+        box-shadow: none;
+    }
 </style>
