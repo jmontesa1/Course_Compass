@@ -5,7 +5,7 @@
 <template>
     <v-row no-gutters>
         <v-col cols="2">
-        <v-tabs v-model="tab" direction="vertical" color="primary">
+        <v-tabs v-model="tab" direction="vertical" color="primary" selected-class="selected-tab" slider-color="black">
             <v-tab value="class-schedule" @click="chooseClassSchedule">
                 <v-icon start>
                     <span class="material-icons" style="color:black">calendar_view_day</span>
@@ -149,8 +149,8 @@
         data:() => ({
             
                 tab: 'class-schedule',
-                classSchedule: false,
-                calendar: true,
+                classSchedule: true,
+                calendar: false,
 
                 user: {
                     firstname: '',
@@ -517,7 +517,8 @@
 
     select {
         width: 40%;
-        margin: 10px 0;
+        height: 45px;
+        margin-bottom: 5px;
         box-sizing: border-box;
         border: 1px solid rgba(0, 0, 0, 0.089);
         background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%23000000"><path d="M1 5h14L8 12z"/></svg>');
@@ -535,5 +536,9 @@
         color: white;
         background-color: black;
         box-shadow: none;
+    }
+
+    .selected-tab{
+        background-color: rgb(224, 224, 224);
     }
 </style>
