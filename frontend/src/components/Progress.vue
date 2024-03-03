@@ -236,12 +236,12 @@
                     {headers: {Authorization: `Bearer ${localStorage.getItem('access_token')}`}
                     });
 
-                let majorToUpdate = this.majors.find(major => major.name === this.user.major);
+                let majorToUpdate = this.majors.find(major => major.name === this.user.major); //find user's major
 
                 if(majorToUpdate){
                     majorToUpdate.courses = response.data.user_courses.map(course => ({
                         name: `${course.courseCode}: ${course.courseName}`,
-                        completed: course.isCompleted === 1
+                        completed: course.isCompleted === 1 //1 is set to true(complete), false otherwise
                     }));
 
                         if(response.data.user_courses.length > 0){
