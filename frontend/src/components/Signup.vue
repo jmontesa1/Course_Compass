@@ -157,11 +157,13 @@
                     .then(response => {
                         console.log(response.data.message);
                         if(response.status === 200){
-                        this.$emit("show-toast", { message: "Welcome to Course Compass!", color: '#51da6e' });
-                        setTimeout(() => {
-                            this.$router.push('/dashboard');
-                        }, 2500);
-                    }
+                            localStorage.setItem('access_token', response.data.access_token);
+                            this.$emit("show-toast", { message: "Welcome to Course Compass!", color: '#51da6e' });
+                            setTimeout(() => {
+                                this.$router.push('/dashboard');
+                                this.$emit('login-status-changed', true);
+                            }, 2500);
+                        }
                     })
                     .catch(error => {
                         if (error.response && error.response.status ===409){
