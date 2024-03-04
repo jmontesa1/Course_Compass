@@ -159,7 +159,7 @@
                         if(response.status === 200){
                         this.$emit("show-toast", { message: "Welcome to Course Compass!", color: '#51da6e' });
                         setTimeout(() => {
-                            this.$router.push('/login');
+                            this.$router.push('/dashboard');
                         }, 2500);
                     }
                     })

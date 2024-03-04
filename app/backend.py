@@ -189,13 +189,12 @@ def signup():
             cursor.execute("SELECT * FROM tblUser WHERE Email = %s", (email,))
             new_user = cursor.fetchone()
             
+            session['email'] = email
+            
             access_token = create_access_token(identity={"email": new_user['Email'], "userID": new_user['userID']})
             
-            session['user_id'] = new_user['userID']
-            session['email'] = new_user['Email']
-            
             print("SIGN UP SUCCESSFUL")
-            return jsonify({"access_token": access_token, "message": "Sign up successful"}), 200
+            return jsonify({"message": "Login successful", "access_token": access_token}), 200
         except Error as err:
             print(err)
             return jsonify({"message": "An error occurred"}), 500
