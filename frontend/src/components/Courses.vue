@@ -33,12 +33,12 @@
         <div class="col d-flex flex-column">
             <div class="filter-row">
                 <div class="filter-chips-container">
-                    <p class="selected-filters">Applied Filters: {{ selectedFilters }}</p>
+                    <!--<p class="selected-filters">Applied Filters: {{ selectedFilters }}</p>-->
                     <v-chip class="filter-chips" v-for="(filter, index) in selectedFilters" :key="index" color="darkgrey">
                         {{ filter }}
-                        <v-icon @click="handleFilterSelected(filter)" class="cancel-icon">
+                        <!--<v-icon @click="handleFilterSelected(filter)" class="cancel-icon">
                             <span class="material-icons" style="color:black;">cancel</span>
-                        </v-icon>
+                        </v-icon>-->
                     </v-chip>
                 </div>
             </div>
@@ -68,10 +68,14 @@
 
         <div class="col-md-2 flex-column">
             <div class="enrolled">
-                <p>Enrolled:</p>
+                <p>Cart:</p>
                 <v-chip class="form-control" v-for="course in schedule" :key="course.id" color="darkgrey" closable @click:close="removeFromSchedule(course)">
                         <div class="chip-text">{{ course.name }}</div>
                 </v-chip>
+                <v-divider></v-divider>
+                <div class="enroll-container">
+                    <btn class="enroll-button" @click="enrollCourses()">Enroll</btn>
+                </div>
             </div>
         </div>
 
@@ -144,7 +148,7 @@
                     this.schedule.push(course);
                 }
                 else if (this.schedule.some((c) => c.name === course.name)) {
-                    this.$emit("show-toast", course.name + " is already added to your schedule.");
+                    this.$emit("show-toast", { message: course.name + " is already added to your cart."});
                 }
             },
 
@@ -163,10 +167,17 @@
                 } else {
                     this.selectedFilters.push(filter);
                 }
-},
-        },
-        created() {
-            this.fetchCourses();
+            },
+
+            enrollCourses(){
+                //PUSH THE SCHEDULE ARRAY TO THE BACKEND
+                this.$emit("show-toast", {message: "Courses Enrolled!", color:'#51da6e' });
+
+                //CREATE AN ELSE STATEMENT HERE IF COURSES ALREADY ENROLLED
+                //if(){
+                    //this.$emit("show-toast", {message: "One or more courses already enrolled."})
+                //}
+            }
         },
     }
 </script>
@@ -255,5 +266,28 @@
 
     .cancel-icon{
         margin-left: 6px;
+    }
+
+    .enroll-container{
+        display:flex;
+        justify-content: space-between;
+    }
+    .enroll-button {
+        margin-left:auto;
+        position: relative;
+        font-family: coolvetica;
+        background-color: #000000;
+        color: #ffffff;
+        padding: 5px 10px;
+        font-size: 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s linear, color 0.3s linear;
+        text-decoration: none;
+    }
+
+    .enroll-button:hover {
+        background-color: #ffffff;
+        color: #000000;
     }
 </style>

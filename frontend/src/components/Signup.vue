@@ -12,12 +12,23 @@
             <h2>Sign Up</h2>
 
             <form @submit.prevent="handleSubmit">
-                <div class="name-container">
-                    <input v-model="firstname" type="text" placeholder="First Name" required>
-                    <input v-model="lastname" type="text" placeholder="Last Name" required>
-                </div>
-                <br>
 
+                <div>
+                    <v-row no-gutters>
+                        <v-col cols="9">
+                            <div class="name-container">
+                                <input v-model="firstname" type="text" placeholder="First Name" required>
+                                <input v-model="lastname" type="text" placeholder="Last Name" required>
+                            </div>
+                        </v-col>
+                        <v-col style="margin-left: 9px; font-family: Poppins;">
+                            <select required>
+                                <option :value="role">Student</option>
+                                <option :value="role">Instructor</option>
+                            </select>
+                        </v-col>
+                    </v-row>
+                </div>
                 <input v-model="email" type="email" placeholder="Email" required>
                 <br>
                 <input v-model="confirmEmail" type="email" placeholder="Confirm Email" required>
@@ -54,7 +65,7 @@
             </form>
 
 
-            <div class="signup-link">
+            <div>
                 <p>Already have an account? <router-link to="/login">Log In</router-link></p>
             </div>
         </div>
@@ -124,7 +135,7 @@
 
         validateForm() {
             if (this.email !== this.confirmEmail || this.password !== this.confirmPass) {
-                this.$emit("show-toast", "Emails and Passwords must match.");
+                this.$emit("show-toast", { message: "Emails and Passwords must match."});
                 return false;
             }
             return true;
@@ -146,7 +157,7 @@
                     .then(response => {
                         console.log(response.data.message);
                         if(response.status === 200){
-                        this.$emit("show-toast", "Welcome to Course Compass!", "#51da6e");
+                        this.$emit("show-toast", { message: "Welcome to Course Compass!", color: '#51da6e' });
                         setTimeout(() => {
                             this.$router.push('/login');
                         }, 2500);
@@ -154,11 +165,11 @@
                     })
                     .catch(error => {
                         if (error.response && error.response.status ===409){
-                            this.$emit("show-toast","Signup failed: " + error.response.data.message);
+                            this.$emit("show-toast",{ message: "Signup failed: " + error.response.data.message});
                         }
                         else{
                             console.error("A problem has ocurred: Unable to sign up:", error);
-                            this.$emit("show-toast","Signup failed: " + error.message);
+                            this.$emit("show-toast",{ message: "Signup failed: " + error.message});
                         }
                     });
             }
@@ -178,7 +189,7 @@
         const minimumAge = 18;
 
         if (age < minimumAge) {
-            this.$emit("show-toast", "You must be at least 18 years old to sign up.");
+            this.$emit("show-toast", { message: "You must be at least 18 years old to sign up."});
             return false;
         }
         return true;
@@ -274,9 +285,7 @@
         background-color: #555555;
     }
 
-    .signup-link {
-        margin-top: 20px;
-    }
+
 
     .signup-link a {
         color: #1292e7;
@@ -308,7 +317,11 @@
         border: 1px black solid;
         overflow-y: auto;
         max-height: 100px;
-    }
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%23000000"><path d="M1 5h14L8 12z"/></svg>');
+        background-position: right 10px center;
+        background-size: 15px;
+        cursor: pointer;
+        }
 
     option{
         max-height: 20vh;
