@@ -308,3 +308,10 @@ create table cs425.tblGPA(
     lastUpdate datetime,
     foreign key (studentID) references tblStudents(studentID)
 );
+
+create table cs425.tblCourseNames (
+    courseID int primary key auto_increment,
+    courseName varchar(100),
+    courseCode varchar(25),
+    courseMajor varchar(100)
+)

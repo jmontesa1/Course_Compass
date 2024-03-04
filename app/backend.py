@@ -425,6 +425,28 @@ def courses_for_progress_page():
             connection.close()
     else:
         return jsonify({"error": "DB connection failed"}), 500
+    
+    
+@app.route('/search-departments', methods=['GET'])
+@jwt_required()
+def search_departments():
+    query_param = request.args.get('query', '')
+    connection = connectToDB()
+    if connection:
+        cursor = connection.cursor()
+        try:
+            query = "SELECT DISTINCT courseMajor FROM tblCourseNames WHERE courseMajor LIKE %s"
+            search_term = f"%{query_param}%"
+            cursor.execute(query, (search_term,))
+            result = cursor.fetchall()
+            departments = [{'department': dept[0]} for dept in result]
+        finally:
+            cursor.close()
+            connection.close()
+        return jsonify(departments), 200
+    else:
+        return jsonify({"message": "Failed to connect to database"}), 500
+    
 
 # Connect to database
 def connectToDB():

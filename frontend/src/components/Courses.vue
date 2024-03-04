@@ -15,6 +15,13 @@
                     <span class="input-group-text" id="department-search">Department</span>
                     <input type="text" class="form-control" v-model="departmentSearch" placeholder="Enter Department Name">
                 </div>
+                <div v-if="departments.length">
+                    <ul>
+                        <li v-for="department in departments" :key="department.department">
+                            {{ department.department }}
+                        </li>
+                    </ul>
+                </div>
             </div>
             <div class="col d-flex flex-column">
                 <!--Professor Search Row-->
@@ -90,7 +97,6 @@
     import CourseList from '@/components/CourseList.vue'
     import axios from 'axios';
 
-
     export default{
         //Import components and Data
         name: 'Courses',
@@ -110,11 +116,15 @@
             selectedFilters(newFilters) {
             this.selectedFilters = newFilters;
             },
+            departmentSearch() {
+                this.fetchDepartments();
+            }
         },
         data() {
             return {
                 courseList: [],
                 departmentSearch: '',
+                departments: [],
                 professorSearch: '',
                 sortByMajorRequirements: false,
                 schedule: [],
@@ -141,6 +151,21 @@
                 })
                 .catch(error => {
                 console.error("Failed to load:", error);
+                });
+            },
+            fetchDepartments() {
+                if (this.departmentSearch.trim() === '') {
+                    this.departments = [];
+                    return;
+                }
+
+                axios.get(`http://127.0.0.1:5000/search-departments?query=${encodeURIComponent(this.departmentSearch)}`, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
+                .then(response => {
+                    this.departments = response.data;
+                })
+                .catch(error => {
+                    console.error("Failed to load departments:", error);
+                    this.departments = [];
                 });
             },
             addToSchedule(course) {
