@@ -25,20 +25,43 @@ call GetCoursesForProgress('jose@gmail.com');
 ---------------------------------------------------------------------------------------------------------------------------------------------------
 /*Post a course as completed */
 delimiter //
-create procedure CompleteCourseByCourseCode(
+create procedure MarkCourseCompleted(
     in userEmail varchar(150),
-    in userCourseCode varchar(25)
+    in courseCode varchar(25)
 )
 begin
-    update cs425.tblUserCompletedCourses
-    set isCompleted = 1
-    where Email = userEmail and courseCode = userCourseCode;
+    declare v_courseID int;
+    declare v_majorID int;
+    declare v_fname varchar(100);
+    declare v_lname varchar(100);
+
+    -- find courseID and majorID by courseCode
+    select c.courseID, c.majorID into v_courseID, v_majorID
+    from cs425.tblCourses c
+    where c.courseCode = courseCode
+    limit 1;
+
+    -- get users name 
+    select Fname, Lname into v_fname, v_lname
+    from cs425.tblUser
+	where Email = userEmail
+    limit 1;
+
+            -- check if a record already exists
+    if (select count(*) from cs425.tblUserCompletedCourses where Email = userEmail and courseID = v_courseID) > 0 then
+
+        update cs425.tblUserCompletedCourses
+        set isCompleted = 1, completionDate = curdate()
+        where Email = userEmail and courseID = v_courseID;
+    else
+        insert into cs425.tblUserCompletedCourses (Email, Fname, Lname, courseID, courseCode, isCompleted, completionDate, majorID)
+        values (userEmail, v_fname, v_lname, v_courseID, courseCode, 1, curdate(), v_majorID);
+    end if;
 end //
 delimiter ;
 
-/*use case*/
-call CompleteCourseByCourseCode('jose@gmail.com', 'CS 219') 
-/*for multiple courses at a time iterate through a list of courses in the endpoint and call it once for each course*/
+call MarkCourseCompleted('jose@gmail.com', 'CS 365')
+/*for multiple courses at a time iterate through a list of courses in the endpoint to call it once for each course*/
 
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------
