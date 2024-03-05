@@ -22,13 +22,14 @@ jwt = JWTManager(app)
 
 # User class to store user information
 class User:
-    def __init__(self, userID=None, Fname=None, Lname=None, DOB=None, Email=None, majorName=None):
+    def __init__(self, userID=None, Fname=None, Lname=None, DOB=None, Email=None, majorName=None, majorID=None):
         self.userID = userID
         self.Fname = Fname
         self.Lname = Lname
         self.DOB = DOB
         self.Email = Email
         self.majorName = majorName
+        self.majorID = majorID
         
     @staticmethod
     def get_user_by_email(email):
@@ -56,6 +57,50 @@ class User:
             "DOB": self.DOB.strftime('%Y-%m-%d') if self.DOB else None,
             "Email": self.Email,
             "majorName": self.majorName
+        }
+        
+        
+    # REWRITE SQL STATEMENT TO CORRECTLY RETRIEVE COURSES
+    # SHOULD RETURN COURSES STUDENT HAS ENROLLED IN
+    # WHEN RUNNING DEV APP, CLICK COURSES IN NAV BAR, AND CHECK PRINT STATEMENT IN BACKEND.PY TERMINAL
+    # WILL DISPLAY '{'courses': [list of courses]}' AFTER LOGIN COMFIRM STATEMENT
+    # THIS PRINT STATEMENT IS LOCATED IN loadCourses FUNCTION BELOW
+    def get_major_courses(self):
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary=True)
+        try:
+            cursor.execute("""
+                SELECT
+                    c.courseID,
+                    c.courseCode,
+                    c.courseName,
+                    c.description,
+                    c.Credits,
+                    c.Level,
+                    c.Requirements
+                FROM
+                    cs425.tblUser u
+                JOIN
+                    cs425.tblMajor m ON u.majorID = m.majorID
+                JOIN
+                    cs425.tblMajorCourses mc ON m.majorID = mc.majorID
+                JOIN
+                    cs425.tblCourses c ON mc.courseID = c.courseID
+                WHERE
+                    u.Email = %s
+            """, (self.Email,))
+            courses = cursor.fetchall()
+            return courses
+        except Exception as e:
+            print(e)
+            return []
+        finally:
+            cursor.close()
+            connection.close()
+            
+    def courses_to_json(self):
+        return {
+            "courses": self.get_major_courses()
         }
         
 
@@ -144,13 +189,12 @@ def signup():
             cursor.execute("SELECT * FROM tblUser WHERE Email = %s", (email,))
             new_user = cursor.fetchone()
             
+            session['email'] = email
+            
             access_token = create_access_token(identity={"email": new_user['Email'], "userID": new_user['userID']})
             
-            session['user_id'] = new_user['userID']
-            session['email'] = new_user['Email']
-            
             print("SIGN UP SUCCESSFUL")
-            return jsonify({"access_token": access_token, "message": "Sign up successful"}), 200
+            return jsonify({"message": "Login successful", "access_token": access_token}), 200
         except Error as err:
             print(err)
             return jsonify({"message": "An error occurred"}), 500
@@ -285,6 +329,23 @@ def user_dashboard():
         return jsonify({"message": "User not found"}), 404
     
     
+# Load courses page with user-specific course list
+@app.route('/courses', methods=['GET'])
+@jwt_required()
+def loadCourses():
+    identity = get_jwt_identity()
+    current_user_email = identity['email']
+    print(f"Extracted email: {current_user_email}")
+    user = User.get_user_by_email(current_user_email)
+    if user:
+        print("STILL LOGGED IN SUCCESS")
+        test = user.courses_to_json()
+        print(test)
+        return jsonify(user.courses_to_json()), 200
+    else:
+        return jsonify({"message": "User not found"}), 404
+    
+    
 @app.route('/myaccount', methods=['GET'])
 @jwt_required()
 def myAccount():
@@ -302,6 +363,20 @@ def myAccount():
 @app.route('/editprofile', methods=['GET'])
 @jwt_required()
 def editProfile():
+    identity = get_jwt_identity()
+    current_user_email = identity['email']
+    print(f"Extracted email: {current_user_email}")
+    user = User.get_user_by_email(current_user_email)
+    if user:
+        print("STILL LOGGED IN MY ACCOUNT")
+        return jsonify(user.conv_to_json()), 200
+    else:
+        return jsonify({"message": "User not found"}), 404
+    
+    
+@app.route('/changepassword', methods=['GET'])
+@jwt_required()
+def changePassword():
     identity = get_jwt_identity()
     current_user_email = identity['email']
     print(f"Extracted email: {current_user_email}")
@@ -350,6 +425,28 @@ def courses_for_progress_page():
             connection.close()
     else:
         return jsonify({"error": "DB connection failed"}), 500
+    
+    
+@app.route('/search-departments', methods=['GET'])
+@jwt_required()
+def search_departments():
+    query_param = request.args.get('query', '')
+    connection = connectToDB()
+    if connection:
+        cursor = connection.cursor()
+        try:
+            query = "SELECT DISTINCT courseName FROM tblCourseNames WHERE courseMajor LIKE %s LIMIT 10"
+            search_term = f"%{query_param}%"
+            cursor.execute(query, (search_term,))
+            result = cursor.fetchall()
+            departments = [{'department': dept[0]} for dept in result]
+        finally:
+            cursor.close()
+            connection.close()
+        return jsonify(departments), 200
+    else:
+        return jsonify({"message": "Failed to connect to database"}), 500
+    
 
 # Connect to database
 def connectToDB():

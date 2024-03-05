@@ -15,6 +15,13 @@
                     <span class="input-group-text" id="department-search">Department</span>
                     <input type="text" class="form-control" v-model="departmentSearch" placeholder="Enter Department Name">
                 </div>
+                <div v-if="departments.length">
+                    <ul>
+                        <li v-for="department in departments" :key="department.department">
+                            {{ department.department }}
+                        </li>
+                    </ul>
+                </div>
             </div>
             <div class="col d-flex flex-column">
                 <!--Professor Search Row-->
@@ -88,7 +95,7 @@
 <script>
     import FilterMenu from '@/components/FilterMenu.vue'
     import CourseList from '@/components/CourseList.vue'
-
+    import axios from 'axios';
 
     export default{
         //Import components and Data
@@ -109,43 +116,58 @@
             selectedFilters(newFilters) {
             this.selectedFilters = newFilters;
             },
+            departmentSearch() {
+                this.fetchDepartments();
+            }
         },
         data() {
             return {
+                courseList: [],
                 departmentSearch: '',
+                departments: [],
                 professorSearch: '',
                 sortByMajorRequirements: false,
                 schedule: [],
                 selectedFilters: [],
                 filterMenuOpen: ['Filters'],
-                //Hardcoded course list for now, will work on getting data from database later
-                courseList: [
-                        { department: 'CS', name: 'CS 425 - Software Engineering', professor: ['Sara Davis', 'Vinh Le'], rating: 4.5, level: '400+', startTime: '10-11 AM',
-                        keywords: ['Attendance', 'Lecture Heavy', 'Textbook Required', 'Projects'], location: 'WPEB 130', format: 'In-Person', requirement: 'N/A',
-                        term: 'Fall 2023', program: 'Undergraduate', days: ['Tuesday', 'Thursday'], meetingtime:'10:30 AM - 11:45 AM', units: '3.0',
-                        prerequisites: 'CS 446', status: 'Waitlist', section: '1001' },
-        
-                        { name: 'this is a projected course'},
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        { name: 'this is a projected course' },
-                        //Add more courses as needed
-                    ],
+                courseList: [],
             };
         },
 
         methods: {
+            fetchCourses() {
+                axios.get('http://127.0.0.1:5000/courses', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
+                .then(response => {
+                    this.courseList = response.data.map(course => ({
+                    id: course.courseID,
+                    code: course.courseCode,
+                    name: course.courseName,
+                    description: course.description,
+                    credits: course.Credits,
+                    level: course.Level,
+                    requirements: course.Requirements,
+                    }));
+                    console.log('My Account page loaded successfully', response.data)
+                })
+                .catch(error => {
+                console.error("Failed to load:", error);
+                });
+            },
+            fetchDepartments() {
+                if (this.departmentSearch.trim() === '') {
+                    this.departments = [];
+                    return;
+                }
+
+                axios.get(`http://127.0.0.1:5000/search-departments?query=${encodeURIComponent(this.departmentSearch)}`, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
+                .then(response => {
+                    this.departments = response.data;
+                })
+                .catch(error => {
+                    console.error("Failed to load departments:", error);
+                    this.departments = [];
+                });
+            },
             addToSchedule(course) {
                 if (!this.schedule.some((c) => c.name === course.name)) {
                     this.schedule.push(course);

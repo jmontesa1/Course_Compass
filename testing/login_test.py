@@ -4,7 +4,7 @@
 
 import pytest
 from flask import Flask, session
-from app.backend import app, connectToDB, bcrypt
+from src.backend import app, connectToDB, bcrypt
 
 
 @pytest.fixture(scope="module")
