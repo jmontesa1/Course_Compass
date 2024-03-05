@@ -435,7 +435,7 @@ def search_departments():
     if connection:
         cursor = connection.cursor()
         try:
-            query = "SELECT DISTINCT courseMajor FROM tblCourseNames WHERE courseMajor LIKE %s"
+            query = "SELECT DISTINCT courseName FROM tblCourseNames WHERE courseMajor LIKE %s LIMIT 10"
             search_term = f"%{query_param}%"
             cursor.execute(query, (search_term,))
             result = cursor.fetchall()
