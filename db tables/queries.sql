@@ -1,3 +1,3 @@
 USE cs425;
 
-SELECT * FROM tblCourseNames;
+SELECT courseName FROM tblCourseNames WHERE courseMajor = 'Computer Science';
