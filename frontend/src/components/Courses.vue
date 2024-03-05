@@ -16,7 +16,7 @@
                     <input type="text" class="form-control" v-model="departmentSearch" placeholder="Enter Department Name">
                 </div>
                 <div v-if="departments.length">
-                    <ul>
+                    <ul class="dept-search-results">
                         <li v-for="department in departments" :key="department.department">
                             {{ department.department }}
                         </li>
@@ -314,5 +314,10 @@
     .enroll-button:hover {
         background-color: #ffffff;
         color: #000000;
+    }
+
+    .dept-search-results {
+        max-height: 500px;
+        overflow-y: auto;
     }
 </style>
