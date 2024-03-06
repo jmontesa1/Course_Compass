@@ -148,6 +148,7 @@
                 .then(response => {
                     this.courseList = response.data.map(department => ({
                         name: department.courseName,
+                        code: department.courseCode,
                         department: department.courseMajor,
                         professor: department.professor,
                         format: department.format,
