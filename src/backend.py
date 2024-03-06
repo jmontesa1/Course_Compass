@@ -228,7 +228,7 @@ def getUserInfo():
         return jsonify({"error": "User not logged in"}), 401
     
 
-# Retrive user schedule
+#retrive user schedule
 @app.route('/getUserSchedule', methods=['GET'])
 @jwt_required()
 def user_schedule():
@@ -240,35 +240,9 @@ def user_schedule():
             logging.warning("JWT identity does not contain email.")
             return jsonify({"error": "Authentication information is incomplete."}), 400
 
-        connection = connectToDB()
-        if connection:
-            cursor = connection.cursor()
-        try:
-            cursor.callproc('GetUserSchedule', [current_user_email])
-            
-            user_schedule = []
-            for result in cursor.stored_results():
-                user_schedule = result.fetchall()
-            
-            schedule_list = []
-            for schedule in user_schedule:
-                schedule_dict = {
-                    "courseCode": schedule[3],
-                    "meetingDays": schedule[9],
-                    "meetingTimes": schedule[10],
-                    "startTime": str(schedule[14]), # time needs to be a string
-                    "endTime": str(schedule[15]),
-                    "Location": schedule[11],
-                    "Term": schedule[6],
-                }
-                schedule_list.append(schedule_dict)
-                
-            return jsonify({"user_schedule": schedule_list}), 200
-        except Error as err:
-            return jsonify({"error": "Error while fetching user schedule: " + str(err)}), 500
-        finally:
-            cursor.close()
-            connection.close()
+        logging.info(f"Current user email: {current_user_email}") 
+
+        return fetch_user_schedule(current_user_email)
     except Exception as e:
         logging.error(f"An unexpected error occurred while fetching the user schedule: {e}")
         return jsonify({"error": "An unexpected error occurred."}), 500
@@ -302,8 +276,8 @@ def user_schedule_stored_procedure(cursor, email):
                 "courseCode": schedule[0],
                 "meetingDays": schedule[1],
                 "meetingTimes": schedule[2],
-                "startTime": str(schedule[3]),  #time needs to be a string
-                "endTime": str(schedule[4]),
+                "startTime": schedule[3],
+                "endTime": schedule[4],
                 "Location": schedule[5],
                 "Term": schedule[6],
             }
@@ -313,6 +287,42 @@ def user_schedule_stored_procedure(cursor, email):
     except Error as err:
         print("Error while fetching user schedule:", err)
         return None
+    
+
+
+#mark a course as completed
+@app.route('/markCourseCompleted', methods=['POST'])
+@jwt_required()
+def mark_course_completed_endpoint():
+    identity = get_jwt_identity()
+    user_email = identity['email']  
+    data = request.get_json()
+    course_code = data.get('courseCode')
+    
+    success, message = mark_course_completed(user_email, course_code)
+    if success:
+        return jsonify({"message": message}), 200
+    else:
+        return jsonify({"error": message}), 500
+
+def mark_course_completed(user_email, course_code):
+    connection = connectToDB()
+    if not connection:
+        return False, "DB connection failed"
+    
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('MarkCourseCompleted', [user_email, course_code])
+        connection.commit()
+        return True, "Course marked as completed successfully"
+    except Error as err:
+        connection.rollback()
+        return False, f"Error marking course as completed: {err}"
+    finally:
+        cursor.close()
+        connection.close()
+
+
 
 
 # Retrieve majors

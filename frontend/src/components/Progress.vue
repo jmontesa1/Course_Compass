@@ -52,15 +52,16 @@
                                     <h2>Courses</h2>
                                     <div class="scroll">
                                         <div class="course-container" v-for="(course, courseIndex) in major.courses" :key="courseIndex">
-                                            <input type="checkbox" v-model="course.completed" />
+                                            <input type="checkbox" v-model="course.completed" @change="course.changed = true" />
                                             <label>{{ course.name }}</label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <v-btn class="save-changes-btn" color="success" @click="saveAllChanges" size="small">Save</v-btn>
                         </div>
                     </div>
-
+                    
                     <div class="footer">
                         <div class="container-fluid mt-3">
                             <div class="row">
@@ -326,7 +327,8 @@
                 if(majorToUpdate){
                     majorToUpdate.courses = response.data.user_courses.map(course => ({
                         name: `${course.courseCode}: ${course.courseName}`,
-                        completed: course.isCompleted === 1 //1 is set to true(complete), false otherwise
+                        completed: course.isCompleted === 1, //1 is set to true(complete), false otherwise
+                        changed: false
                     }));
 
                         if(response.data.user_courses.length > 0){
@@ -336,6 +338,26 @@
                 }   catch (error){
                         console.error("Error fetching user courses", error.message);
                     }
+            },
+
+            async saveAllChanges() {
+                const updatePromises = this.majors.flatMap(major => 
+                    major.courses.filter(course => course.changed).map(course => 
+                        axios.post('http://127.0.0.1:5000/markCourseCompleted', {
+                            courseCode: course.name.split(':')[0],
+                            completed: course.completed ? 1 : 0,
+                        },{headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
+                    )
+                );
+
+                try {
+                    await Promise.all(updatePromises);
+                    console.log('All changes saved successfully');
+                } catch (error) {
+                    console.error('Error saving changes:', error);
+                    console.log('Error saving changes:', error);
+                    //display toast message 
+                }
             }
         },
     
