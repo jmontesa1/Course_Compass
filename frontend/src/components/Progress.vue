@@ -47,6 +47,7 @@
                                     <p><strong>Dean's List?:</strong> Yes</p>
                                     <p><strong>Academic Standing:</strong> Good Standing</p>
                                     <p><strong>Credits Completed:</strong> {{ unitsCompleted }}/{{ major.units }}</p>
+                                    <v-btn class="save-changes-btn" color="success" @click="saveAllChanges" size="small">Save Progress</v-btn>
                                 </div>
                                 <div class="col-md-6 d-flex flex-column">
                                     <h2>Courses</h2>
@@ -58,7 +59,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <v-btn class="save-changes-btn" color="success" @click="saveAllChanges" size="small">Save</v-btn>
                         </div>
                     </div>
                     
@@ -511,5 +511,10 @@
 
     .selected-tab{
         background-color: rgb(224, 224, 224);
+    }
+
+    .save-changes-btn{
+        font-family: Poppins;
+        max-width: 20%;
     }
 </style>
