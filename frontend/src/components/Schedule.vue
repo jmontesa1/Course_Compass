@@ -250,7 +250,8 @@
                         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
                     });
                     if (response.data && response.data.user_schedule) {
-                        this.schedule = response.data.user_schedule.map(item => {
+                        //replace const loadSchedule with this.schedule when
+                        const loadSchedule = response.data.user_schedule.map(item => {
                             const daysArray = item.meetingDays.split(','); 
                             return {
                                 course: item.courseCode,

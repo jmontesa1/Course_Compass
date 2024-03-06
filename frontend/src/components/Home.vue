@@ -71,8 +71,19 @@
                     <v-window-item v-for="item in items" :key="item.value" :value="item.value">
                         <div class="flex-container">
                             <v-card-text class="text-container">
+                                <br>
                                 <h1 class="hero3">{{ item.header }}</h1>
-                                <p>{{ item.text }}</p>
+                                <br>
+                                <p>-{{ item.text }}</p>
+                                <br>
+                                <p>-{{ item.text2 }}</p>
+                                <br>
+                                <p>-{{ item.text3 }}</p>
+                                <br>
+                                <p>-{{ item.text4 }}</p>
+                                <br>
+                                <p>-{{ item.text5 }}</p>
+                                <br>
                             </v-card-text>
                             <v-img v-if="item.image" :src="item.image" alt="Feature Image" class="image-container" />
                         </div>
@@ -93,26 +104,31 @@ import About from './About.vue';
     const tab = ref('Features')
 
     const items = [
-        { label: 'Courses', header:'Fine Tune Your Needs', value: 'Courses', text: 'Filter courses to your specific needs and enroll in classes that fit your requirements. Explore a wide range of courses offered by your university, and easily navigate through various categories.', image: require('@/assets/unrlibrary.png') },
-        { label: 'Schedule', header:'Prepare Your Schedule', value: 'Schedule', text: 'View your classes, plan your weekly schedule, and print out your customized schedule. Stay organized and keep track of your classes, exams, and other important events with Course Compass\'s intuitive scheduling feature.', image: require('@/assets/unrlibrary.png') },
-        { label: 'Progress', header:'Visualize Your Success', value: 'Progress', text: 'Monitor your academic progress and achievements with Course Compass. Get insights into your completed courses and overall progress. Use visualizations and progress trackers to stay motivated and achieve your academic goals.', image: require('@/assets/unrlibrary.png') },
-        { label: 'Planner', header:'Stay Up To Date', value: 'Planner', text: 'Keep yourself organized and up-to-date with Course Compass\'s planner feature. Set reminders for assignments, exams, and other important deadlines. Customize your planner to align with your goals and stay on top of your academic and personal commitments.', image: require('@/assets/unrlibrary.png') },
+        { label: 'Courses', header:'Fine Tune Your Needs', value: 'Courses', 
+        text: 'Explore a wide range of courses offered by your university, and easily navigate through various categories.',
+        text2: 'Filter courses to your specific needs and enroll in classes that fit your requirements.',
+        text3: 'Enhance your course search through course names and professors.',
+        text4: 'Rate and tag classes you have taken with keywords. Share your experiences.',
+        text5: 'View and learn all about a course has to offer through extensive descriptors.', image: require('@/assets/unrn.png') },
+        { label: 'Schedule', header:'Prepare Your Schedule', value: 'Schedule', 
+        text: 'Tailor your weekly schedule by viewing your enrolled classes in a clear and customizable layout.',
+        text2: 'Stay organized and keep track of your classes, exams, and other important events with Course Compass\'s intuitive scheduling feature.',
+        text3: 'Gain a personalized view of your month by planning and tracking events beyond your class schedule. Use custom events to mark meetings, holidays, and other important dates.',
+        text4: 'Easily generate and print your customized class schedule.',
+        text5: 'Create custom, weekly schedules that intuitively show your events in blocks.', image: require('@/assets/unrlibrary.png') },
+        { label: 'Progress', header:'Visualize Your Success', value: 'Progress', 
+        text: 'Monitor your academic progress and achievements with Course Compass.',
+        text2: 'Get insights into your completed courses and overall progress.',
+        text3: 'Use visualizations and progress trackers to stay motivated and achieve your academic goals.',
+        text4: 'Use Course Compass\'s calculators to track your GPA and plan your final grades.',
+        text5: 'View analytics of courses and your progress.', image: require('@/assets/unrfriends.png') },
+        { label: 'Planner', header:'Stay Up To Date', value: 'Planner', 
+        text: 'Keep yourself organized and up-to-date with Course Compass\'s planner feature.',
+        text2: 'Set reminders for assignments, exams, and other important deadlines.',
+        text3: 'Course Compass ensures you receive timely notifications, preventing you from missing important academic milestones.',
+        text4: 'Gain a quick overview of your upcoming deadlines with Course Compass\'s different representations.',
+        text5: 'Customize your planner to align with your goals and stay on top of your academic and personal commitments.', image: require('@/assets/unrcampus.png') },
     ];
-</script>
-
-<script>
-    export default {
-  components: { About },
-        data () {
-        return {
-            tab: 'Features',
-            items: [
-            'Features', 'Entrees', 'Deserts', 'Cocktails',
-            ],
-            text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-        }
-        },
-    }
 </script>
 
 
@@ -236,6 +252,7 @@ import About from './About.vue';
         right: 8%;
         top: 50%;
         z-index: 2;
+        white-space: pre-line;
     }
 
     .text3-container{
