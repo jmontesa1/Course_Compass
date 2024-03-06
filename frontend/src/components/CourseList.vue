@@ -8,7 +8,7 @@
     <!-- Display the courses in a list -->
     <div class="course-list">
         <div v-for="(course, index) in courses" :key="index" class="course-item" @click="handleCourseClick(course)">
-        {{ course.code }} - {{ course.name }}
+        {{ course.code }}: {{ course.name }}
         <span class="material-icons" style="color:black;">north_east</span>
 
         </div>
