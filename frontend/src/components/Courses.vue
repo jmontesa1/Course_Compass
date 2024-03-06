@@ -15,13 +15,6 @@
                     <span class="input-group-text" id="department-search">Department</span>
                     <input type="text" class="form-control" v-model="departmentSearch" placeholder="Enter Department Name">
                 </div>
-                <div v-if="departments.length">
-                    <ul class="dept-search-results">
-                        <li v-for="department in departments" :key="department.department">
-                            {{ department.department }}
-                        </li>
-                    </ul>
-                </div>
             </div>
             <div class="col d-flex flex-column">
                 <!--Professor Search Row-->
@@ -40,12 +33,8 @@
         <div class="col d-flex flex-column">
             <div class="filter-row">
                 <div class="filter-chips-container">
-                    <!--<p class="selected-filters">Applied Filters: {{ selectedFilters }}</p>-->
                     <v-chip class="filter-chips" v-for="(filter, index) in selectedFilters" :key="index" color="darkgrey">
                         {{ filter }}
-                        <!--<v-icon @click="handleFilterSelected(filter)" class="cancel-icon">
-                            <span class="material-icons" style="color:black;">cancel</span>
-                        </v-icon>-->
                     </v-chip>
                 </div>
             </div>
@@ -56,8 +45,6 @@
     <div class="row">
         <!--LEFT SIDE OF PAGE-->
         <div class="col-md-2 d-flex flex-column">
-            <!--Sort by Major Requirements Row-->
-
             <FilterMenu v-model:selectedFilters="selectedFilters" @itemSelected="handleFilterSelected" :open="filterMenuOpen" ></FilterMenu>
 
             <div class="form-check mb-3">
@@ -85,11 +72,9 @@
                 </div>
             </div>
         </div>
-
     </div>
-
-    <br>
-    <br>
+<br>
+<br>
 </template>
 
 <script>
@@ -124,7 +109,6 @@
             return {
                 courseList: [],
                 departmentSearch: '',
-                departments: [],
                 professorSearch: '',
                 sortByMajorRequirements: false,
                 schedule: [],
@@ -155,17 +139,19 @@
             },
             fetchDepartments() {
                 if (this.departmentSearch.trim() === '') {
-                    this.departments = [];
+                    this.courseList = [];
                     return;
                 }
 
                 axios.get(`http://127.0.0.1:5000/search-departments?query=${encodeURIComponent(this.departmentSearch)}`, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                 .then(response => {
-                    this.departments = response.data;
+                    this.courseList = response.data.map(department => ({
+                        name: department.department
+                    }));
                 })
                 .catch(error => {
                     console.error("Failed to load departments:", error);
-                    this.departments = [];
+                    this.courseList = [];
                 });
             },
             addToSchedule(course) {
@@ -316,8 +302,4 @@
         color: #000000;
     }
 
-    .dept-search-results {
-        max-height: 500px;
-        overflow-y: auto;
-    }
 </style>
