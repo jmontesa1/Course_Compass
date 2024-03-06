@@ -59,12 +59,6 @@ class User:
             "majorName": self.majorName
         }
         
-        
-    # REWRITE SQL STATEMENT TO CORRECTLY RETRIEVE COURSES
-    # SHOULD RETURN COURSES STUDENT HAS ENROLLED IN
-    # WHEN RUNNING DEV APP, CLICK COURSES IN NAV BAR, AND CHECK PRINT STATEMENT IN BACKEND.PY TERMINAL
-    # WILL DISPLAY '{'courses': [list of courses]}' AFTER LOGIN COMFIRM STATEMENT
-    # THIS PRINT STATEMENT IS LOCATED IN loadCourses FUNCTION BELOW
     def get_major_courses(self):
         connection = connectToDB()
         cursor = connection.cursor(dictionary=True)
@@ -105,7 +99,6 @@ class User:
         
 
 # Login functionality for backend
-# Under construction !!!
 # Check backend development notes (Lucas)
 # Included print statements for terminal reference
 @app.route('/login', methods=['POST'])
@@ -147,7 +140,6 @@ def login():
             
 
 # Signup functionality for backend
-# Under construction !!!
 # Check backend development notes (Lucas)
 # Included print statements for terminal reference
 @app.route('/signup', methods=['POST'])
@@ -207,7 +199,7 @@ def signup():
     return jsonify({"message": "Invalid request"}), 400
 
 
-#fetch user information
+# Fetch user information
 @app.route('/getUserInfo', methods=['GET'])
 def getUserInfo():
     if 'user_id' in session and 'email' in session:
@@ -234,7 +226,7 @@ def getUserInfo():
         return jsonify({"error": "User not logged in"}), 401
     
 
-#retrive user schedule
+# Retrive user schedule
 @app.route('/getUserSchedule', methods=['GET'])
 @jwt_required()
 def get_user_schedule_stored_procedure():
@@ -260,7 +252,7 @@ def get_user_schedule_stored_procedure():
                     "courseCode": schedule[3],
                     "meetingDays": schedule[9],
                     "meetingTimes": schedule[10],
-                    "startTime": str(schedule[14]),#time needs to be a string
+                    "startTime": str(schedule[14]), # time needs to be a string
                     "endTime": str(schedule[15]),
                     "Location": schedule[11],
                     "Term": schedule[6],
@@ -436,11 +428,11 @@ def search_departments():
     if connection:
         cursor = connection.cursor()
         try:
-            query = "SELECT DISTINCT courseName FROM tblCourseNames WHERE courseMajor LIKE %s"
+            query = "SELECT DISTINCT courseName, courseCode, courseMajor, department, professor, term, format, units FROM tblCourseNames WHERE courseMajor LIKE %s"
             search_term = f"%{query_param}%"
             cursor.execute(query, (search_term,))
             result = cursor.fetchall()
-            departments = [{'department': dept[0]} for dept in result]
+            departments = [{'professor': dept[4], 'courseName': dept[0], 'courseCode': dept[1], 'courseMajor': dept[2], 'department': dept[3], 'term': dept[5], 'format': dept[6], 'units': dept[7]} for dept in result]
         finally:
             cursor.close()
             connection.close()
@@ -460,6 +452,7 @@ def enroll_courses():
             return jsonify({"message": "No courses to add"}), 400
         connection = connectToDB()
         cursor = connection.cursor()
+        print(courses)
         for course_code in courses:
             cursor.execute("INSERT INTO tblTempUserSchedule (Email, courseCode) VALUES (%s, %s)", (current_user_email, course_code))
         connection.commit()

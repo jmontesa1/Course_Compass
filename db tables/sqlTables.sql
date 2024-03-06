@@ -313,5 +313,18 @@ create table cs425.tblCourseNames (
     courseID int primary key auto_increment,
     courseName varchar(100),
     courseCode varchar(25),
-    courseMajor varchar(100)
+    courseMajor varchar(100),
+    department varchar(75),
+    professor varchar(30),
+    term varchar(8)
+);
+
+CREATE TABLE cs425.tblTempUserSchedule (
+    enrollmentID INT PRIMARY KEY AUTO_INCREMENT,
+    Email VARCHAR(150),
+    courseCode VARCHAR(25),
+    courseID INT,
+    Term VARCHAR(75),
+    FOREIGN KEY (Email) REFERENCES tblUser(Email),
+    FOREIGN KEY (courseID) REFERENCES tblCourses(courseID)
 );

@@ -3,6 +3,7 @@
 <!-- It will popup a screen for the user to see more indepth information about the course and student's opinions on it -->
 <!-- The user faces two buttons where they can either close the popup screen or add it to their schedule -->
 <!-- If the user adds it to their schedule, it will add it to a schedule array -->
+
 <template>
     <div class="popup" @click="closePopup">
         <!--Pop up Screen with details of course-->
@@ -17,11 +18,10 @@
                     <div class="col-lg left-column">
                         <p><strong>Department:</strong> {{ course.department || 'N/A' }}</p>
                         <p><strong>Name:</strong> {{ course.name || 'N/A' }}</p>
-                        <!-- For every instance that involves indexing an item, use v-for, however for now, this will cause errors for ones without -->
-                        <p><strong>Professor:</strong> {{ course.professor && course.professor.length > 0 ? course.professor.join(', ') : 'Information not available' }}</p>
+                        <p><strong>Professor:</strong> {{ course.professor || 'N/A' }}</p>
                         <p><strong>Format:</strong> {{ course.format || 'N/A' }}</p>
                         <br>
-                        <p><strong>Term:</strong> {{ course.term || 'N/A' }} | {{ course.program }}</p>
+                        <p><strong>Term:</strong> {{ course.term || 'N/A' }}</p>
                         <p><strong>Units:</strong> {{ course.units || 'N/A' }}</p>
                         <br>
                         <p><strong>Meeting Details:</strong></p>
@@ -34,9 +34,10 @@
                     <div class="col-lg">
                         <p><strong>What Students Think:</strong></p>
                         <p>{{ course.keywords && course.keywords.length > 0 ? course.keywords.join(', ') : 'Information not available' }}</p>
-                        <p><strong>Student Rating:</strong> {{ course.rating || 'N/A' }}/5</p>
+                        <p><strong>Student Rating:</strong> {{ course.rating || '0' }}/5</p>
                         <hr>
                         <p><strong>What Students Say:</strong></p>
+                        <p>{{ course.keywords && course.keywords.length > 0 ? course.keywords.join(', ') : 'Information not available' }}</p>
                     </div>
                     <div class="w-100"></div>
                 </div>
