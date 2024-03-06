@@ -98,7 +98,7 @@
         props:{
             isLoggedIn: {
                 type: Boolean,
-                required: true, // Make sure it's required
+                required: true, //login
             },
         },
         data(){

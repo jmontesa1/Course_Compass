@@ -169,7 +169,6 @@
                     { course: 'ENG 101', days: ['Monday', 'Wednesday', 'Friday'], time: '6:00 PM - 6:50 PM', start: '6:00 PM', end: '6:50 PM', location: 'MKIC 320' },
                     { course: 'EE 165', days: ['Monday', 'Wednesday', 'Friday'], time: '8:30 AM - 9:45 AM', start: '8:30 AM', end: '9:45 AM', location: 'SLC 102' },
                     { course: 'MUS 123', days: ['Tuesday', 'Thursday'], time: '5:00 PM - 6:50 PM', start: '5:00 PM', end: '6:30 PM', location: 'CFA 102' },
-                    // Add more events as needed
                 ],
 
                 //Every data that involves calendar under this
@@ -196,11 +195,7 @@
 
         methods: {
             dateClick(event, Boolean) {
-                // Access the clicked event and handle the click
                 console.log('Clicked day:', event);
-
-                // You can perform additional actions here, such as opening a dialog
-                // or navigating to a detailed view of the event.
             },
             chooseClassSchedule(){
                 this.tab = 'class-schedule';
@@ -347,7 +342,7 @@
                                 'border-radius': '8px',
                                 'height': `${blockHeight}px`,
                                 'width': '100%',
-                                'transform': `translateY(${yTransformation}px)`, // Apply Y transformation
+                                'transform': `translateY(${yTransformation}px)`,
                                 'position': 'absolute',
                                 'top': `0`,
                                 'z-index': '1',
@@ -368,8 +363,8 @@
                 const newEvent = {
                     title: this.eventTitle,
                     description: this.eventDescription,
-                    start: this.eventDate, // Assuming the eventDate is already a Date object
-                    end: this.eventDate,   // You might need to adjust this based on your requirements
+                    start: this.eventDate, 
+                    end: this.eventDate,
                     color: this.eventColor,
                     allDay: this.allDay,
                 };
@@ -486,7 +481,7 @@
         line-height: 1;
         position: relative;
         overflow: hidden;
-        white-space: nowrap; /* Optional: Prevent text from wrapping if it exceeds the width */
+        white-space: nowrap; 
         top: 50%; /* The last three make the text in the middle of the block*/
         left: 50%;
         transform: translate(-50%, -50%);
@@ -494,7 +489,7 @@
 
     @media (max-width: 768px) {
         .class-info {
-            font-size: 12px; /* Adjust the font size for smaller screens */
+            font-size: 12px; 
         }
     }
 

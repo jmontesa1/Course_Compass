@@ -83,7 +83,7 @@
 <style scoped>
     .menu{
         width: auto;
-        max-height: 1000px; /* Adjust the maximum height as needed */
+        max-height: 800px;
         overflow-y: auto;
         box-shadow: none !important;
         left: 1px;

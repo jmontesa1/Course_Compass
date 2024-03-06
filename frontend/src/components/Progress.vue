@@ -376,7 +376,7 @@
 
                 selectedMajorCourses.forEach((course) => {
                     if (course.completed) {
-                        completedUnits += 3; // Assuming each course is 3 units
+                        completedUnits += 3; //Assuming each course is 3 units
                     }
                 });
 
