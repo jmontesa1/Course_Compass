@@ -12,8 +12,8 @@
             <div class="col d-flex flex-column">
                 <!--Department Search Row-->
                 <div class="input-group mb-3">
-                    <span class="input-group-text" id="department-search">Course</span>
-                    <input type="text" class="form-control" v-model="departmentSearch" placeholder="Enter Course Name">
+                    <span class="input-group-text" id="department-search">Department</span>
+                    <input type="text" class="form-control" v-model="departmentSearch" placeholder="Enter Department Name">
                 </div>
             </div>
             <div class="col d-flex flex-column">
@@ -250,6 +250,7 @@
     .form-control{
         font-family: 'Poppins', sans-serif;
         font-size: 14px;
+        margin-bottom: 5px;
     }
 
     .form-check-label{
