@@ -28,7 +28,7 @@
                 <p>Don't have an account? <router-link to="/signup" >Sign Up</router-link></p>
             </div>
             <div class="signup-link">
-                <p><router-link to="/signup" >Forgot Password?</router-link></p>
+                <p><router-link to="/changepassword" >Forgot Password?</router-link></p>
             </div>
 
 

@@ -62,7 +62,6 @@
                                 <div v-if="selectedMajor === user.major" class="col-sm-2 d-flex">
                                     <div class="completion-text">Progress:</div>
                                 </div>
-
                                 <div class="col d-flex flex-column">
                                     <div class="progress-container">
                                         <div v-if="selectedMajor === user.major" class="progress-bar" :style="{ width: `${progressPercentage}%` }">
@@ -126,7 +125,7 @@
                     </v-container>
 
                     <br>
-                    <v-container class="exam-calculator">
+                    <v-container class="grade-calculator">
                             <v-row>
                                 <h1 class="calculator-heading">Final Grade Calculator</h1>
                             </v-row>
@@ -135,39 +134,35 @@
                                 <v-col>Course</v-col>
                                 <v-col>Credits</v-col>
                                 <v-col>Grade</v-col>
-                                <v-col cols="1"></v-col>
                             </v-row>
 
                             <v-form ref="form">
-                                <v-row style="height:70px;" v-for="(courseGPA, index) in coursesGPA" :key="index">
+                                <v-row style="height:70px;">
                                     <v-col>
-                                        <v-text-field v-model="courseGPA.name" label="Course Name (Optional)"></v-text-field>
+                                        <v-text-field v-model="currentGrade" label="Your Current Grade">
+                                        </v-text-field>
                                     </v-col>
                                     <v-col>                
-                                        <v-text-field v-model="courseGPA.credits" label="Credits"></v-text-field>
+                                        <v-text-field v-model="targetGrade" label="Target Grade"></v-text-field>
                                     </v-col>
                                     <v-col>
-                                    <v-select v-model="courseGPA.grade" :items="grades.map(item => item.grade)" label="Grade" required></v-select>
-                                    </v-col>
-                                    <v-col cols="1">
-                                        <v-btn class="close-btn" @click="removeCourseGPA">
-                                            <span class="material-icons" style="color:black">close</span>
-                                        </v-btn>
+                                        <v-text-field v-model="finalExamWeight" label="Final Exam Weight"></v-text-field>
                                     </v-col>
                                 </v-row>
 
                                 <v-row>
                                     <v-col cols="2">
-                                        <v-btn @click="addCourseGPA">Add a course</v-btn>
                                     </v-col>
                                     <v-col></v-col>
                                     <v-col cols="2">
-                                        <v-btn @click="calculateGPA">Calculate</v-btn>
+                                        <v-btn @click="calculateFinalGrade">Calculate</v-btn>
                                     </v-col>
                                 </v-row>
                             </v-form>
 
-                            <v-row>{{GPA}}</v-row>
+                            <v-row>
+                                <p class="gpa-text">To achieve your target grade, you need a {{ finalGradeCalculation }}% on the final exam.</p>
+                            </v-row>
                         </v-container>
                         <br>
                 </div>
@@ -244,6 +239,12 @@
                 ],
 
                 GPA: 0,
+
+                //Final Grade Calculator
+                currentGrade: null,
+                targetGrade: null,
+                finalExamWeight: null,
+                finalGradeCalculation: 0,
             };
         },
 
@@ -280,7 +281,7 @@
             },
 
             calculateGPA(){
-            let totalCredits = 0;
+                let totalCredits = 0;
                 let totalWeightedPoints = 0;
 
                 this.coursesGPA.forEach((course) => {
@@ -294,10 +295,19 @@
                 });
 
                 if (totalCredits > 0) {
-                this.GPA = totalWeightedPoints / totalCredits;
+                    this.GPA = totalWeightedPoints / totalCredits;
                 } else {
-                this.GPA = 0;
+                    this.GPA = 0;
                 }
+            },
+
+            calculateFinalGrade(){
+                const currentGrade = parseFloat(this.currentGrade);
+                const targetGrade = parseFloat(this.targetGrade);
+                const finalExamWeight = parseFloat(this.finalExamWeight) / 100;
+
+                const finalGrade = (targetGrade - (1 - finalExamWeight) * currentGrade) / finalExamWeight;
+                this.finalGradeCalculation = finalGrade.toFixed(2);
             },
 
             async fetchUserCourses(){
@@ -379,10 +389,10 @@
         font-size: 22px;
     }
 
-    .exam-calculator{
+    .grade-calculator{
         font-family: Poppins;
         border-radius: 8px;
-        min-height: 400px;
+        min-height: 250px;
         background-color:#e2e2e234;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
