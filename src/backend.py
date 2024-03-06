@@ -240,9 +240,9 @@ def user_schedule():
             logging.warning("JWT identity does not contain email.")
             return jsonify({"error": "Authentication information is incomplete."}), 400
 
-    connection = connectToDB()
-    if connection:
-        cursor = connection.cursor()
+        connection = connectToDB()
+        if connection:
+            cursor = connection.cursor()
         try:
             cursor.callproc('GetUserSchedule', [current_user_email])
             
@@ -269,11 +269,6 @@ def user_schedule():
         finally:
             cursor.close()
             connection.close()
-    else:
-        return jsonify({"error": "DB connection failed"}), 500
-        logging.info(f"Current user email: {current_user_email}") 
-
-        return fetch_user_schedule(current_user_email)
     except Exception as e:
         logging.error(f"An unexpected error occurred while fetching the user schedule: {e}")
         return jsonify({"error": "An unexpected error occurred."}), 500
@@ -479,11 +474,11 @@ def search_departments():
     if connection:
         cursor = connection.cursor()
         try:
-            query = "SELECT DISTINCT courseName, courseCode, courseMajor, department, professor, term, format, units FROM tblCourseNames WHERE courseMajor LIKE %s"
+            query = "SELECT DISTINCT courseName, courseCode, courseMajor, department, professor, term, format, units, meetingTime FROM tblCourseNames WHERE courseMajor LIKE %s"
             search_term = f"%{query_param}%"
             cursor.execute(query, (search_term,))
             result = cursor.fetchall()
-            departments = [{'professor': dept[4], 'courseName': dept[0], 'courseCode': dept[1], 'courseMajor': dept[2], 'department': dept[3], 'term': dept[5], 'format': dept[6], 'units': dept[7]} for dept in result]
+            departments = [{'professor': dept[4], 'courseName': dept[0], 'courseCode': dept[1], 'courseMajor': dept[2], 'department': dept[3], 'term': dept[5], 'format': dept[6], 'units': dept[7], 'meetingTime': dept[8]} for dept in result]
         finally:
             cursor.close()
             connection.close()

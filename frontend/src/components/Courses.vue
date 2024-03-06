@@ -152,7 +152,8 @@
                         professor: department.professor,
                         format: department.format,
                         term: department.term,
-                        units: department.units
+                        units: department.units,
+                        meetingTime: department.meetingTime
                     }));
                 })
                 .catch(error => {

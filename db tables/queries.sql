@@ -1,5 +1,3 @@
 USE cs425;
 
-ALTER TABLE tblCourseNames ADD format VARCHAR(16);
-
-UPDATE tblCourseNames SET format = 'In-person';
+UPDATE tblCourseNames SET meetingTime = '12-1:15' WHERE courseMajor = 'Computer Science';

@@ -27,7 +27,7 @@
                         <p><strong>Meeting Details:</strong></p>
                         <p><strong>Location:</strong> {{ course.location || 'N/A' }}</p>
                         <p><strong>Days:</strong> {{ course.days && course.days.length > 0 ? course.days.join(' | ') : 'Information not available' }}</p>
-                        <p><strong>Meeting Time:</strong> {{ course.meetingtime || 'N/A' }}</p>
+                        <p><strong>Meeting Time:</strong> {{ course.meetingTime || 'N/A' }}</p>
                     </div>
                     
                     <!--Right Side of Popup Page, Shows User Thoughts-->
