@@ -180,14 +180,25 @@
                 }
             },
 
-            enrollCourses(){
-                //PUSH THE SCHEDULE ARRAY TO THE BACKEND
-                this.$emit("show-toast", {message: "Courses Enrolled!", color:'#51da6e' });
+            async enrollCourses() {
+                try {
+                    const courseCodes = this.schedule.map(course => course.courseCode); // Adjust 'courseCode' as necessary
 
-                //CREATE AN ELSE STATEMENT HERE IF COURSES ALREADY ENROLLED
-                //if(){
-                    //this.$emit("show-toast", {message: "One or more courses already enrolled."})
-                //}
+                    const response = await axios.post('http://127.0.0.1:5000/enrollCourses', {
+                        email: localStorage.getItem('userEmail'),
+                        courses: courseCodes // Send only the course codes
+                    }, {
+                        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                    });
+
+                    if (response.status === 200) {
+                        this.$emit("show-toast", { message: "Courses added to schedule!", color: '#51da6e' });
+                        this.schedule = [];
+                    }
+                } catch (error) {
+                        console.error("Failed to add courses to schedule.", error);
+                        this.$emit("show-toast", { message: "Failed to add courses to schedule.", color: '#da5151' });
+                }
             }
         },
     }

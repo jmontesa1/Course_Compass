@@ -314,4 +314,4 @@ create table cs425.tblCourseNames (
     courseName varchar(100),
     courseCode varchar(25),
     courseMajor varchar(100)
-)
+);

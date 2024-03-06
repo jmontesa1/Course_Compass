@@ -427,6 +427,7 @@ def courses_for_progress_page():
         return jsonify({"error": "DB connection failed"}), 500
     
     
+# Retrieve courses related to user input at department search
 @app.route('/search-departments', methods=['GET'])
 @jwt_required()
 def search_departments():
@@ -446,6 +447,30 @@ def search_departments():
         return jsonify(departments), 200
     else:
         return jsonify({"message": "Failed to connect to database"}), 500
+    
+    
+# Add courses to user schedule
+@app.route('/enrollCourses', methods=['POST'])
+@jwt_required()
+def enroll_courses():
+    try:
+        current_user_email = get_jwt_identity()['email']
+        courses = request.json.get('courses', [])
+        if not courses:
+            return jsonify({"message": "No courses to add"}), 400
+        connection = connectToDB()
+        cursor = connection.cursor()
+        for course_code in courses:
+            cursor.execute("INSERT INTO tblTempUserSchedule (Email, courseCode) VALUES (%s, %s)", (current_user_email, course_code))
+        connection.commit()
+        print("COURSES ADDED")
+        return jsonify({"message": "Courses successfully added"}), 200
+    except Error as e:
+        print(e)
+        return jsonify({"message": "Error adding courses"}), 500
+    finally:
+        cursor.close()
+        connection.close()
     
 
 # Connect to database
