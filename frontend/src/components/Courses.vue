@@ -12,8 +12,8 @@
             <div class="col d-flex flex-column">
                 <!--Department Search Row-->
                 <div class="input-group mb-3">
-                    <span class="input-group-text" id="department-search">Course</span>
-                    <input type="text" class="form-control" v-model="departmentSearch" placeholder="Enter Course Name">
+                    <span class="input-group-text" id="department-search">Department</span>
+                    <input type="text" class="form-control" v-model="departmentSearch" placeholder="Enter Department Name">
                 </div>
             </div>
             <div class="col d-flex flex-column">
@@ -57,7 +57,8 @@
 
         <!--RIGHT SIDE OF PAGE-->
         <div class="col d-flex flex-column">
-            <CourseList :courses="courseList" @addToSchedule="addToSchedule"></CourseList>
+            <CourseList :courses="displayCourses" @addToSchedule="addToSchedule"></CourseList>
+            <v-pagination :length="totalPages" v-model="currentPage" style="font-family: Poppins"></v-pagination>
         </div>
 
         <div class="col-md-2 flex-column">
@@ -83,7 +84,6 @@
     import axios from 'axios';
 
     export default{
-        //Import components and Data
         name: 'Courses',
         components:
         {
@@ -115,7 +115,24 @@
                 selectedFilters: [],
                 filterMenuOpen: ['Filters'],
                 courseList: [],
+
+                //pagination
+                currentPage: 1,
+                itemsPerPage: 15,
             };
+        },
+
+        computed:{
+            //pagination functions
+            totalPages(){
+                //rounds to highest number for pages
+                return Math.ceil(this.courseList.length / this.itemsPerPage);
+            },
+            displayCourses() {
+                const firstCourse = (this.currentPage - 1) * this.itemsPerPage;
+                const lastCourse = firstCourse + this.itemsPerPage;
+                return this.courseList.slice(firstCourse, lastCourse);
+            },
         },
 
         methods: {
@@ -162,6 +179,7 @@
                     this.courseList = [];
                 });
             },
+
             addToSchedule(course) {
                 if (!this.schedule.some((c) => c.name === course.name)) {
                     this.schedule.push(course);
@@ -190,7 +208,7 @@
 
             async enrollCourses() {
                 try {
-                    const courseCodes = this.schedule.map(course => course.courseCode); // Adjust 'courseCode' as necessary
+                    const courseCodes = this.schedule.map(course => course.courseCode);
 
                     const response = await axios.post('http://127.0.0.1:5000/enrollCourses', {
                         email: localStorage.getItem('userEmail'),
@@ -251,6 +269,7 @@
     .form-control{
         font-family: 'Poppins', sans-serif;
         font-size: 14px;
+        margin-bottom: 5px;
     }
 
     .form-check-label{
@@ -279,7 +298,7 @@
     }
 
     .filter-row {
-        max-width: 100%; /* Ensure the container doesn't expand beyond the column */
+        max-width: 100%;
     }
 
     .filter-chips-container {

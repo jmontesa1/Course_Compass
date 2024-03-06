@@ -97,8 +97,6 @@
     .course-list {
         width: 100%;
         flex-direction: column;
-        overflow-y: auto;
-        max-height: 550px;
     }
 
     .course-item {

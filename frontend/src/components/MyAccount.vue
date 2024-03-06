@@ -23,7 +23,6 @@
                         <p><strong>Email:</strong> {{ user.email }}</p>
                         <p><strong>Birthdate:</strong> {{ user.dob }}</p>
                         <p><strong>Major:</strong> {{ user.major }}</p>
-                        <!-- Add other user information fields as needed -->
                         <button type="button" @click="navigateToEditProfile">Edit Profile</button>
                         <button type="button" @click="navigateToChangePassword">Change Password</button>
                     </div>

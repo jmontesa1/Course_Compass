@@ -122,7 +122,6 @@
                     { course: 'ENG 101', days: ['Monday', 'Wednesday', 'Friday'], time: '6:00 PM - 6:50 PM', start: '6:00 PM', end: '6:50 PM', location: 'MKIC 320' },
                     { course: 'EE 165', days: ['Monday', 'Wednesday', 'Friday'], time: '8:30 AM - 9:45 AM', start: '8:30 AM', end: '9:45 AM', location: 'SLC 102' },
                     { course: 'MUS 123', days: ['Tuesday', 'Thursday', 'Friday'], time: '1:00 PM - 1:50 PM', start: '1:00 PM', end: '1:50 PM', location: 'CFA 102' },
-                    // Add more events as needed
                 ],
 
                 notifications: [
@@ -319,7 +318,7 @@
 
     .deadlines-container{
         margin-left: -15px;
-        max-height: 500px; /* Adjust the maximum height as needed */
+        max-height: 500px;
         overflow-y: auto;
     }
 
