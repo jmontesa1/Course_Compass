@@ -34,27 +34,32 @@
             <v-col>
                 <div class="progress-page" v-if="this.progress === true">
                         <div v-for="(major, index) in filteredMajors" :key="index">
-                        <h1>{{ major.name }}</h1>
+                        <h1>Progress</h1>
                         <div class="container-fluid mt-3">
                             <div class="row">
-                            <div class="col-md d-flex flex-column">
-                                <br>
-                                <h2>Career</h2>
-                                <p><strong>Units Completed:</strong> {{ unitsCompleted }}/{{ major.units }}</p>
-                            </div>
-                            <div class="col-md-5 d-flex flex-column">
-                                <br>
-                                <h2>Courses</h2>
-                                <div class="scroll">
-                                    <div class="course-container" v-for="(course, courseIndex) in major.courses" :key="courseIndex">
-                                        <input type="checkbox" v-model="course.completed" />
-                                        <label>{{ course.name }}</label>
+                                <div class="col-md d-flex flex-column" style="border-right: 1px solid black;">
+                                    <h2>Career</h2>
+                                    <p><strong>Major:</strong> {{major.name}}</p>
+                                    <p><strong>Term:</strong> Spring 2024</p>
+                                    <p><strong>Class Standing:</strong> Senior</p>
+                                    <p><strong>Current GPA:</strong> 3.75</p>
+                                    <p><strong>Current Credits:</strong> 12</p>
+                                    <p><strong>Dean's List?:</strong> Yes</p>
+                                    <p><strong>Academic Standing:</strong> Good Standing</p>
+                                    <p><strong>Credits Completed:</strong> {{ unitsCompleted }}/{{ major.units }}</p>
+                                </div>
+                                <div class="col-md-6 d-flex flex-column">
+                                    <h2>Courses</h2>
+                                    <div class="scroll">
+                                        <div class="course-container" v-for="(course, courseIndex) in major.courses" :key="courseIndex">
+                                            <input type="checkbox" v-model="course.completed" />
+                                            <label>{{ course.name }}</label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            </div>
                         </div>
-                        </div>
+                    </div>
 
                     <div class="footer">
                         <div class="container-fluid mt-3">
@@ -429,6 +434,7 @@
         border-radius: 10px;
         margin-right: 15px;
         margin-top: 10px;
+
     }
 
     .progress-bar {
@@ -466,7 +472,6 @@
         display: flex;
         margin-bottom: 8px;
         padding: 8px;
-        max-width: 100%;
         max-height: 50px;
         border: 2px solid #000000;
         border-radius:5px;
@@ -474,8 +479,8 @@
 
     .scroll {
         overflow-x: auto;
-        height: 60%;
         width: 100%;
+        height: 50vh;
     }
 
     .v-tab{

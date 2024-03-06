@@ -8,7 +8,6 @@ import Login from '../views/LoginView.vue'
 import Signup from '../views/SignupView.vue'
 import MyAccount from '../views/MyAccountView.vue'
 import Dashboard from '../views/DashboardView.vue'
-import EditProfile from '../views/EditProfileView.vue'
 import ChangePassword from '../views/ChangePasswordView.vue'
 
 const routes = [
@@ -56,11 +55,6 @@ const routes = [
     path: '/dashboard',
     name: 'dashboard',
     component: Dashboard
-  },
-  {
-    path: '/editprofile',
-    name: 'editprofile',
-    component: EditProfile
   },
   {
     path: '/changepassword',

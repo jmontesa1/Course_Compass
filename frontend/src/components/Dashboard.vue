@@ -87,7 +87,7 @@
         <br>
     </v-container>
 
-    <v-container class="dashboard-container3">
+    <!--<v-container class="dashboard-container3">
         <v-row>
             <h1 class="header-text">Major Progress</h1>
         </v-row>
@@ -95,15 +95,7 @@
         <br>
         <br>
         <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-    </v-container>
+    </v-container>-->
 
 </template>
 
@@ -136,15 +128,20 @@
                 notifications: [
                     {date: '5/15/2024', source: 'UNR', message: 'Instruction Ends'},
                     {date: '3/1/2024', source: 'UNR', message: 'Deadline to apply for May graduation'},
-                    {date: '3/8/2024', source: 'John Montesa', message: 'Hello Students, hw 1 is due in the next few weeks, and there is an exam tomorrow about coffee.'},
-                    {date: '3/8/2024', source: 'John Montesa', message: 'Hello Students, hw 1 is due in the next few weeks, and there is an exam tomorrow about coffee.'},
-                    {date: '3/8/2024', source: 'John Montesa', message: 'Hello Students, hw 1 is due in the next few weeks, and there is an exam tomorrow about coffee.'},
-                    {date: '3/8/2024', source: 'John Montesa', message: 'Hello Students, hw 1 is due in the next few weeks, and there is an exam tomorrow about coffee.'},
-                    {date: '3/8/2024', source: 'John Montesa', message: 'Hello Students, hw 1 is due in the next few weeks, and there is an exam tomorrow about coffee.'},
-                    {date: '3/8/2024', source: 'John Montesa', message: 'Hello Students, hw 1 is due in the next few weeks, and there is an exam tomorrow about coffee.'},
-                    {date: '3/8/2024', source: 'John Montesa', message: 'Hello Students, hw 1 is due in the next few weeks, and there is an exam tomorrow about coffee.'},
-                    {date: '3/8/2024', source: 'John Montesa', message: 'Hello Students, hw 1 is due in the next few weeks, and there is an exam tomorrow about coffee.'},
-                    {date: '3/8/2024', source: 'John Montesa', message: 'Hello Students, hw 1 is due in the next few weeks, and there is an exam tomorrow about coffee.'},
+                    {date: '3/25/2024', source: 'Professor Mike', message: 'Hello Students, hw 1 is due in the next few weeks, and there is an exam tomorrow about coffee.'},
+                    {date: '3/1/2024', source: 'UNR', message: 'Deadline to apply for May graduation'},
+                    {date: '3/18/2024', source: 'UNR', message: 'Summer Session registration starts'},
+                    {date: '3/19/2024', source: 'UNR', message: 'Final fee payment due for those on a payment plan'},
+                    {date: '3/23/2024', source: 'UNR', message: 'Spring Break (campus open; no classes)'},
+                    {date: '4/1/2024', source: 'UNR', message: 'Fall semester enrollment begins'},
+                    {date: '4/2/2024', source: 'UNR', message: 'No dropping of individual classes after this deadline'},
+                    {date: '5/8/2024', source: 'UNR', message: 'Prep Day'},
+                    {date: '5/9/2024', source: 'UNR', message: 'Finals week begins'},
+                    {date: '5/15/2024', source: 'UNR', message: 'Instruction Ends'},
+                    {date: '5/16/2024', source: 'UNR', message: 'On-campus residence hall move-out (11 a.m.)'},
+                    {date: '5/16/2024', source: 'UNR', message: 'Commencement'},
+                    {date: '5/20/2024', source: 'UNR', message: 'Faculty to post final grades in MyNEVADA by 5 p.m.'},
+                    {date: '5/20/2024', source: 'UNR', message: 'Spring semester ends, last day faculty on campus for spring semester'},
                 ],
             };
         },

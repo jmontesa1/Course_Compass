@@ -12,8 +12,8 @@
             <div class="col d-flex flex-column">
                 <!--Department Search Row-->
                 <div class="input-group mb-3">
-                    <span class="input-group-text" id="department-search">Department</span>
-                    <input type="text" class="form-control" v-model="departmentSearch" placeholder="Enter Department Name">
+                    <span class="input-group-text" id="department-search">Course</span>
+                    <input type="text" class="form-control" v-model="departmentSearch" placeholder="Enter Course Name">
                 </div>
             </div>
             <div class="col d-flex flex-column">
