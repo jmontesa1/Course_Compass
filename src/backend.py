@@ -7,6 +7,8 @@ from flask_cors import CORS
 from mysql.connector import connect, Error
 from datetime import datetime
 from flask_bcrypt import Bcrypt
+import logging
+
 
 
 # Under construction !!!
@@ -237,44 +239,62 @@ def getUserInfo():
 #retrive user schedule
 @app.route('/getUserSchedule', methods=['GET'])
 @jwt_required()
-def get_user_schedule_stored_procedure():
-    identity = get_jwt_identity()
-    current_user_email = identity['email']
-    #current_user_email = get_jwt_identity()['email']
+def user_schedule():
+    try:
+        identity = get_jwt_identity()
+        current_user_email = identity.get('email')
 
-    print("Current user email:", current_user_email)#to see if correct email
+        if not current_user_email:
+            logging.warning("JWT identity does not contain email.")
+            return jsonify({"error": "Authentication information is incomplete."}), 400
 
-    connection = connectToDB()
-    if connection:
-        cursor = connection.cursor()
-        try:
-            cursor.callproc('GetUserSchedule', [current_user_email])
-            
-            user_schedule = []
-            for result in cursor.stored_results():
-                user_schedule = result.fetchall()
-            
-            schedule_list = []
-            for schedule in user_schedule:
-                schedule_dict = {
-                    "courseCode": schedule[3],
-                    "meetingDays": schedule[9],
-                    "meetingTimes": schedule[10],
-                    "startTime": str(schedule[14]),#time needs to be a string
-                    "endTime": str(schedule[15]),
-                    "Location": schedule[11],
-                    "Term": schedule[6],
-                }
-                schedule_list.append(schedule_dict)
-                
-            return jsonify({"user_schedule": schedule_list}), 200
-        except Error as err:
-            return jsonify({"error": "Error while fetching user schedule: " + str(err)}), 500
-        finally:
-            cursor.close()
-            connection.close()
-    else:
-        return jsonify({"error": "DB connection failed"}), 500
+        logging.info(f"Current user email: {current_user_email}") 
+
+        return fetch_user_schedule(current_user_email)
+    except Exception as e:
+        logging.error(f"An unexpected error occurred while fetching the user schedule: {e}")
+        return jsonify({"error": "An unexpected error occurred."}), 500
+
+def fetch_user_schedule(email):
+    try:
+        with connectToDB() as connection:
+            with connection.cursor() as cursor:
+                user_schedule = user_schedule_stored_procedure(cursor, email)
+                if user_schedule is not None:
+                    return jsonify({"user_schedule": user_schedule}), 200
+                else:
+                    logging.warning(f"Failed to fetch schedule for {email}")
+                    return jsonify({"error": "Failed to fetch user schedule"}), 500
+    except Exception as e:
+        logging.error(f"Error fetching user schedule for {email}: {e}", exc_info=True)
+        return jsonify({"error": "An error occurred while fetching the user schedule"}), 500
+    
+
+def user_schedule_stored_procedure(cursor, email):
+    try:
+        cursor.callproc('GetUserSchedule', [email])
+
+        user_schedule = []
+        for result in cursor.stored_results():
+            user_schedule = result.fetchall()
+
+        schedule_list = []
+        for schedule in user_schedule:
+            schedule_dict = {
+                "courseCode": schedule[0],
+                "meetingDays": schedule[1],
+                "meetingTimes": schedule[2],
+                "startTime": str(schedule[3]),  #time needs to be a string
+                "endTime": str(schedule[4]),
+                "Location": schedule[5],
+                "Term": schedule[6],
+            }
+            schedule_list.append(schedule_dict)
+
+        return schedule_list
+    except Error as err:
+        print("Error while fetching user schedule:", err)
+        return None
 
 
 # Retrieve majors
