@@ -1,3 +1,5 @@
 USE cs425;
 
-SELECT courseName FROM tblCourseNames WHERE courseMajor = 'Computer Science';
+ALTER TABLE tblCourseNames ADD format VARCHAR(16);
+
+UPDATE tblCourseNames SET format = 'In-person';

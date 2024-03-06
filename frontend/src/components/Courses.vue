@@ -126,6 +126,7 @@
                     id: course.courseID,
                     code: course.courseCode,
                     name: course.courseName,
+                    department: course.courseMajor,
                     description: course.description,
                     credits: course.Credits,
                     level: course.Level,
@@ -146,7 +147,12 @@
                 axios.get(`http://127.0.0.1:5000/search-departments?query=${encodeURIComponent(this.departmentSearch)}`, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                 .then(response => {
                     this.courseList = response.data.map(department => ({
-                        name: department.department
+                        name: department.courseName,
+                        department: department.courseMajor,
+                        professor: department.professor,
+                        format: department.format,
+                        term: department.term,
+                        units: department.units
                     }));
                 })
                 .catch(error => {
@@ -186,7 +192,7 @@
 
                     const response = await axios.post('http://127.0.0.1:5000/enrollCourses', {
                         email: localStorage.getItem('userEmail'),
-                        courses: courseCodes // Send only the course codes
+                        courses: courseCodes
                     }, {
                         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
                     });
