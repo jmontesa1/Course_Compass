@@ -18,6 +18,7 @@
                     <div class="col-lg left-column">
                         <p><strong>Department:</strong> {{ course.department || 'N/A' }}</p>
                         <p><strong>Name:</strong> {{ course.name || 'N/A' }}</p>
+                        <p><strong>Code:</strong> {{ course.code || 'N/A' }}</p>
                         <p><strong>Professor:</strong> {{ course.professor || 'N/A' }}</p>
                         <p><strong>Format:</strong> {{ course.format || 'N/A' }}</p>
                         <br>
