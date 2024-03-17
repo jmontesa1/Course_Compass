@@ -7,9 +7,8 @@
         <template v-slot:prepend>
             <span class="material-icons" style="color:white; margin-top:5px;">notifications</span>
         </template>
-
-        <v-banner-text class="notification-text">
-            <b> {{ upcomingNotification.date }} </b> {{ upcomingNotification.source }} - {{ upcomingNotification.message }}
+        <v-banner-text class="notification-text" v-if="upcomingNotification">
+            <b> {{ upcomingNotification.announceDate }} </b> {{ upcomingNotification.source }} - {{ upcomingNotification.message }}
         </v-banner-text>
 
         <v-banner-actions class="notification-actions">
@@ -104,35 +103,39 @@
         data(){
             return{
                 isBannerVisible: true,
-                notifications: [
-
-                    {date: '3/1/2024', source: 'UNR', message: 'Deadline to apply for May graduation'},
-                    {date: '3/18/2024', source: 'UNR', message: 'Summer Session registration starts'},
-                    {date: '3/19/2024', source: 'UNR', message: 'Final fee payment due for those on a payment plan'},
-                    {date: '3/23/2024 - 3/31/2024', source: 'UNR', message: 'Spring Break (campus open; no classes)'},
-                    {date: '4/1/2024', source: 'UNR', message: 'Fall semester enrollment begins'},
-                    {date: '4/2/2024', source: 'UNR', message: 'No dropping of individual classes after this deadline'},
-                    {date: '5/8/2024', source: 'UNR', message: 'Prep Day'},
-                    {date: '5/9/2024', source: 'UNR', message: 'Finals week begins'},
-                    {date: '5/15/2024', source: 'UNR', message: 'Instruction Ends'},
-                    {date: '5/16/2024', source: 'UNR', message: 'On-campus residence hall move-out (11 a.m.)'},
-                    {date: '5/16/2024 - 5/18/2024', source: 'UNR', message: 'Commencement'},
-                    {date: '5/20/2024', source: 'UNR', message: 'Faculty to post final grades in MyNEVADA by 5 p.m.'},
-                    {date: '5/20/2024', source: 'UNR', message: 'Spring semester ends, last day faculty on campus for spring semester'},
-                ],
+                upcomingNotification: null,
             };
         },
 
         computed:{
-            upcomingNotification(){
+            /* upcomingNotification(){
                 //this.currentDate = new Date('2024-03-03'); //USE THIS AS A TEST CASE TO CHECK DIFFERENT DAYS, THIS SHOWS IT WORKS WHEN A DAY PASSES FOR A NOTIF
                 this.currentDate = new Date(); //get current day
                 const upcomingNotifications = this.notifications.filter(notification => new Date(notification.date) > this.currentDate).sort((a, b) => new Date(a.date) - new Date(b.date));
                 return upcomingNotifications.length > 0 ? upcomingNotifications[0] : null;
-            },
+            }, */
+        },
+
+        created() {
+            this.fetchNotifications();
         },
 
         methods:{
+            fetchNotifications() {
+                axios.get('http://localhost:5000/notifications')
+                    .then(response => {
+                    if (response.status === 200) {
+                        this.upcomingNotification = response.data;
+                    } else {
+                        console.error('Failed to fetch notifications:', response.status);
+                    }
+                    })
+                    .catch(error => {
+                    console.error('Error fetching notifications:', error);
+                    });
+            },
+
+
             dashboardRefresh() {
                 if (this.$route.path === '/dashboard') {
                     this.$router.go();
@@ -161,6 +164,11 @@
                     .catch(error => {
                         console.error("Logout error: ", error);
                     });
+            },
+
+            formatDate(dateString) {
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                return new Date(dateString).toLocaleDateString(undefined, options);
             },
 
             /*checkLoginStatus() {
