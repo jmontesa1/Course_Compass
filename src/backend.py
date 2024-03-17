@@ -520,7 +520,45 @@ def enroll_courses():
     finally:
         cursor.close()
         connection.close()
+
+
+#retrieve notification for banner
+@app.route('/notifications', methods=['GET'])
+def get_today_notification():
+    notification, error = get_formatted_notification()
+    if error:
+        if error == "No notifications retrieved":
+            return jsonify({"message": error}), 404
+        return jsonify({"error": error}), 500
+
+    return jsonify(notification), 200
+
+def get_formatted_notification():
+    notification, error = fetch_todays_notification()
+    if error:
+        return None, error
+
+    if notification:
+        announce_date = notification['announceDate']
+        formatted_date = announce_date.strftime("%B %d, %Y")
+        notification['announceDate'] = formatted_date
+        return notification, None
+    return None, "No notifications retrieved" 
+
+def fetch_todays_notification():
+    connection = connectToDB()
+    if not connection:
+        return None, "Failed to connect to the database"
     
+    try:
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT announceDate, source, message FROM cs425.tblNotifications WHERE announceDate >= CURDATE() ORDER BY announceDate ASC LIMIT 1")
+        return cursor.fetchone(), None
+    except Error as err:
+        return None, str(err)
+    finally:
+        cursor.close()
+        connection.close()
 
 # Connect to database
 def connectToDB():
