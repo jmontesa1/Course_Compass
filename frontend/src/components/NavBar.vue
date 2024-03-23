@@ -128,7 +128,7 @@
                 //this.currentDate = new Date('2024-03-03'); //USE THIS AS A TEST CASE TO CHECK DIFFERENT DAYS, THIS SHOWS IT WORKS WHEN A DAY PASSES FOR A NOTIF
                 this.currentDate = new Date(); //get current day
                 const upcomingNotifications = this.notifications.filter(notification => new Date(notification.date) > this.currentDate).sort((a, b) => new Date(a.date) - new Date(b.date));
-                return upcomingNotifications.length > 0 ? upcomingNotifications[0] : null;
+                return upcomingNotifications.length > 0 ? upcomingNotifications[0] : null; //check if there are notifications
             },
         },
 

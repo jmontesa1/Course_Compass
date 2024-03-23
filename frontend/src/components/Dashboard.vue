@@ -80,7 +80,27 @@
                     {{ course.time }}
                 </v-card-text>
                 <v-card-actions>
-                <!--<v-btn @click="viewCourseDetails(course)">View Details</v-btn>-->
+                    <v-dialog v-model="dialog[index]" max-width="500" style="font-family: Poppins;">
+                        <template v-slot:activator="{ props: activatorProps }">
+                            <v-btn v-bind="activatorProps">View Details</v-btn>
+                        </template>
+                        <!--Pop up -->
+                        <v-card title="Course Details">
+                            <v-card-text>
+                                <v-row dense>
+                                    <v-col cols = "12" md="6">
+                                        Add information
+                                    </v-col>
+                                </v-row>
+                            </v-card-text> 
+
+                            <v-card-actions>
+                                <v-btn text="Close" variant="plain" @click="dialog[index] = false"></v-btn>
+                                <v-spacer></v-spacer>
+                                <v-btn color="dark-grey" text="Unenroll" variant="tonal" @click="enrollCourses()"></v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
                 </v-card-actions>
             </v-card>
         </v-row>
@@ -105,6 +125,7 @@
     export default {
         data() {
             return {
+                dialog: [],
                 currentDate: null,
                 user: {
                     firstname: '',
@@ -247,7 +268,10 @@
                 });
             },
         },
+
         mounted(){
+            this.dialog = new Array(this.schedule.length).fill(false);
+
             if (!localStorage.getItem('access_token')) {
                 this.$router.push('/login');
             } else {

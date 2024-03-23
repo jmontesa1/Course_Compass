@@ -10,6 +10,19 @@
                 <h1>Courses</h1>
             </div>
             <div class="col d-flex flex-column">
+                <!--Courses Search Row-->
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="course-search">Course</span>
+                    <input type="text" class="form-control" v-model="courseSearch" placeholder="Enter Course Name">
+                </div>
+            </div>
+            <div class="col-sm-2 d-flex flex-column"></div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-2 d-flex flex-column">
+            </div>
+            <div class="col d-flex flex-column">
                 <!--Department Search Row-->
                 <div class="input-group mb-3">
                     <span class="input-group-text" id="department-search">Department</span>
@@ -25,6 +38,7 @@
             </div>
             <div class="col-sm-2 d-flex flex-column"></div>
         </div>
+
     </div>
 
     <div class="row">
@@ -68,9 +82,29 @@
                         <div class="chip-text">{{ course.name }}</div>
                 </v-chip>
                 <v-divider></v-divider>
-                <div class="enroll-container">
-                    <btn class="enroll-button" @click="enrollCourses()">Enroll</btn>
-                </div>
+
+                <v-dialog v-model="dialog" max-width="500" style="font-family: Poppins;">
+                    <template v-slot:activator="{ props: activatorProps }">
+                        <div class="enroll-container">
+                            <btn v-bind="activatorProps" class="enroll-button">Enroll</btn>
+                        </div>
+                    </template>
+                    <!--Pop up -->
+                    <v-card title="Are you sure you want to enroll in:">
+                        <v-card-text>
+                            <v-row dense>
+                                <v-col cols = "12" md="6">
+                                    <v-row v-for="course in schedule" :key="course.id">{{ course.name }}</v-row>
+                                </v-col>
+                            </v-row>
+                        </v-card-text> 
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn text="No" variant="plain" @click="dialog = false"></v-btn>
+                            <v-btn color="primary" text="Yes" variant="tonal" @click="enrollCourses()"></v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
             </div>
         </div>
     </div>
@@ -108,6 +142,7 @@
         data() {
             return {
                 courseList: [],
+                courseSearch: '',
                 departmentSearch: '',
                 professorSearch: '',
                 sortByMajorRequirements: false,
@@ -115,6 +150,7 @@
                 selectedFilters: [],
                 filterMenuOpen: ['Filters'],
                 courseList: [],
+                dialog: false,
 
                 //pagination
                 currentPage: 1,
@@ -263,6 +299,7 @@
     .input-group-text{
         font-family: 'Poppins', sans-serif;
         font-size: 14px;
+        height: 35px;
     }
 
     .form-control{
