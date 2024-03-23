@@ -33,14 +33,37 @@
                                 </select>
                             </h1>
                         </div>
+
                         <button class="print-btn" @click="downloadPDF">
                             <img class ="printer" src="../assets/printer.png" alt="Print Button">
                         </button>
+
+                        <v-dialog v-model="dialog" max-width="500" style="font-family: Poppins;">
+                            <template v-slot:activator="{ props: activatorProps }">
+                                <v-btn class="add-schedule" v-bind="activatorProps">Add A Schedule</v-btn>
+                            </template>
+                            <!--Pop up -->
+                            <v-card title="Add a weekly schedule">
+                                <v-card-text>
+                                    <v-row dense>
+                                        <v-col>  
+                                            <v-text-field v-model="scheduleTitle" label="Schedule Title" required></v-text-field>
+                                            <v-select v-model="scheduleOption" :items="scheduleOptions" label="Week" required></v-select>
+                                        </v-col>
+                                    </v-row>
+                                </v-card-text>
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
+                                    <v-btn color="primary" text="Add" variant="tonal" @click="newSchedule()"></v-btn>
+                                </v-card-actions>
+                            </v-card>
+                        </v-dialog>
                     </div>
                 </div>
 
-                <div id="schedule-page" ref="schedulePage">
-                    <div class="container-fluid mt-3">
+                <div id="schedule-page" ref="schedulePage" >
+                    <div class="container-fluid mt-3" v-if="weekdays">
                         <div class="schedule-days">
                             <!-- This is the very top of the schedule, showing the days -->
                             <div class="row">
@@ -84,12 +107,44 @@
                             </div>
                         </div>
                     </div>
+                    <div class="container-fluid mt-3" v-if="!weekdays">
+                        <div class="schedule-days">
+                            <!-- This is the very top of the schedule, showing the days -->
+                            <div class="row">
+                                <div class="col-sm-1"></div>
+                                <div v-for="day in ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']" :key="day" class="col d-flex flex-column">
+                                    {{ day }}
+                                </div>
+                            </div>
+                            <!-- This is the rest of the schedule, showing the time and blocks of courses -->
+                            <div class="row">
+                                <!-- This is the time on the left side -->
+                                <div class="col-sm-1">
+                                    <div class="time-slot" v-for="time in ['8', '9', '10', '11', '12', '1', '2', '3', '4', '5', '6', 
+                                    '7']" :key="time">
+                                        <div class="time-slot-hour"><h2> {{ time }} </h2></div> <!-- height of each row-->
+                                        <div class="time-slot-bar"></div> <!-- bars for time -->
+                                    </div>
+                                </div>
+
+                                <div v-for="day in ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']" :key="day" class="col">
+                                    <div class="time-slot" v-for="time in ['8', '9', '10', '11', '12', '1', '2', '3', '4', '5', '6', '7']" :key="time">
+                                        <div class="day-slot-hour"></div> <!-- height of each row-->
+                                        <div class="day-slot-bar"></div> <!-- bars for time -->
+                                        <template v-if="time === '8' && day === 'Monday' || time === '8' && day === 'Tuesday'
+                                                || time === '8' && day === 'Wednesday' || time === '8' && day === 'Thursday'
+                                                || time === '8' && day === 'Friday'">
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             <br>
             </div>
 
             <div class="right-side2" v-if="calendar">
-
                 <v-dialog v-model="dialog" max-width="1000" style="font-family: Poppins;">
                     <template v-slot:activator="{ props: activatorProps }">
                         <v-btn class="add-event" v-bind="activatorProps">Add an event</v-btn>
@@ -110,7 +165,6 @@
                         </v-row>
 
                         </v-card-text>
-                            
                         <v-card-actions>
                             <v-spacer></v-spacer>
                             <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
@@ -152,14 +206,21 @@
                 classSchedule: true,
                 calendar: false,
 
+                //schedule options
+                scheduleTitle: '',
+                scheduleOption: 'Weekdays',
+                weekdays: true,
+                scheduleOptions: ['Weekdays', 'Weekdays and Weekends'],
+
                 user: {
                     firstname: '',
                     lastname: '',
                     major: '',
-                    //term: 'Fall 2023',
                 },
 
-                schedule: [],
+                schedules: [
+                    {option: 'weekdays', title: 'Hi', events:[]}
+                ],
                 userSchedules:["Class Schedule"],
 
                 schedule: [
@@ -334,7 +395,6 @@
                                 yTransformation += 27;
                             }
 
-
                         blocks.push({
                             id: course.course + day,
                             style: { 
@@ -354,6 +414,11 @@
                 return blocks;
             },
 
+
+            //Any method under this are for the schedule
+            newSchedule(){
+                
+            },
 
             //Any method under this are for the calendar
             getEventColor (event) {
@@ -531,6 +596,16 @@
         font-family: Poppins;
         color: white;
         background-color: black;
+        box-shadow: none;
+    }
+
+    .add-schedule{
+        width: 150px;
+        margin-top: 17px;
+        margin-right: 25px;
+        font-family: Poppins;
+        color: rgb(255, 255, 255);
+        background-color: rgb(0, 0, 0);
         box-shadow: none;
     }
 
