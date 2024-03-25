@@ -26,12 +26,9 @@ create table cs425.tblUser(
     userID int primary key auto_increment,
     Fname varchar(100) not null,
     Lname varchar(100) not null,
-    DOB date,
+    DOB date not null,
     Email varchar(150) unique,
     Passwd varchar(100) not null,
-    majorName varchar(60),
-    majorID int,
-    foreign key (majorID) references tblMajor (majorID)
 );
 
 /*Advisor table*/
@@ -51,15 +48,15 @@ create table cs425.tblAdvisors(
 /*Instructor table*/
 create table cs425.tblInstructor(
     instructorID int primary key auto_increment,
-    Fname varchar(75),
-    Lname varchar(75),
     Email varchar(150) unique,
     deptID int,
     officeLocation varchar(100),
     phoneNum varchar(20),
     officeHours varchar (100),
     isAdmin boolean,
-    foreign key (deptID) references tblDepartment(deptID)
+    userID int,
+    foreign key (deptID) references tblDepartment(deptID),
+    foreign key (userID) references tblUser(userID)
 );
 
 
@@ -85,11 +82,8 @@ create table cs425.tblStudents(
     majorName varchar(50),
     currentCredits int,
     creditsEarned int,
-    GPA decimal(3,2),
     enrollmentStatus varchar(75),
-    advisorID int,
     foreign key (Email) references tblUser(Email),
-    foreign key (advisorID) references tblAdvisors(advisorID)
 );
 
 
@@ -123,24 +117,22 @@ create table cs425.tblContactInfo(
 /* Course Info table*/
 create table cs425.tblCourses(
     courseID int primary key auto_increment,
-    deptID int,
-    majorID int,
     courseCode varchar(25),
     courseName varchar(100) not null,
     description text,
     Credits int,
     Level varchar(25),
-	Requirements text,
-    foreign key (majorID) references tblMajor(majorID)
+	Requirements text
 );
 
-/* Junction table for many-to-many relationship */
-CREATE TABLE cs425.tblMajorCourses(
-    majorID INT,
-    courseID INT,
-    primary key (majorID, courseID),
+
+/* Junction table for courses and majors */
+create table cs425.tblCourseMajor(
+    courseID int,
+    majorID int,
+    foreign key (courseID) references tblCourses(courseID),
     foreign key (majorID) references tblMajor(majorID),
-    foreign key (courseID) references tblCourses(courseID)
+    primary key (courseID, majorID)
 );
 
 /*Course Schedule*/
@@ -149,7 +141,6 @@ create table cs425.tblcourseSchedule(
     courseCode varchar(25),
     courseID int,
     Section int,
-    Credits int,
 	startDate date,
     endDate date,
     Term varchar(75),
@@ -165,7 +156,6 @@ create table cs425.tblcourseSchedule(
     enrollmentTotal int,
     availableSeats int,
     waitList int,
-    Rating decimal(3,1),
     classAttributes varchar(256),
     materials varchar(150),
     foreign key (courseID) references tblCourses(courseID)
@@ -194,7 +184,7 @@ create table cs425.tblUserSchedule(
     foreign key (scheduleID) references tblcourseSchedule(scheduleID)
 );
 
-/*course History*/
+/*Completed Courses Table*/
 CREATE TABLE cs425.tblUserCompletedCourses(
     completionID int primary key auto_increment,
     Email varchar(150),
@@ -240,21 +230,25 @@ create table cs425.tblPlanner(
     foreign key (Email) references tblUser(Email)
 );
 
-/*Course Shopping Cart table*/
-create table cs425.tblshoppingCart(
-    cartID int primary key auto_increment,
+/*Course Enrollment table*/
+create table cs425.tblEnrolledCourses(
+    EnrollID int primary key auto_increment,
     Email varchar(100),
     scheduleID int,
     courseID int,
 	courseCode varchar(25),
-    enrollmentStatus varchar(25),
+    meetingDays varchar(75),
+    meetingTimes varchar(30),
+	startTime time,
+    endTime time,
+    Location varchar(10),
+    enrollmentStatus varchar(15),
     enrollDate date,
     dropDate date,
 	foreign key (Email) references tblUser(Email),
-    foreign key (scheduleID) references tblcourseSchedule(scheduleID)
+    foreign key (scheduleID) references tblcourseSchedule(scheduleID),
+    foreign key (courseID) references tblCourses(courseID)
 );
-
-
 
 /*Announcements table*/
 create table cs425.tblNotifications(
@@ -309,22 +303,3 @@ create table cs425.tblGPA(
     foreign key (studentID) references tblStudents(studentID)
 );
 
-create table cs425.tblCourseNames (
-    courseID int primary key auto_increment,
-    courseName varchar(100),
-    courseCode varchar(25),
-    courseMajor varchar(100),
-    department varchar(75),
-    professor varchar(30),
-    term varchar(8)
-);
-
-CREATE TABLE cs425.tblTempUserSchedule (
-    enrollmentID INT PRIMARY KEY AUTO_INCREMENT,
-    Email VARCHAR(150),
-    courseCode VARCHAR(25),
-    courseID INT,
-    Term VARCHAR(75),
-    FOREIGN KEY (Email) REFERENCES tblUser(Email),
-    FOREIGN KEY (courseID) REFERENCES tblCourses(courseID)
-);

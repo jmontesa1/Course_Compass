@@ -211,11 +211,7 @@
                 {
                     name: 'Electrical Engineering',
                     units: 120.0,
-                    courses: [
-                        { name: 'EE 101', completed: false },
-                        { name: 'EE 202', completed: false },
-                        { name: 'EE 303', completed: false },
-                    ],
+                    courses: [],
                 },
                 ],
 
@@ -255,6 +251,11 @@
         },
 
         methods:{
+            handleToast(toastData) {
+
+            console.log(toastData.message);
+            },
+
             chooseProgress(){
                 this.tab = 'progress';
                 this.calculators = false;
@@ -328,11 +329,12 @@
                     majorToUpdate.courses = response.data.user_courses.map(course => ({
                         name: `${course.courseCode}: ${course.courseName}`,
                         completed: course.isCompleted === 1, //1 is set to true(complete), false otherwise
-                        changed: false
+                        changed: false,
+                        credits: course.credits
                     }));
 
                         if(response.data.user_courses.length > 0){
-                        majorToUpdate.units = response.data.user_courses.reduce((total, course) => total + course.creditsReq, 0) / response.data.user_courses.length;
+                            major.units = coursesForMajor.reduce((total, course) => total + course.creditsReq, 0);
                         }
                     }
                 }   catch (error){
@@ -353,10 +355,10 @@
                 try {
                     await Promise.all(updatePromises);
                     console.log('All changes saved successfully');
+                    this.$emit('show-toast', { message: 'Progress saved.', color: '#51da6e' });
                 } catch (error) {
                     console.error('Error saving changes:', error);
-                    console.log('Error saving changes:', error);
-                    //display toast message 
+                    this.$emit('show-toast', { message: 'Error saving progress. Please try again.', color: '#da6e51' });
                 }
             }
         },
@@ -376,7 +378,7 @@
 
                 selectedMajorCourses.forEach((course) => {
                     if (course.completed) {
-                        completedUnits += 3; //Assuming each course is 3 units
+                        completedUnits += course.credits; //using the credits value of each course
                     }
                 });
 
