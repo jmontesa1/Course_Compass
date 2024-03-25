@@ -38,8 +38,10 @@ class User:
         connection = connectToDB()
         cursor = connection.cursor(dictionary=True)
         try:
-            cursor.execute("SELECT userID, Fname, Lname, DOB, Email, majorName FROM cs425.tblUser WHERE Email = %s", (email,))
+            cursor.execute("""SELECT u.userID, u.Fname, u.Lname, u.DOB, u.Email, s.majorID, m.majorName
+            FROM tblUser u LEFT JOIN tblStudents s ON u.userID = s.userID LEFT JOIN tblMajor m ON s.majorID = m.majorID WHERE u.Email = %s""", (email,))
             user_data = cursor.fetchone()
+            print("Fetched user data:", user_data)
             if user_data:
                 user = User(**user_data)
                 return user
@@ -58,6 +60,7 @@ class User:
             "Lname": self.Lname,
             "DOB": self.DOB.strftime('%Y-%m-%d') if self.DOB else None,
             "Email": self.Email,
+            "majorID" : self.majorID,
             "majorName": self.majorName
         }
         
@@ -152,45 +155,70 @@ def signup():
         dob = request.json.get('dateOfBirth')
         email = request.json.get('email')
         pw = request.json.get('password')
-        majID = request.json.get('majorID')
-        
-        if not fname or not lname or not dob or not email or not pw or not majID:
+        userType = request.json.get('userType')
+        majorID = request.json.get('majorID') if userType == 'Student' else None
+        majorName = request.json.get('majorName')
+
+        print("Received userType:", userType)
+
+        if userType not in ['Student', 'Instructor']:
+            print("INVALID USER TYPE")
+            return jsonify({"message": "Invalid user type"}), 400
+
+        if not fname or not lname or not dob or not email or not pw:
             print("MISSING REQUIRED FIELDS")
-            return jsonify({"message:" "Missing required fields"}), 400
-        
+            return jsonify({"message": "Missing required fields"}), 400
+
         birthdate = datetime.strptime(dob, '%Y-%m-%d')
         today = datetime.today()
         age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
         if age < 17:
             print("MUST BE AT LEAST 17 YEARS OLD TO REGISTER")
             return jsonify({"message": "Must be at least 17 years old to sign up"}), 400
-        
+
         try:
             connection = connectToDB()
             cursor = connection.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM tblUser WHERE Email = %s", (email,))
-            existing_user = cursor.fetchone()
+
+            connection.start_transaction() #handle insertion into both tables as one transaction
             
-            if existing_user:
+            cursor.execute("SELECT * FROM tblUser WHERE Email = %s", (email,))
+            if cursor.fetchone():
                 print("EMAIL ALREADY IN USE")
                 return jsonify({"message": "Email already exists"}), 409
             
+            #insert into user table
             hashed_pw = bcrypt.generate_password_hash(pw).decode('utf-8')
+            cursor.execute("INSERT INTO tblUser (Fname, Lname, DOB, Email, Passwd) VALUES (%s, %s, %s, %s, %s)", (fname, lname, dob, email, hashed_pw))
             
-            cursor.execute("INSERT INTO tblUser (Fname, Lname, DOB, Email, Passwd, majorName) VALUES (%s, %s, %s, %s, %s, %s)", (fname, lname, dob, email, hashed_pw, majID))
-            connection.commit()
-            
-            cursor.execute("SELECT * FROM tblUser WHERE Email = %s", (email,))
+            #retrieve the new userID
+            cursor.execute("SELECT userID FROM tblUser WHERE Email = %s", (email,))
             new_user = cursor.fetchone()
+
+            if userType == 'Student':
+                cursor.execute("SELECT majorID, majorName FROM tblMajor WHERE majorName = %s", (majorID,))
+                major = cursor.fetchone()
+                if not major:
+                    print("INVALID MAJOR")
+                    connection.rollback()
+                    return jsonify({"message": "Invalid major selected"}), 400
+                majorID = major['majorID']
+                majorName = major['majorName']
+
+                cursor.execute("INSERT INTO tblStudents (userID, Email, majorName, majorID) VALUES (%s, %s, %s, %s)", (new_user['userID'], email,majorName, majorID))
+                connection.commit()
+            elif userType == 'Instructor':
+                cursor.execute("INSERT INTO tblInstructor (userID, Email) VALUES (%s, %s)", (new_user['userID'], email))
+                connection.commit()
             
             session['email'] = email
-            
-            access_token = create_access_token(identity={"email": new_user['Email'], "userID": new_user['userID']})
+            access_token = create_access_token(identity={"email": email, "userID": new_user['userID']})
             
             print("SIGN UP SUCCESSFUL")
-            return jsonify({"message": "Login successful", "access_token": access_token}), 200
+            return jsonify({"message": "Signup successful", "access_token": access_token}), 200
         except Error as err:
             print(err)
+            connection.rollback()
             return jsonify({"message": "An error occurred"}), 500
         
         finally:

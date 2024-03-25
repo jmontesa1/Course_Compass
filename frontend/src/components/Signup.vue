@@ -22,9 +22,9 @@
                             </div>
                         </v-col>
                         <v-col style="margin-left: 9px; font-family: Poppins;">
-                            <select required>
-                                <option :value="role">Student</option>
-                                <option :value="role">Instructor</option>
+                            <select v-model="selectedRole" required>
+                                <option value="Student">Student</option>
+                                <option value="Instructor">Instructor</option>
                             </select>
                         </v-col>
                     </v-row>
@@ -49,10 +49,10 @@
                 </div>
                 <br>
 
-                <div>
+                <div v-if="selectedRole === 'Student'">
                     <label for="major">Select Your Major:</label>
                     <select v-model="selectedMajor" id="major" required>
-                        <option value="" disabled></option>
+                        <option value="" disabled>Select your major</option>
                         <option v-for="major in majors" :key="major" :value="major">{{ major }}</option>
                     </select>
                 </div>
@@ -94,6 +94,7 @@
             passwordVis: false,
             confirmPassVis: false,
             selectedMajor: '',
+            selectedRole: '',
             majors: [] 
             };
         },
@@ -150,7 +151,8 @@
                     dateOfBirth: this.dateOfBirth,
                     email: this.email,
                     password: this.password,
-                    majorID: this.selectedMajor
+                    userType: this.selectedRole,
+                    majorID: this.selectedRole === 'Student' ? this.selectedMajor : null
                 };
 
                 axios.post('http://127.0.0.1:5000/signup', userData)
