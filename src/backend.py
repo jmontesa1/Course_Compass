@@ -470,13 +470,18 @@ def changePassword():
 def courses_for_progress_page():
     identity = get_jwt_identity()
     current_user_email = identity['email']
+    user = User.get_user_by_email(current_user_email)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
 
     connection = connectToDB()
     if connection:
         cursor = connection.cursor()
         try:
-            cursor.callproc('GetCoursesForProgress', [current_user_email])
+            cursor.execute("SELECT creditsReq FROM tblMajor WHERE majorName = %s", (user.majorName,))
+            total_credits_req = cursor.fetchone()[0]
 
+            cursor.callproc('GetCoursesForProgress', [current_user_email])
             user_courses = []
             for result in cursor.stored_results():
                 user_courses = result.fetchall()
@@ -487,13 +492,16 @@ def courses_for_progress_page():
                     "courseName": courses[1],
                     "courseCode": courses[2],
                     "credits": courses[3],
-                    'majorName': courses[5],
-                    'creditsReq': courses[6],
-                    'isCompleted': courses[7],
+                    "isCompleted": courses[4],
                 }
                 course_list.append(course_dict)
 
-            return jsonify({"user_courses": course_list}), 200
+
+            return jsonify({
+                "majorName": user.majorName,
+                "totalCreditsReq": total_credits_req,
+                "user_courses": course_list
+            }), 200
         except Error as err:
             return jsonify({"error": "Error while fetching user's courses: " + str(err)}), 500
         finally:

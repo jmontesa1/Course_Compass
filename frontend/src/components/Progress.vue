@@ -39,7 +39,7 @@
                             <div class="row">
                                 <div class="col-md d-flex flex-column" style="border-right: 1px solid black;">
                                     <h2>Career</h2>
-                                    <p><strong>Major:</strong> {{major.name}}</p>
+                                    <p><strong>Major:</strong> {{ majorName }}</p>
                                     <p><strong>Term:</strong> Spring 2024</p>
                                     <p><strong>Class Standing:</strong> Senior</p>
                                     <p><strong>Current GPA:</strong> 3.75</p>
@@ -47,7 +47,7 @@
                                     <p><strong>Dean's List?:</strong> Yes</p>
                                     <p><strong>Academic Standing:</strong> Good Standing</p>
                                     <p><strong>Credits Completed:</strong> {{ unitsCompleted }}/{{ major.units }}</p>
-                                    <v-btn class="save-changes-btn" color="success" @click="saveAllChanges" size="small">Save Progress</v-btn>
+                                    <v-btn class="save-changes-btn" color="success" @click="confirmationDialog = true" size="small">Save Progress</v-btn>
                                 </div>
                                 <div class="col-md-6 d-flex flex-column">
                                     <h2>Courses</h2>
@@ -61,6 +61,18 @@
                             </div>
                         </div>
                     </div>
+
+                    <v-dialog v-model="confirmationDialog" max-width="400">
+                      <v-card>
+                        <v-card-title class="headline">Confirm Changes</v-card-title>
+                        <v-card-text>Are you sure you want to save your progress?</v-card-text>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn text @click="confirmationDialog = false">Cancel</v-btn>
+                            <v-btn color="primary" text @click="saveAllChanges">Save</v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </v-dialog>
                     
                     <div class="footer">
                         <div class="container-fluid mt-3">
@@ -190,6 +202,7 @@
     export default {
         data() {
             return {
+                confirmationDialog: false,
                 tab: 'progress',
                 progress: true,
                 calculators: false,
@@ -197,20 +210,15 @@
 
                 unitsCompleted: 0,
                 user: {
-                    firstname: 'John',
-                    lastname: 'Montesa',
+                    firstname: '',
+                    lastname: '',
                     email: '',
-                    major: 'Computer Science',
+                    major: '',
                 },
                 majors: [
                 {
-                    name: 'Computer Science',
-                    units: 120.0,
-                    courses: [],
-                },
-                {
-                    name: 'Electrical Engineering',
-                    units: 120.0,
+                    name: '',
+                    units: 0,
                     courses: [],
                 },
                 ],
@@ -247,6 +255,7 @@
                 targetGrade: null,
                 finalExamWeight: null,
                 finalGradeCalculation: 0,
+                majorName: '',
             };
         },
 
@@ -317,15 +326,17 @@
                 this.finalGradeCalculation = finalGrade.toFixed(2);
             },
 
-            async fetchUserCourses(){
-                try{
-                    const response = await axios.get('http://127.0.0.1:5000/getCourseProgress', 
-                    {headers: {Authorization: `Bearer ${localStorage.getItem('access_token')}`}
+            async fetchUserCourses() {
+                try {
+                    const response = await axios.get('http://127.0.0.1:5000/getCourseProgress', {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
                     });
 
-                let majorToUpdate = this.majors.find(major => major.name === this.user.major); //find user's major
+                    this.majorName = response.data.majorName;
 
-                if(majorToUpdate){
+                    let majorToUpdate = this.majors.find(major => major.name === this.user.major);
+
+                    if (majorToUpdate) {
                     majorToUpdate.courses = response.data.user_courses.map(course => ({
                         name: `${course.courseCode}: ${course.courseName}`,
                         completed: course.isCompleted === 1, //1 is set to true(complete), false otherwise
@@ -333,13 +344,12 @@
                         credits: course.credits
                     }));
 
-                        if(response.data.user_courses.length > 0){
-                            major.units = coursesForMajor.reduce((total, course) => total + course.creditsReq, 0);
-                        }
+                    // Assign the totalCreditsReq value to the units property
+                    majorToUpdate.units = response.data.totalCreditsReq;
                     }
-                }   catch (error){
-                        console.error("Error fetching user courses", error.message);
-                    }
+                } catch (error) {
+                    console.error("Error fetching user courses", error.message);
+                }
             },
 
             async saveAllChanges() {
@@ -356,6 +366,7 @@
                     await Promise.all(updatePromises);
                     console.log('All changes saved successfully');
                     this.$emit('show-toast', { message: 'Progress saved.', color: '#51da6e' });
+                    this.confirmationDialog = false; // Close the confirmation dialog
                 } catch (error) {
                     console.error('Error saving changes:', error);
                     this.$emit('show-toast', { message: 'Error saving progress. Please try again.', color: '#da6e51' });
