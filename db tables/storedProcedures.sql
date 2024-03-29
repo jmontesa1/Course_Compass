@@ -211,3 +211,18 @@ delimiter ;
 
 /*Use case*/
 call UpdateUserEmail(1, 'newemail@gmail.com');
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+/*stored procedure for searching departments*/
+delimiter //
+create procedure SearchDepartments(in search_term varchar(255))
+begin
+    select distinct courseName, courseCode, courseMajor, department, professor, term, format, units, meetingTime, Location, days
+    from vwCourseDetails
+    where courseMajor LIKE concat(search_term, '%')
+    order by 
+        cast(substring(courseCode, locate(' ', courseCode) + 1) AS unsigned),
+        substring(courseCode, 1, locate(' ', courseCode) - 1);
+end //
+delimiter ;
+---------------------------------------------------------------------------------------------------------------------------------------------------------
