@@ -70,8 +70,10 @@
         </div>
 
         <!--RIGHT SIDE OF PAGE-->
-        <div class="col d-flex flex-column">
-            <CourseList :courses="displayCourses" @addToSchedule="addToSchedule"></CourseList>
+        <div class="col-md-8 d-flex flex-column">
+            <div class="course-list">
+                <CourseList :courses="displayCourses" @addToSchedule="addToSchedule"></CourseList>
+            </div>
             <v-pagination :length="totalPages" v-model="currentPage" style="font-family: Poppins"></v-pagination>
         </div>
 
@@ -207,7 +209,9 @@
                         format: department.format,
                         term: department.term,
                         units: department.units,
-                        meetingTime: department.meetingTime
+                        meetingTime: department.meetingTime,
+                        location: department.Location,
+                        days: department.days ? department.days.split(', ') : []
                     }));
                 })
                 .catch(error => {

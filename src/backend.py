@@ -24,7 +24,7 @@ jwt = JWTManager(app)
 
 # User class to store user information
 class User:
-    def __init__(self, userID=None, Fname=None, Lname=None, DOB=None, Email=None, majorName=None, majorID=None):
+    def __init__(self, userID=None, Fname=None, Lname=None, DOB=None, Email=None, majorName=None, majorID=None, studentID=None):
         self.userID = userID
         self.Fname = Fname
         self.Lname = Lname
@@ -32,14 +32,20 @@ class User:
         self.Email = Email
         self.majorName = majorName
         self.majorID = majorID
-        
+        self.studentID = studentID
+
     @staticmethod
     def get_user_by_email(email):
         connection = connectToDB()
         cursor = connection.cursor(dictionary=True)
         try:
-            cursor.execute("""SELECT u.userID, u.Fname, u.Lname, u.DOB, u.Email, s.majorID, m.majorName
-            FROM tblUser u LEFT JOIN tblStudents s ON u.userID = s.userID LEFT JOIN tblMajor m ON s.majorID = m.majorID WHERE u.Email = %s""", (email,))
+            cursor.execute("""
+                SELECT u.userID, u.Fname, u.Lname, u.DOB, u.Email, s.majorID, m.majorName, s.studentID
+                FROM tblUser u
+                LEFT JOIN tblStudents s ON u.userID = s.userID
+                LEFT JOIN tblMajor m ON s.majorID = m.majorID
+                WHERE u.Email = %s
+            """, (email,))
             user_data = cursor.fetchone()
             print("Fetched user data:", user_data)
             if user_data:
@@ -52,16 +58,17 @@ class User:
         finally:
             cursor.close()
             connection.close()
-            
+
     def conv_to_json(self):
-        return{
+        return {
             "userID": self.userID,
             "Fname": self.Fname,
             "Lname": self.Lname,
             "DOB": self.DOB.strftime('%Y-%m-%d') if self.DOB else None,
             "Email": self.Email,
-            "majorID" : self.majorID,
-            "majorName": self.majorName
+            "majorID": self.majorID,
+            "majorName": self.majorName,
+            "studentID": self.studentID
         }
         
     def get_major_courses(self):
@@ -304,8 +311,8 @@ def user_schedule_stored_procedure(cursor, email):
                 "courseCode": schedule[0],
                 "meetingDays": schedule[1],
                 "meetingTimes": schedule[2],
-                "startTime": schedule[3],
-                "endTime": schedule[4],
+                "startTime": str(schedule[3]),
+                "endTime": str(schedule[4]),
                 "Location": schedule[5],
                 "Term": schedule[6],
             }
@@ -518,13 +525,13 @@ def search_departments():
     query_param = request.args.get('query', '')
     connection = connectToDB()
     if connection:
-        cursor = connection.cursor()
+        cursor = connection.cursor(dictionary=True)  # Use dictionary cursor to directly get column names
         try:
-            query = "SELECT DISTINCT courseName, courseCode, courseMajor, department, professor, term, format, units, meetingTime FROM tblCourseNames WHERE courseMajor LIKE %s"
-            search_term = f"%{query_param}%"
-            cursor.execute(query, (search_term,))
-            result = cursor.fetchall()
-            departments = [{'professor': dept[4], 'courseName': dept[0], 'courseCode': dept[1], 'courseMajor': dept[2], 'department': dept[3], 'term': dept[5], 'format': dept[6], 'units': dept[7], 'meetingTime': dept[8]} for dept in result]
+            cursor.callproc('SearchDepartments', [f"{query_param}%"])
+            result = []
+            for res in cursor.stored_results():
+                result = res.fetchall()
+            departments = [{'professor': dept['professor'], 'courseName': dept['courseName'], 'courseCode': dept['courseCode'], 'courseMajor': dept['courseMajor'], 'department': dept['department'], 'term': dept['term'], 'format': dept['format'], 'units': dept['units'], 'meetingTime': dept['meetingTime'], 'Location': dept['Location'], 'days': dept['days']} for dept in result]
         finally:
             cursor.close()
             connection.close()

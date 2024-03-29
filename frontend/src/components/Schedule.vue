@@ -344,60 +344,18 @@
                                 break;
                             }
                         }
-                        const startHour = parseInt(course.start.split(':')[0]); //hours
-                        const startMinute = parseInt(course.start.split(':')[1]); //minutes
-                        const endHour = parseInt(course.end.split(':')[0]); //hours
-                        const endMinute = parseInt(course.end.split(':')[1]); //minutes
+                        const startHour = parseInt(course.start.split(':')[0]);
+                        const startMinute = parseInt(course.start.split(':')[1]);
+                        const endHour = parseInt(course.end.split(':')[0]);
+                        const endMinute = parseInt(course.end.split(':')[1]);
 
                         const blockHeight = ((endHour - startHour) * 60 + (endMinute - startMinute));
 
-                        let yTransformation;
-
-
-                        if(startHour === 8){
-                            yTransformation = 2;
-                        }
-                        else if(startHour === 9){
-                            yTransformation = 58;
-                        }
-                        else if(startHour === 10){
-                            yTransformation = 113;
-                        }
-                        else if(startHour === 11){
-                            yTransformation = 169;
-                        }
-                        else if(startHour === 12){
-                            yTransformation = 224;
-                        }
-                        else if(startHour === 1){
-                            yTransformation = 280;
-                        }
-                        else if(startHour === 2){
-                            yTransformation = 335;
-                        }
-                        else if(startHour === 3){
-                            yTransformation = 391;
-                        }
-                        else if(startHour === 4){
-                            yTransformation = 446;
-                        }
-                        else if(startHour === 5){
-                            yTransformation = 502;
-                        }
-                        else if(startHour === 6){
-                            yTransformation = 558;
-                        }
-                        else if(startHour === 7){
-                            yTransformation = 613;
-                        }
-                        
-                        if(startMinute === 30){
-                                yTransformation += 27;
-                            }
+                        const yTransformation = (startHour - 8) * 55.5 + (startMinute / 60) * 55.5;
 
                         blocks.push({
                             id: course.course + day,
-                            style: { 
+                            style: {
                                 'background-color': color,
                                 'border-radius': '8px',
                                 'height': `${blockHeight}px`,
