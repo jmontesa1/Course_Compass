@@ -24,6 +24,9 @@
                         <br>
                         <p><strong>Term:</strong> {{ course.term || 'N/A' }}</p>
                         <p><strong>Units:</strong> {{ course.units || 'N/A' }}</p>
+                        <p><strong>Class Capacity:</strong> {{ course.classCapacity || 'N/A' }}</p>
+                        <p><strong>Enrollment Total:</strong> {{ course.enrollmentTotal || 'N/A' }}</p>
+                        <p><strong>Available Seats:</strong> {{ course.availableSeats || 'N/A' }}</p>
                         <br>
                         <p><strong>Meeting Details:</strong></p>
                         <p><strong>Location:</strong> {{ course.location || 'N/A' }}</p>
