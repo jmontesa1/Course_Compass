@@ -202,6 +202,7 @@
                 axios.get(`http://127.0.0.1:5000/search-departments?query=${encodeURIComponent(this.departmentSearch)}`, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                 .then(response => {
                     this.courseList = response.data.map(department => ({
+                        scheduleID: department.scheduleID,
                         name: department.courseName,
                         code: department.courseCode,
                         department: department.courseMajor,
@@ -211,7 +212,10 @@
                         units: department.units,
                         meetingTime: department.meetingTime,
                         location: department.Location,
-                        days: department.days ? department.days.split(', ') : []
+                        days: department.days ? department.days.split(', ') : [],
+                        classCapacity: department.classCapacity,
+                        enrollmentTotal: department.enrollmentTotal,
+                        availableSeats: department.availableSeats
                     }));
                 })
                 .catch(error => {
@@ -248,11 +252,11 @@
 
             async enrollCourses() {
                 try {
-                    const courseCodes = this.schedule.map(course => course.courseCode);
+                    const scheduleIDs = this.schedule.map(course => course.scheduleID);
 
                     const response = await axios.post('http://127.0.0.1:5000/enrollCourses', {
-                        email: localStorage.getItem('userEmail'),
-                        courses: courseCodes
+                        studentID: localStorage.getItem('studentID'),
+                        scheduleIDs: scheduleIDs
                     }, {
                         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
                     });
@@ -262,9 +266,10 @@
                         this.schedule = [];
                     }
                 } catch (error) {
-                        console.error("Failed to add courses to schedule.", error);
-                        this.$emit("show-toast", { message: "Failed to add courses to schedule.", color: '#da5151' });
+                    console.error("Failed to add courses to schedule.", error);
+                    this.$emit("show-toast", { message: "Failed to add courses to schedule.", color: '#da5151' });
                 }
+                this.dialog = false;
             }
         },
     }

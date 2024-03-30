@@ -1,3 +1,110 @@
+/*Search by department*/
+delimiter //
+create procedure SearchDepartments(in search_term varchar(255))
+beign
+    select distinct 
+        scheduleID, 
+        courseName, 
+        courseCode, 
+        courseMajor, 
+        department, 
+        professor, 
+        term, 
+        format, 
+        units, 
+        meetingTime, 
+        Location, 
+        days, 
+        classCapacity, 
+        enrollmentTotal, 
+        availableSeats
+    from 
+        vwCourseDetails
+    where 
+        courseMajor like concat(search_term, '%')
+        and term = '2024 Fall'
+    order by
+        cast(substring(courseCode, locate(' ', courseCode) + 1) as unsigned),
+        substring(courseCode, 1, locate(' ', courseCode) - 1);
+end//
+delimiter ;
+
+/*Use case*/
+call SearchDepartments('math')
+call SearchDepartments('computer')
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+/*query for student enrolled courses*/
+delimiter //
+create procedure GetEnrolledCourses(
+    in p_studentID int
+)
+begin
+    select 
+		cs.scheduleID,
+        cs.courseCode as course,
+        cs.meetingDays as days,
+        cs.meetingTimes as time,
+        TIME_FORMAT(cs.startTime, '%l:%i %p') as start,
+        TIME_FORMAT(cs.endTime, '%l:%i %p') as end,
+        cs.Location as location
+    from 
+        tblUserSchedule us
+    join 
+        tblcourseSchedule cs ON us.scheduleID = cs.scheduleID
+    where 
+        us.studentID = p_studentID
+        and cs.semesterID = (
+            select semesterID 
+            from tblSemesters
+            where startDate > CURDATE()--courses for next semester, use '<' for current semester
+            order by startDate asc
+            limit 1
+        );
+end //
+delimiter ;
+
+/*use case*/
+call GetEnrolledCourses(1)--studentID as argument
+-----------------------------------------------------------------------------------------------------------
+
+
+/*student unenrolls from a course*/
+delimiter //
+create procedure UnenrollCourse(
+    in p_studentID int,
+    in p_scheduleID int
+)
+begin
+    declare v_enrollmentTotal int;
+    declare v_availableSeats int;
+    
+    --Delete the enrollment record from tblUserSchedule
+    delete from tblUserSchedule
+    where studentID = p_studentID and scheduleID = p_scheduleID;
+    
+    --Get the current enrollment total and available seats for the course
+    select enrollmentTotal, availableSeats
+    into v_enrollmentTotal, v_availableSeats
+    from tblcourseSchedule
+    where scheduleID = p_scheduleID;
+    
+    --Update the enrollment total and available seats in tblCourseSchedule
+    update tblcourseSchedule
+    set enrollmentTotal = v_enrollmentTotal - 1,
+        availableSeats = v_availableSeats + 1
+    where scheduleID = p_scheduleID;
+
+    commit;
+end //
+delimiter ;
+
+/*use case*/
+call UnenrollCourse(1, 508)--studentID 1 drops course with scheduleID 508 in tblcourseSchedule
+-------------------------------------------------------------------------------------------------------------------
+
+
 
 /*Get users courses with their email for their Major progress*/
 delimiter //

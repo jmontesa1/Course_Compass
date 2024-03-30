@@ -315,6 +315,7 @@ def user_schedule_stored_procedure(cursor, email):
                 "endTime": str(schedule[4]),
                 "Location": schedule[5],
                 "Term": schedule[6],
+                "Credits": schedule[7]
             }
             schedule_list.append(schedule_dict)
 
@@ -324,6 +325,97 @@ def user_schedule_stored_procedure(cursor, email):
         return None
     
 
+#get user enrolled courses
+@app.route('/getEnrolledCourses', methods=['GET'])
+@jwt_required()
+def get_enrolled_courses():
+    try:
+        current_user_email = get_jwt_identity()['email']
+        user = User.get_user_by_email(current_user_email)
+        if not user or not user.studentID:
+            return jsonify({"message": "User not found or not a student"}), 400
+
+        connection = connectToDB()
+        cursor = connection.cursor()
+
+        query = """
+        SELECT
+            cs.scheduleID,
+            cs.courseCode AS course,
+            cs.meetingDays AS days,
+            cs.meetingTimes AS time,
+            TIME_FORMAT(cs.startTime, '%l:%i %p') AS start,
+            TIME_FORMAT(cs.endTime, '%l:%i %p') AS end,
+            cs.Location AS location
+        FROM
+            tblUserSchedule us
+        JOIN
+            tblcourseSchedule cs ON us.scheduleID = cs.scheduleID
+        WHERE
+            us.studentID = %s
+            AND cs.semesterID = (
+                SELECT semesterID
+                FROM tblSemesters
+                WHERE startDate < CURDATE()
+                ORDER BY startDate ASC
+                LIMIT 1
+            );
+        """
+        cursor.execute(query, (user.studentID,))
+        result = cursor.fetchall()
+
+        enrolled_courses = [
+            {
+                'scheduleID': course[0],
+                'course': course[1],
+                'days': course[2].split(','),
+                'time': course[3],
+                'start': course[4],
+                'end': course[5],
+                'location': course[6]
+            }
+            for course in result
+        ]
+
+        return jsonify({"enrolledCourses": enrolled_courses}), 200
+    except Error as e:
+        print(e)
+        return jsonify({"message": "Error fetching enrolled courses"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+
+#  unenroll from course
+@app.route('/unenrollCourse', methods=['POST'])
+@jwt_required()
+def unenroll_course():
+    try:
+        current_user_email = get_jwt_identity()['email']
+        user = User.get_user_by_email(current_user_email)
+        
+        if not user or not user.studentID:
+            return jsonify({"message": "User not found or not a student"}), 400
+        
+        schedule_id = request.json.get('scheduleID')
+        if not schedule_id:
+            return jsonify({"message": "Schedule ID is required"}), 400
+        
+        connection = connectToDB()
+        cursor = connection.cursor()
+        
+        cursor.callproc('UnenrollCourse', [user.studentID, schedule_id])
+        connection.commit()
+        
+        return jsonify({"message": "Course unenrolled successfully"}), 200
+    except Error as e:
+        print(e)
+        return jsonify({"message": "Error unenrolling course"}), 500
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'connection' in locals():
+            connection.close()
 
 #mark a course as completed
 @app.route('/markCourseCompleted', methods=['POST'])
@@ -527,11 +619,51 @@ def search_departments():
     if connection:
         cursor = connection.cursor(dictionary=True)  # Use dictionary cursor to directly get column names
         try:
-            cursor.callproc('SearchDepartments', [f"{query_param}%"])
-            result = []
-            for res in cursor.stored_results():
-                result = res.fetchall()
-            departments = [{'professor': dept['professor'], 'courseName': dept['courseName'], 'courseCode': dept['courseCode'], 'courseMajor': dept['courseMajor'], 'department': dept['department'], 'term': dept['term'], 'format': dept['format'], 'units': dept['units'], 'meetingTime': dept['meetingTime'], 'Location': dept['Location'], 'days': dept['days']} for dept in result]
+            query = """
+            SELECT DISTINCT 
+                scheduleID, 
+                courseName, 
+                courseCode, 
+                courseMajor, 
+                department, 
+                professor, 
+                term, 
+                format, 
+                units, 
+                meetingTime, 
+                Location, 
+                days, 
+                classCapacity, 
+                enrollmentTotal, 
+                availableSeats
+            FROM 
+                vwCourseDetails
+            WHERE 
+                courseMajor LIKE %s
+                AND term = '2024 Spring'
+            ORDER BY
+                CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED),
+                SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
+            """
+            cursor.execute(query, (f"{query_param}%",))
+            result = cursor.fetchall()
+            departments = [{
+                'scheduleID': dept['scheduleID'],
+                'professor': dept['professor'],
+                'courseName': dept['courseName'],
+                'courseCode': dept['courseCode'],
+                'courseMajor': dept['courseMajor'],
+                'department': dept['department'],
+                'term': dept['term'],
+                'format': dept['format'],
+                'units': dept['units'],
+                'meetingTime': dept['meetingTime'],
+                'Location': dept['Location'],
+                'days': dept['days'],
+                'classCapacity': dept['classCapacity'],
+                'enrollmentTotal': dept['enrollmentTotal'],
+                'availableSeats': dept['availableSeats']
+            } for dept in result]
         finally:
             cursor.close()
             connection.close()
@@ -546,17 +678,67 @@ def search_departments():
 def enroll_courses():
     try:
         current_user_email = get_jwt_identity()['email']
-        courses = request.json.get('courses', [])
-        if not courses:
-            return jsonify({"message": "No courses to add"}), 400
+        user = User.get_user_by_email(current_user_email)
+
+        if not user or not user.studentID:
+            return jsonify({"message": "User not found or not a student"}), 400
+
+        schedule_ids = request.json.get('scheduleIDs', [])
+        if not schedule_ids:
+            return jsonify({"message": "No scheduleIDs provided"}), 400
+
         connection = connectToDB()
         cursor = connection.cursor()
-        print(courses)
-        for course_code in courses:
-            cursor.execute("INSERT INTO tblTempUserSchedule (Email, courseCode) VALUES (%s, %s)", (current_user_email, course_code))
-        connection.commit()
-        print("COURSES ADDED")
-        return jsonify({"message": "Courses successfully added"}), 200
+
+        print(schedule_ids)
+
+        added_schedule_ids = []
+
+        try:
+            cursor.execute("START TRANSACTION")
+
+            for schedule_id in schedule_ids:
+                cursor.execute("""
+                    SELECT availableSeats
+                    FROM tblcourseSchedule
+                    WHERE scheduleID = %s
+                    FOR UPDATE
+                """, (schedule_id,))
+
+                result = cursor.fetchone()
+
+                if result:
+                    availableSeats = result[0]
+
+                    if availableSeats <= 0:
+                        raise Exception(f"Course with scheduleID {schedule_id} has no available seats")
+
+                    cursor.execute("""
+                        INSERT INTO tblUserSchedule (studentID, scheduleID)
+                        VALUES (%s, %s)
+                    """, (user.studentID, schedule_id))
+
+                    cursor.execute("""
+                        UPDATE tblcourseSchedule
+                        SET enrollmentTotal = enrollmentTotal + 1,
+                            availableSeats = availableSeats - 1
+                        WHERE scheduleID = %s
+                    """, (schedule_id,))
+
+                    print(f"Course with scheduleID {schedule_id} added to user schedule")
+                    added_schedule_ids.append(schedule_id)
+                else:
+                    print(f"Course with scheduleID {schedule_id} not found in tblcourseSchedule")
+
+            cursor.execute("COMMIT")
+            return jsonify({
+                "message": "Courses enrollment processed",
+                "added_schedule_ids": added_schedule_ids
+            }), 200
+        except Exception as e:
+            cursor.execute("ROLLBACK")
+            print(e)
+            return jsonify({"message": str(e)}), 400
     except Error as e:
         print(e)
         return jsonify({"message": "Error adding courses"}), 500
@@ -565,7 +747,7 @@ def enroll_courses():
         connection.close()
 
 
-#retrieve notification for banner
+#retrieve notifications for banner
 @app.route('/notifications', methods=['GET'])
 def get_today_notification():
     notification, error = get_formatted_notification()

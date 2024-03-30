@@ -97,7 +97,7 @@
                             <v-card-actions>
                                 <v-btn text="Close" variant="plain" @click="dialog[index] = false"></v-btn>
                                 <v-spacer></v-spacer>
-                                <v-btn color="dark-grey" text="Unenroll" variant="tonal" @click="enrollCourses()"></v-btn>
+                                <v-btn color="dark-grey" text="Unenroll" variant="tonal" @click="confirmUnenrollment(course.scheduleID)"></v-btn>
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
@@ -106,6 +106,18 @@
         </v-row>
         <br>
     </v-container>
+
+    <v-dialog v-model="showUnenrollDialog" max-width="500">
+        <v-card>
+            <v-card-title class="headline">Confirm Unenrollment</v-card-title>
+            <v-card-text>Are you sure you want to unenroll from this course?</v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="dark-grey" variant="tonal" text @click="showUnenrollDialog = false">Cancel</v-btn>
+                <v-btn color="primary" variant="tonal" text @click="unenrollCourse">Confirm</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
 
     <!--<v-container class="dashboard-container3">
         <v-row>
@@ -125,6 +137,8 @@
     export default {
         data() {
             return {
+                unenrollScheduleID: null,
+                showUnenrollDialog: false,
                 dialog: [],
                 currentDate: null,
                 user: {
@@ -136,14 +150,7 @@
                     avatar: require('@/assets/profile-picture.jpg'),
                 },
 
-                schedule: [
-                    { course: 'CS 135', days: ['Monday','Wednesday','Friday'], time: '10:00 AM - 10:50 AM', start: '10:00 AM', end: '10:50 AM', location: 'SEM 104' },
-                    { course: 'CS 425', days: ['Tuesday','Thursday'], time: '10:30 AM - 11:45 AM', start: '10:30 AM', end: '11:45 AM', location: 'WPEB 101' },
-                    { course: 'CS 302', days: ['Monday', 'Wednesday'], time: '3:00 PM - 4:15 PM', start: '3:00 PM', end: '4:15 PM', location: 'PSAC 1002' },
-                    { course: 'ENG 101', days: ['Monday', 'Wednesday', 'Friday'], time: '6:00 PM - 6:50 PM', start: '6:00 PM', end: '6:50 PM', location: 'MKIC 320' },
-                    { course: 'EE 165', days: ['Monday', 'Wednesday', 'Friday'], time: '8:30 AM - 9:45 AM', start: '8:30 AM', end: '9:45 AM', location: 'SLC 102' },
-                    { course: 'MUS 123', days: ['Tuesday', 'Thursday', 'Friday'], time: '1:00 PM - 1:50 PM', start: '1:00 PM', end: '1:50 PM', location: 'CFA 102' },
-                ],
+                schedule: [],
 
                 notifications: [
                     {date: '5/15/2024', source: 'UNR', message: 'Instruction Ends'},
@@ -185,15 +192,54 @@
             },
             goToDashboard() {
                 this.$router.push('/dashboard')
-            }
+            },
+
+            async fetchEnrolledCourses() {
+                try {
+                    const response = await axios.get('http://127.0.0.1:5000/getEnrolledCourses', {
+                        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                    });
+                    this.schedule = response.data.enrolledCourses.map(course => ({
+                        ...course,
+                        scheduleID: course.scheduleID
+                    }));
+                } catch (error) {
+                    console.error("Error fetching enrolled courses:", error);
+                }
+            },
+
+            async unenrollCourse() {
+                try {
+                    const response = await axios.post('http://127.0.0.1:5000/unenrollCourse', {
+                        scheduleID: this.unenrollScheduleID
+                    }, {
+                        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                    });
+
+                    if (response.status === 200) {
+                        this.schedule = this.schedule.filter(course => course.scheduleID !== this.unenrollScheduleID);
+                        console.log('Course unenrolled successfully');
+                        this.showUnenrollDialog = false;
+                        this.$emit('show-toast', { message: 'Course unenrolled.', color: '#51da6e' });
+                    }
+                } catch (error) {
+                    console.error("Error unenrolling course:", error);
+                }
+            },
+
+
+            confirmUnenrollment(scheduleID) {
+                this.unenrollScheduleID = scheduleID;
+                this.showUnenrollDialog = true;
+            },
         },
+        
         beforeRouteUpdate(to, from, next) {
             if (to.path === '/dashboard') {
                 this.fetchDashboardData();
             }
             next();
         },
-
         
         computed:{
             currentDate(){
@@ -276,6 +322,7 @@
                 this.$router.push('/login');
             } else {
                 this.fetchDashboardData();
+                this.fetchEnrolledCourses(); //enrolled courses data
             }
         },
     }
