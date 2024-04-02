@@ -17,7 +17,9 @@ create table cs425.tblStudents(
     currentCredits int,
     creditsEarned int,
     enrollmentStatus varchar(75),
-    foreign key (Email) references tblUser(Email)
+    majorID int,
+    foreign key (Email) references tblUser(Email),
+	foreign key (majorID) references tblMajor(majorID)
 );
 
 /*Instructor table*/
@@ -142,18 +144,31 @@ CREATE TABLE cs425.tblUserCompletedCourses(
     foreign key (studentID) references tblStudents(studentID)
 );
 
-/*Review table*/
+/*Ratings table*/
 create table cs425.tblRatings(
     ratingID int primary key auto_increment,
     courseID int,
-    courseCode varchar(25),
+    studentID int,
     rating int,
     ratingText text,
     ratingDate date,
-    Keywords varchar(256),
-    upVotes int,
-    downVotes int,
-    foreign key (courseID) references tblCourses(courseID)
+    foreign key (courseID) references tblCourses(courseID), 
+	foreign key (studentID) references tblStudents(studentID)
+);
+
+/*Junction table for tblRatings and tblTags*/
+create table cs425.tblRatingTags(
+    ratingID int,
+    tagID int,
+    foreign key (ratingID) references tblRatings(ratingID),
+    foreign key (tagID) references tblTags(tagID),
+    primary key (ratingID, tagID)
+);
+
+/*Table for predefined tags*/
+create table cs425.tblTags(
+    tagID int primary key auto_increment,
+    tagName varchar(50)
 );
 
 /*Announcements table*/

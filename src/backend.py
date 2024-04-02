@@ -7,7 +7,7 @@ from flask_cors import CORS
 from mysql.connector import connect, Error
 from datetime import datetime
 from flask_bcrypt import Bcrypt
-import logging
+import logging, json
 
 
 
@@ -417,34 +417,67 @@ def unenroll_course():
         if 'connection' in locals():
             connection.close()
 
+#get review tags
+@app.route('/getTags', methods=['GET'])
+def get_tags():
+    connection = connectToDB()
+    if not connection:
+        return jsonify({"error": "DB connection failed"}), 500
+    
+    try:
+        cursor = connection.cursor()
+        cursor.execute("SELECT tagID, tagName FROM tblTags")
+        tags = cursor.fetchall()
+        
+        tag_list = [{"id": tag[0], "name": tag[1]} for tag in tags]
+        
+        return jsonify({"tags": tag_list}), 200
+    except Error as err:
+        return jsonify({"error": f"Error retrieving tags: {err}"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+
 #mark a course as completed
 @app.route('/markCourseCompleted', methods=['POST'])
 @jwt_required()
 def mark_course_completed_endpoint():
-    identity = get_jwt_identity()
-    user_email = identity['email']  
-    data = request.get_json()
-    course_code = data.get('courseCode')
-    
-    success, message = mark_course_completed(user_email, course_code)
-    if success:
-        return jsonify({"message": message}), 200
-    else:
-        return jsonify({"error": message}), 500
-
-def mark_course_completed(user_email, course_code):
-    connection = connectToDB()
-    if not connection:
-        return False, "DB connection failed"
-    
     try:
+        identity = get_jwt_identity()
+        user_email = identity['email']
+        data = request.get_json()
+        course_code = data.get('courseCode')
+        completed = data.get('completed')
+        review = data.get('review')
+        tags = data.get('tags')
+
+        app.logger.info(f"Received tags from frontend: {tags}")  #log the received tags
+
+
+        success, message = mark_course_completed(user_email, course_code, completed, review, tags)
+        if success:
+            return jsonify({"message": message}), 200
+        else:
+            return jsonify({"error": message}), 500
+    except Exception as e:
+        app.logger.error(f"Error in mark_course_completed_endpoint: {str(e)}")
+        return jsonify({"error": "An internal server error occurred"}), 500
+
+def mark_course_completed(user_email, course_code, completed, review, tags):
+    try:
+        connection = connectToDB()
+        if not connection:
+            return False, "DB connection failed"
+
         cursor = connection.cursor()
-        cursor.callproc('MarkCourseCompleted', [user_email, course_code])
+        cursor.callproc('MarkCourseCompleted', [user_email, course_code, completed, review, json.dumps(tags)])
         connection.commit()
         return True, "Course marked as completed successfully"
     except Error as err:
+        app.logger.error(f"Error in mark_course_completed: {str(err)}")
         connection.rollback()
-        return False, f"Error marking course as completed: {err}"
+        return False, f"Error marking course as completed: {str(err)}"
     finally:
         cursor.close()
         connection.close()
