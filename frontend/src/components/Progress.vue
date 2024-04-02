@@ -52,9 +52,41 @@
                                 <div class="col-md-6 d-flex flex-column">
                                     <h2>Courses</h2>
                                     <div class="scroll">
-                                        <div class="course-container" v-for="(course, courseIndex) in major.courses" :key="courseIndex">
-                                            <input type="checkbox" v-model="course.completed" @change="course.changed = true" />
-                                            <label>{{ course.name }}</label>
+                                        <div v-for="(course, index) in major.courses" :key="index">
+                                            <div class="course-container">
+                                                <input type="checkbox" v-model="course.completed" @change="course.changed = true" :disabled="isCourseSaved(course)" />
+                                                <v-expansion-panels>
+                                                    <v-expansion-panel>
+                                                        <v-expansion-panel-title>
+                                                            <label>{{ course.name }}</label>
+                                                        </v-expansion-panel-title>
+                                                        <v-expansion-panel-text>
+                                                            <p>Credits: {{ course.credits }}</p>
+                                                            <div>
+                                                                <label>Tags:</label>
+                                                                <div class="tag-container">
+                                                                    <span
+                                                                        v-for="(tag, tagIndex) in availableTags"
+                                                                        :key="tagIndex"
+                                                                        class="tag"
+                                                                        :class="{ selected: isTagSelected(course, tag), disabled: course.tags.length === 4 && !isTagSelected(course, tag) }"
+                                                                        @click="toggleTag(course, tag)"
+                                                                    >
+                                                                        {{ tag.name }}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <p v-if="course.review">Your Review: {{ course.review }}</p>
+                                                            <v-textarea
+                                                            v-model="course.review"
+                                                            label="Your Thoughts"
+                                                            placeholder="Enter your review for this course"
+                                                            @input="course.changed = true"
+                                                            ></v-textarea>
+                                                        </v-expansion-panel-text>
+                                                    </v-expansion-panel>
+                                                </v-expansion-panels>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -256,6 +288,9 @@
                 finalExamWeight: null,
                 finalGradeCalculation: 0,
                 majorName: '',
+
+                availableTags: [],
+
             };
         },
 
@@ -329,7 +364,7 @@
             async fetchUserCourses() {
                 try {
                     const response = await axios.get('http://127.0.0.1:5000/getCourseProgress', {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
                     });
 
                     this.majorName = response.data.majorName;
@@ -337,15 +372,17 @@
                     let majorToUpdate = this.majors.find(major => major.name === this.user.major);
 
                     if (majorToUpdate) {
-                    majorToUpdate.courses = response.data.user_courses.map(course => ({
-                        name: `${course.courseCode}: ${course.courseName}`,
-                        completed: course.isCompleted === 1, //1 is set to true(complete), false otherwise
-                        changed: false,
-                        credits: course.credits
-                    }));
+                        majorToUpdate.courses = response.data.user_courses.map(course => ({
+                            name: `${course.courseCode}: ${course.courseName}`,
+                            completed: course.isCompleted === 1,
+                            changed: false,
+                            credits: course.credits,
+                            review: course.review || '',
+                            saved: course.isCompleted === 1,
+                            tags: course.tags || [] //empty array of tags
+                        }));
 
-                    // Assign the totalCreditsReq value to the units property
-                    majorToUpdate.units = response.data.totalCreditsReq;
+                        majorToUpdate.units = response.data.totalCreditsReq;
                     }
                 } catch (error) {
                     console.error("Error fetching user courses", error.message);
@@ -353,30 +390,60 @@
             },
 
             async saveAllChanges() {
-                const updatePromises = this.majors.flatMap(major => 
-                    major.courses.filter(course => course.changed).map(course => 
-                        axios.post('http://127.0.0.1:5000/markCourseCompleted', {
+                const updatePromises = this.majors.flatMap(major =>
+                    major.courses.filter(course => course.changed).map(course => {
+                        course.saved = course.completed;
+                        return axios.post('http://127.0.0.1:5000/markCourseCompleted', {
                             courseCode: course.name.split(':')[0],
                             completed: course.completed ? 1 : 0,
-                        },{headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
-                    )
+                            review: course.review,
+                            tags: course.tags.map(tag => tag.id) //send tagID values
+                        }, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` } });
+                    })
                 );
 
                 try {
                     await Promise.all(updatePromises);
                     console.log('All changes saved successfully');
                     this.$emit('show-toast', { message: 'Progress saved.', color: '#51da6e' });
-                    this.confirmationDialog = false; // Close the confirmation dialog
+                    this.confirmationDialog = false;
                 } catch (error) {
                     console.error('Error saving changes:', error);
                     this.$emit('show-toast', { message: 'Error saving progress. Please try again.', color: '#da6e51' });
                 }
-            }
+            },
+
+            toggleTag(course, tag) {
+                const index = course.tags.findIndex(t => t.id === tag.id);
+                if (index > -1) {
+                    course.tags.splice(index, 1);
+                    course.changed = true;
+                } else {
+                    if (course.tags.length < 4) {
+                        course.tags.push({ id: tag.id });
+                        course.changed = true;
+                    }
+                }
+            },
+
+            async fetchTags() {
+                try {
+                    const response = await axios.get('http://127.0.0.1:5000/getTags');
+                    this.availableTags = response.data.tags;
+                } catch (error) {
+                    console.error('Error fetching tags:', error);
+                }
+            },
+
+            isTagSelected(course, tag) {
+                return course.tags && course.tags.some(t => t.id === tag.id);
+            },
         },
     
         created() {
             this.selectedMajor = this.user.major; 
-            this.fetchUserCourses(); 
+            this.fetchUserCourses();
+            this.fetchTags(); 
         },
 
         computed: {
@@ -396,6 +463,10 @@
                 const totalUnits = this.majors.find((major) => major.name === this.user.major).units;
                 this.unitsCompleted = completedUnits;
                 return (completedUnits / totalUnits) * 100;
+            },
+
+            isCourseSaved() {
+                return (course) => course.saved;
             },
         },
     };
@@ -503,13 +574,17 @@
 
     .course-container {
         font-family: 'Poppins';
+        display: flex;
+        align-items: center;
+        align-items: center;
+        display: flex;
         align-items: center;
         display: flex;
         margin-bottom: 8px;
-        padding: 8px;
-        max-height: 50px;
-        border: 2px solid #000000;
-        border-radius:5px;
+    }
+
+    .course-container input[type="checkbox"] {
+        margin-right: 8px;
     }
 
     .scroll {
@@ -529,5 +604,32 @@
     .save-changes-btn{
         font-family: Poppins;
         max-width: 20%;
+    }
+
+    .tag-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .tag {
+        background-color: #e0e0e0;
+        border-radius: 16px;
+        padding: 4px 12px;
+        cursor: pointer;
+        user-select: none;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    .tag.selected {
+        background-color: #364db3;
+        color: white;
+    }
+
+    .tag.disabled {
+        background-color: #e0e0e0;
+        color: #a0a0a0;
+        cursor: not-allowed;
     }
 </style>

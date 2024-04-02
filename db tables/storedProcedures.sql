@@ -131,44 +131,66 @@ call GetCoursesForProgress('jose@gmail.com');
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------
 /*Post a course as completed */
-delimiter //
-create procedure MarkCourseCompleted(
+delimiter $$
+create procedure `MarkCourseCompleted23`(
     in userEmail varchar(150),
-    in courseCode varchar(25)
+    in courseCode varchar(25),
+    in isCompleted boolean,
+    in reviewText text,
+    in selectedTags json
 )
 begin
     declare v_courseID int;
     declare v_majorID int;
-    declare v_fname varchar(100);
-    declare v_lname varchar(100);
+    declare v_studentID int;
+    declare v_ratingID int;
 
-    -- find courseID and majorID by courseCode
-    select c.courseID, c.majorID into v_courseID, v_majorID
+    --Find courseID based on courseCode
+    select c.courseID into v_courseID
     from cs425.tblCourses c
     where c.courseCode = courseCode
     limit 1;
 
-    -- get users name 
-    select Fname, Lname into v_fname, v_lname
-    from cs425.tblUser
-	where Email = userEmail
+    --Find studentID and majorID based on userEmail
+    select s.studentID, s.majorID into v_studentID, v_majorID
+    from cs425.tblStudents s
+    join cs425.tblUser u on s.userID = u.userID
+    where u.Email = userEmail
     limit 1;
 
-            -- check if a record already exists
-    if (select count(*) from cs425.tblUserCompletedCourses where Email = userEmail and courseID = v_courseID) > 0 then
+    --Update or insert the course completion record
+    insert into cs425.tblUserCompletedCourses (Email, courseID, courseCode, isCompleted, completionDate, majorID, studentID)
+    values (userEmail, v_courseID, courseCode, isCompleted, curdate(), v_majorID, v_studentID)
+    on duplicate key update
+        isCompleted = values(isCompleted),
+        completionDate = values(completionDate);
 
-        update cs425.tblUserCompletedCourses
-        set isCompleted = 1, completionDate = curdate()
-        where Email = userEmail and courseID = v_courseID;
-    else
-        insert into cs425.tblUserCompletedCourses (Email, Fname, Lname, courseID, courseCode, isCompleted, completionDate, majorID)
-        values (userEmail, v_fname, v_lname, v_courseID, courseCode, 1, curdate(), v_majorID);
-    end if;
-end //
+    --insert or update the rating record
+    insert into cs425.tblRatings (courseID, studentID, ratingText, ratingDate)
+    values (v_courseID, v_studentID, reviewText, curdate())
+    on duplicate key update
+        ratingText = values(ratingText),
+        ratingDate = values(ratingDate);
+
+    --Get the ratingID of the inserted or updated rating
+    set v_ratingID = last_insert_id();
+
+    --delete existing tags for the rating
+    delete from cs425.tblRatingTags where ratingID = v_ratingID;
+
+    --insert the selected tags for the rating
+    insert into cs425.tblRatingTags (ratingID, tagID)
+    select v_ratingID, tagID
+    from json_table(selectedTags, '$[*]' columns (tagID int path '$')) as selectedTags
+    where exists (
+        select 1
+        from cs425.tblTags
+        where tagID = selectedTags.tagID
+    );
+end$$
 delimiter ;
 
 call MarkCourseCompleted('jose@gmail.com', 'CS 365')
-/*for multiple courses at a time iterate through a list of courses in the endpoint to call it once for each course*/
 
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------
