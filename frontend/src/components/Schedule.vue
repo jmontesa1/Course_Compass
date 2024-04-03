@@ -22,14 +22,16 @@
         </v-tabs>
         </v-col>
 
+
+
         <v-col>
             <div class="right-side1" v-if="classSchedule">
                 <div class="header-container">
                     <div class="row justify-content-center">
                         <div class="col d-flex flex-column">
                             <h1>                            
-                                <select>
-                                    <option v-for="schedule in userSchedules" :key="schedule" :value="userschedule" >{{ schedule }}</option>
+                                <select v-model="scheduleOption">
+                                    <option v-for="schedule in userSchedules" :key="schedule.option" :value="schedule.option" >{{ schedule.title }}</option>
                                 </select>
                             </h1>
                         </div>
@@ -48,7 +50,7 @@
                                     <v-row dense>
                                         <v-col>  
                                             <v-text-field v-model="scheduleTitle" label="Schedule Title" required></v-text-field>
-                                            <v-select v-model="scheduleOption" :items="scheduleOptions" label="Week" required></v-select>
+                                            <v-select v-model="newScheduleOption" :items="scheduleOptions" label="Week" required></v-select>
                                         </v-col>
                                     </v-row>
                                 </v-card-text>
@@ -63,7 +65,7 @@
                 </div>
 
                 <div id="schedule-page" ref="schedulePage" >
-                    <div class="container-fluid mt-3" v-if="weekdays">
+                    <div class="container-fluid mt-3" v-if="scheduleOption === 'Weekdays' || scheduleOption === 'Class Schedule'">
                         <div class="schedule-days">
                             <!-- This is the very top of the schedule, showing the days -->
                             <div class="row">
@@ -86,28 +88,30 @@
 
 
                                 <div v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']" :key="day" class="col">
-                                            <div class="time-slot" v-for="time in ['8', '9', '10', '11', '12', '1', '2', '3', '4', '5', '6', '7']" :key="time">
-                                                <div class="day-slot-hour"></div> <!-- height of each row-->
-                                                <div class="day-slot-bar"></div> <!-- bars for time -->
-                                                <template v-if="time === '8' && day === 'Monday' || time === '8' && day === 'Tuesday'
-                                                        || time === '8' && day === 'Wednesday' || time === '8' && day === 'Thursday'
-                                                        || time === '8' && day === 'Friday'">
-                                                    <div v-for="classBlock in generateBlocks(day)" :key="classBlock.id" :style="classBlock.style">
-                                                        <div class="class-info">
-                                                            {{ classBlock.classes.map(item => item.course).join(', ') }}
-                                                            <br>
-                                                            {{ classBlock.classes[0].time }}
-                                                            <br>
-                                                            {{ classBlock.classes[0].location }}
-                                                        </div>
+                                    <div class="time-slot" v-for="time in ['8', '9', '10', '11', '12', '1', '2', '3', '4', '5', '6', '7']" :key="time">
+                                        <div class="day-slot-hour"></div> <!-- height of each row-->
+                                        <div class="day-slot-bar"></div> <!-- bars for time -->
+                                        <template v-if="time === '8' && day === 'Monday' || time === '8' && day === 'Tuesday'
+                                                || time === '8' && day === 'Wednesday' || time === '8' && day === 'Thursday'
+                                                || time === '8' && day === 'Friday'">
+                                            <div v-if="scheduleOption === 'Class Schedule'">
+                                                <div v-for="classBlock in generateBlocks(day)" :key="classBlock.id" :style="classBlock.style">
+                                                    <div class="class-info">
+                                                        {{ classBlock.classes.map(item => item.course).join(', ') }}
+                                                        <br>
+                                                        {{ classBlock.classes[0].time }}
+                                                        <br>
+                                                        {{ classBlock.classes[0].location }}
                                                     </div>
-                                                </template>
+                                                </div>
                                             </div>
+                                        </template>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="container-fluid mt-3" v-if="!weekdays">
+                    <div class="container-fluid mt-3" v-if="scheduleOption === 'Weekdays and Weekends'">
                         <div class="schedule-days">
                             <!-- This is the very top of the schedule, showing the days -->
                             <div class="row">
@@ -208,7 +212,8 @@
 
                 //schedule options
                 scheduleTitle: '',
-                scheduleOption: 'Weekdays',
+                newScheduleOption: 'Weekdays',
+                scheduleOption: 'Class Schedule',
                 weekdays: true,
                 scheduleOptions: ['Weekdays', 'Weekdays and Weekends'],
 
@@ -218,10 +223,9 @@
                     major: '',
                 },
 
-                schedules: [
-                    {option: 'weekdays', title: 'Hi', events:[]}
+                userSchedules: [
+                    {option: 'Class Schedule', title: 'Class Schedule', weeklyEvents:[]},
                 ],
-                userSchedules:["Class Schedule"],
 
                 schedule: [
 /*                      { course: 'CS 135', days: ['Monday','Wednesday','Friday'], time: '10:00 AM - 10:50 AM', start: '10:00 AM', end: '10:50 AM', location: 'SEM 104' },
@@ -349,9 +353,9 @@
                         const endHour = parseInt(course.end.split(':')[0]);
                         const endMinute = parseInt(course.end.split(':')[1]);
 
-                        const blockHeight = ((endHour - startHour) * 60 + (endMinute - startMinute));
+                        const blockHeight = ((endHour - startHour) * 60 + (endMinute - startMinute - 3));
 
-                        const yTransformation = (startHour - 8) * 55.5 + (startMinute / 60) * 55.5;
+                        const yTransformation = (startHour - 8) * 56.5 + (startMinute / 60) * 56.5;
 
                         blocks.push({
                             id: course.course + day,
@@ -375,7 +379,16 @@
 
             //Any method under this are for the schedule
             newSchedule(){
-                
+                const schedule = {
+                    title: this.scheduleTitle,
+                    option: this.newScheduleOption,
+                    events: [],
+                };
+
+                this.userSchedules.push(schedule);
+                this.dialog = false;
+
+                this.scheduleTitle ='';
             },
 
             //Any method under this are for the calendar

@@ -95,8 +95,8 @@
                     <v-card title="Are you sure you want to enroll in:">
                         <v-card-text>
                             <v-row dense>
-                                <v-col cols = "12" md="6">
-                                    <v-row v-for="course in schedule" :key="course.id">{{ course.name }}</v-row>
+                                <v-col>
+                                    <v-row v-for="course in schedule" :key="course.id">-{{ course.name }}</v-row>
                                 </v-col>
                             </v-row>
                         </v-card-text> 
