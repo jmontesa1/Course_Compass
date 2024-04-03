@@ -76,6 +76,7 @@
                                                                     </span>
                                                                 </div>
                                                             </div>
+                                                            <br>
                                                             <p v-if="course.review">Your Review: {{ course.review }}</p>
                                                             <v-textarea
                                                             v-model="course.review"
@@ -94,7 +95,7 @@
                         </div>
                     </div>
 
-                    <v-dialog v-model="confirmationDialog" max-width="400">
+                    <v-dialog v-model="confirmationDialog" max-width="500" style="font-family: Poppins;">
                       <v-card>
                         <v-card-title class="headline">Confirm Changes</v-card-title>
                         <v-card-text>Are you sure you want to save your progress?</v-card-text>
@@ -491,8 +492,10 @@
         font-family: Poppins;
         border-radius: 8px;
         min-height: 400px;
-        background-color:#e2e2e234;
+        background-color:#e2e2e25d;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        margin-left: 5px;
+        margin-right: 5px;
     }
 
     .gpa-text{
@@ -506,6 +509,8 @@
         min-height: 250px;
         background-color:#e2e2e234;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        margin-left: 5px;
+        margin-right: 5px;
     }
 
     h2 {

@@ -35,6 +35,7 @@
                 <br>
                 <br>
 
+                <label>Birth Date:</label>
                 <input v-model="dateOfBirth" type="date" placeholder="Date of Birth" required>
                 <br>
                 <br>

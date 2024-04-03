@@ -57,7 +57,7 @@
                 <v-container class="deadlines-container">
                     <p>Deadlines:</p>
                     <v-expansion-panels>
-                        <v-expansion-panel class="deadline-title" v-for="(notification, i) in upcomingNotifications" :key="i" :title="`${notification.source} - ${notification.date}`" :text="notification.message">
+                        <v-expansion-panel class="deadline-title" v-for="(notification, i) in upcomingNotifications" :key="i" :title="`${notification.source} - ${notification.date}`" :text="notification.message" :class="{'upcoming': i === 0}">
                         </v-expansion-panel>
                     </v-expansion-panels>
 
@@ -107,7 +107,7 @@
         <br>
     </v-container>
 
-    <v-dialog v-model="showUnenrollDialog" max-width="500">
+    <v-dialog v-model="showUnenrollDialog" max-width="500" style="font-family: Poppins;">
         <v-card>
             <v-card-title class="headline">Confirm Unenrollment</v-card-title>
             <v-card-text>Are you sure you want to unenroll from this course?</v-card-text>
@@ -408,5 +408,9 @@
         font-family: Poppins;
         background-color: rgb(236, 236, 236);
 
+    }
+
+    .upcoming{
+        font-weight: bold;
     }
 </style>
