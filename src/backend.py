@@ -672,14 +672,19 @@ def search_departments():
                     classCapacity, 
                     enrollmentTotal, 
                     availableSeats
-                FROM vwCourseDetails
-                WHERE CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED) >= %s
-                AND term = '2024 Spring'
+                FROM (
+                    SELECT *,
+                        ROW_NUMBER() OVER(PARTITION BY courseName ORDER BY courseCode) AS rn,
+                        CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED) AS numericCourseLevel
+                    FROM vwCourseDetails
+                    WHERE courseMajor LIKE %s AND term = '2024 Spring'
+                ) AS courses
+                WHERE rn = 1 AND numericCourseLevel >= %s
                 ORDER BY
-                    CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED),
+                    numericCourseLevel,
                     SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
                 """
-                cursor.execute(query, (numeric_level,))
+                cursor.execute(query, (f"{query_param}%", numeric_level))
             else: 
                 query = """
                 SELECT DISTINCT 
