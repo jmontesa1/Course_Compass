@@ -10,8 +10,6 @@ from flask_bcrypt import Bcrypt
 import logging, json
 
 
-
-# Under construction !!!
 app = Flask(__name__)
 app.secret_key = '123456789' # Change key to secure value for production environment
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
@@ -19,7 +17,6 @@ app.config['SESSION_COOKIE_SECURE'] = True
 CORS(app, supports_credentials=True)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
-
 
 
 # User class to store user information
@@ -263,7 +260,7 @@ def getUserInfo():
         return jsonify({"error": "User not logged in"}), 401
     
 
-#retrive user schedule
+# Retrive user schedule
 @app.route('/getUserSchedule', methods=['GET'])
 @jwt_required()
 def user_schedule():
@@ -281,6 +278,7 @@ def user_schedule():
     except Exception as e:
         logging.error(f"An unexpected error occurred while fetching the user schedule: {e}")
         return jsonify({"error": "An unexpected error occurred."}), 500
+    
 
 def fetch_user_schedule(email):
     try:
@@ -669,11 +667,13 @@ def search_departments():
                 classCapacity, 
                 enrollmentTotal, 
                 availableSeats
-            FROM 
-                vwCourseDetails
-            WHERE 
-                courseMajor LIKE %s
-                AND term = '2024 Spring'
+            FROM (
+                SELECT *,
+                    ROW_NUMBER() OVER(PARTITION BY courseName ORDER BY courseCode) AS rn
+                FROM vwCourseDetails
+                WHERE courseMajor LIKE %s AND term = '2024 Spring'
+            ) AS courses
+            WHERE rn = 1
             ORDER BY
                 CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED),
                 SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
