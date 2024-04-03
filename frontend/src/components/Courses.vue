@@ -207,8 +207,7 @@
                 } else if (this.departmentSearch.trim() !== '') {
                     url += `?query=${encodeURIComponent(this.departmentSearch)}`;
                 } else {
-                    this.courseList = [];
-                    return;
+                    url += `?default=true`;
                 }
 
                 axios.get(url, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
@@ -288,6 +287,9 @@
                 }
                 this.dialog = false;
             }
+        },
+        mounted() {
+            this.fetchDepartments();
         },
     }
 </script>

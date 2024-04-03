@@ -646,6 +646,7 @@ def courses_for_progress_page():
 def search_departments():
     query_param = request.args.get('query', '')
     level_param = request.args.get('level', None)
+    default_param = request.args.get('default', None)
     connection = connectToDB()
     if connection:
         cursor = connection.cursor(dictionary=True)  # Use dictionary cursor to directly get column names
@@ -685,6 +686,36 @@ def search_departments():
                     SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
                 """
                 cursor.execute(query, (f"{query_param}%", numeric_level))
+            elif default_param:
+                query = """
+                SELECT DISTINCT 
+                    scheduleID, 
+                    courseName, 
+                    courseCode, 
+                    courseMajor, 
+                    department, 
+                    professor, 
+                    term, 
+                    format, 
+                    units, 
+                    meetingTime, 
+                    Location, 
+                    days, 
+                    classCapacity, 
+                    enrollmentTotal, 
+                    availableSeats
+                FROM (
+                    SELECT *,
+                        ROW_NUMBER() OVER(PARTITION BY courseName ORDER BY courseCode) AS rn
+                    FROM vwCourseDetails
+                    WHERE term = '2024 Spring'
+                ) AS courses
+                WHERE rn = 1
+                ORDER BY
+                    CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED),
+                    SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
+                """
+                cursor.execute(query)
             else: 
                 query = """
                 SELECT DISTINCT 
