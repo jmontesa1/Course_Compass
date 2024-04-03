@@ -264,20 +264,19 @@
                 const currentDay = daysOfWeek[currentDayIndex];
 
                 return this.schedule.filter(course => {
-                    const courseDay = course.days.includes(currentDay);
-                    return courseDay;
+                    return course.days.some(day => day.trim() === currentDay);
                 }).sort((a, b) => {
                     const getTime = time => {
-                        const [hours, minutes] = time.split(':').map(Number);
+                        const [hours, minutes] = time.split(' - ')[0].split(':').map(Number);
                         const paddedHours = hours.toString().padStart(2, '0');
                         return parseInt(`${paddedHours}${minutes}`, 10);
                     };
 
-                    const timeComparison = getTime(a.start) - getTime(b.start);
+                    const timeComparison = getTime(a.time) - getTime(b.time);
 
-                    if (a.start.includes('AM') && b.start.includes('PM')) {
+                    if (a.time.includes('AM') && b.time.includes('PM')) {
                         return -1;
-                    } else if (a.start.includes('PM') && b.start.includes('AM')) {
+                    } else if (a.time.includes('PM') && b.time.includes('AM')) {
                         return 1;
                     }
                     return timeComparison;
@@ -292,22 +291,20 @@
                 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                 const nextDay = daysOfWeek[nextDayIndex];
 
-
                 return this.schedule.filter(course => {
-                    const courseDay = course.days.includes(nextDay);
-                    return courseDay;
+                    return course.days.some(day => day.trim() === nextDay);
                 }).sort((a, b) => {
                     const getTime = time => {
-                        const [hours, minutes] = time.split(':').map(Number);
+                        const [hours, minutes] = time.split(' - ')[0].split(':').map(Number);
                         const paddedHours = hours.toString().padStart(2, '0');
                         return parseInt(`${paddedHours}${minutes}`, 10);
                     };
 
-                    const timeComparison = getTime(a.start) - getTime(b.start);
+                    const timeComparison = getTime(a.time) - getTime(b.time);
 
-                    if (a.start.includes('AM') && b.start.includes('PM')) {
+                    if (a.time.includes('AM') && b.time.includes('PM')) {
                         return -1;
-                    } else if (a.start.includes('PM') && b.start.includes('AM')) {
+                    } else if (a.time.includes('PM') && b.time.includes('AM')) {
                         return 1;
                     }
                     return timeComparison;
