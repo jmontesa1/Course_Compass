@@ -136,6 +136,7 @@
         watch: {
             selectedFilters(newFilters) {
             this.selectedFilters = newFilters;
+            this.fetchDepartments();
             },
             departmentSearch() {
                 this.fetchDepartments();
@@ -193,13 +194,24 @@
                 console.error("Failed to load:", error);
                 });
             },
-            fetchDepartments() {
-                if (this.departmentSearch.trim() === '') {
+            handleLevelSelection(selectedLevel) {
+                const isLevel = /^[\d]+00\+$/.test(selectedLevel);
+                if (isLevel) {
+                    this.fetchDepartments(selectedLevel);
+                }
+            },
+            fetchDepartments(selectedLevel = null) {
+                let url = 'http://127.0.0.1:5000/search-departments';
+                if (selectedLevel) {
+                    url += `?level=${encodeURIComponent(selectedLevel)}`;
+                } else if (this.departmentSearch.trim() !== '') {
+                    url += `?query=${encodeURIComponent(this.departmentSearch)}`;
+                } else {
                     this.courseList = [];
                     return;
                 }
 
-                axios.get(`http://127.0.0.1:5000/search-departments?query=${encodeURIComponent(this.departmentSearch)}`, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
+                axios.get(url, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                 .then(response => {
                     this.courseList = response.data.map(department => ({
                         scheduleID: department.scheduleID,
@@ -241,12 +253,17 @@
             },
 
             handleFilterSelected(filter) {
-                const index = this.selectedFilters.indexOf(filter);
-
-                if (index !== -1) {
-                    this.selectedFilters.splice(index, 1);
+                const isLevel = /^\d+00\+$/.test(filter);
+                if (isLevel) {
+                    this.fetchDepartments(filter)
                 } else {
-                    this.selectedFilters.push(filter);
+                    const index = this.selectedFilters.indexOf(filter);
+                    if (index !== -1) {
+                        this.selectedFilters.splice(index, 1);
+                    } else {
+                        this.selectedFilters.push(filter);
+                    }
+                    this.fetchDepartments();
                 }
             },
 

@@ -414,6 +414,7 @@ def unenroll_course():
             cursor.close()
         if 'connection' in locals():
             connection.close()
+            
 
 #get review tags
 @app.route('/getTags', methods=['GET'])
@@ -452,7 +453,6 @@ def mark_course_completed_endpoint():
 
         app.logger.info(f"Received tags from frontend: {tags}")  #log the received tags
 
-
         success, message = mark_course_completed(user_email, course_code, completed, review, tags)
         if success:
             return jsonify({"message": message}), 200
@@ -461,6 +461,7 @@ def mark_course_completed_endpoint():
     except Exception as e:
         app.logger.error(f"Error in mark_course_completed_endpoint: {str(e)}")
         return jsonify({"error": "An internal server error occurred"}), 500
+    
 
 def mark_course_completed(user_email, course_code, completed, review, tags):
     try:
@@ -479,8 +480,6 @@ def mark_course_completed(user_email, course_code, completed, review, tags):
     finally:
         cursor.close()
         connection.close()
-
-
 
 
 # Retrieve majors
@@ -646,39 +645,72 @@ def courses_for_progress_page():
 @jwt_required()
 def search_departments():
     query_param = request.args.get('query', '')
+    level_param = request.args.get('level', None)
     connection = connectToDB()
     if connection:
         cursor = connection.cursor(dictionary=True)  # Use dictionary cursor to directly get column names
         try:
-            query = """
-            SELECT DISTINCT 
-                scheduleID, 
-                courseName, 
-                courseCode, 
-                courseMajor, 
-                department, 
-                professor, 
-                term, 
-                format, 
-                units, 
-                meetingTime, 
-                Location, 
-                days, 
-                classCapacity, 
-                enrollmentTotal, 
-                availableSeats
-            FROM (
-                SELECT *,
-                    ROW_NUMBER() OVER(PARTITION BY courseName ORDER BY courseCode) AS rn
+            if level_param:
+                level = level_param.rstrip('+')
+                print(level)
+                numeric_level = int(level)
+                print(numeric_level)
+                query = """
+                SELECT DISTINCT 
+                    scheduleID, 
+                    courseName, 
+                    courseCode, 
+                    courseMajor, 
+                    department, 
+                    professor, 
+                    term, 
+                    format, 
+                    units, 
+                    meetingTime, 
+                    Location, 
+                    days, 
+                    classCapacity, 
+                    enrollmentTotal, 
+                    availableSeats
                 FROM vwCourseDetails
-                WHERE courseMajor LIKE %s AND term = '2024 Spring'
-            ) AS courses
-            WHERE rn = 1
-            ORDER BY
-                CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED),
-                SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
-            """
-            cursor.execute(query, (f"{query_param}%",))
+                WHERE CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED) >= %s
+                AND term = '2024 Spring'
+                ORDER BY
+                    CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED),
+                    SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
+                """
+                cursor.execute(query, (numeric_level,))
+            else: 
+                query = """
+                SELECT DISTINCT 
+                    scheduleID, 
+                    courseName, 
+                    courseCode, 
+                    courseMajor, 
+                    department, 
+                    professor, 
+                    term, 
+                    format, 
+                    units, 
+                    meetingTime, 
+                    Location, 
+                    days, 
+                    classCapacity, 
+                    enrollmentTotal, 
+                    availableSeats
+                FROM (
+                    SELECT *,
+                        ROW_NUMBER() OVER(PARTITION BY courseName ORDER BY courseCode) AS rn
+                    FROM vwCourseDetails
+                    WHERE courseMajor LIKE %s AND term = '2024 Spring'
+                ) AS courses
+                WHERE rn = 1
+                ORDER BY
+                    CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED),
+                    SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
+                """
+                cursor.execute(query, (f"{query_param}%",))
+            
             result = cursor.fetchall()
             departments = [{
                 'scheduleID': dept['scheduleID'],
@@ -791,6 +823,7 @@ def get_today_notification():
 
     return jsonify(notification), 200
 
+
 def get_formatted_notification():
     notification, error = fetch_todays_notification()
     if error:
@@ -802,6 +835,7 @@ def get_formatted_notification():
         notification['announceDate'] = formatted_date
         return notification, None
     return None, "No notifications retrieved" 
+
 
 def fetch_todays_notification():
     connection = connectToDB()
@@ -817,6 +851,7 @@ def fetch_todays_notification():
     finally:
         cursor.close()
         connection.close()
+        
 
 # Connect to database
 def connectToDB():
