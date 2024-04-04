@@ -35,12 +35,12 @@
                                         <v-text-field v-model="firstName" label="First Name"></v-text-field>
                                         <v-text-field v-model="lastName" label="Last Name"></v-text-field>
                                         <v-text-field v-model="email" label="Email"></v-text-field>
-                                        <v-menu offset-y>
+                                        <!--<v-menu offset-y>
                                             <template v-slot:activator="{ on, attrs }">
                                                 <v-text-field v-model="birthdate" label="Birthdate" v-bind="attrs" v-on="on" readonly></v-text-field>
                                             </template>
                                             <v-date-picker v-model="birthdate" @input="$refs.menu.save(birthdate)"></v-date-picker>
-                                        </v-menu>
+                                        </v-menu>-->
                                         <v-select v-model="major" :items="majorOptions" label="Major"></v-select>
                                     </v-form>
                                 </v-card-text>

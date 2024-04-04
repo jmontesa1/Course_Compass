@@ -30,9 +30,33 @@
                     <div class="row justify-content-center">
                         <div class="col d-flex flex-column">
                             <h1>                            
-                                <select v-model="scheduleOption">
-                                    <option v-for="schedule in userSchedules" :key="schedule.option" :value="schedule.option" >{{ schedule.title }}</option>
+                                <select v-model="selectedScheduleTitle" @change="handleScheduleChange">
+                                    <option v-for="schedule in userSchedules" :key="schedule.option" :value="schedule.title">{{ schedule.title }}</option>
                                 </select>
+
+                                <v-dialog v-model="dialog" max-width="500" style="font-family: Poppins;">
+                                    <template v-slot:activator="{ props: activatorProps }">
+                                        <v-btn class="add-schedule" v-bind="activatorProps" style="max-width: 41px; height:41px;">
+                                            <span class="material-symbols-outlined" style="font-size: 41px;">add_ad</span>
+                                        </v-btn>
+                                    </template>
+                                    <!--Pop up -->
+                                    <v-card title="Add a weekly schedule">
+                                        <v-card-text>
+                                            <v-row dense>
+                                                <v-col>  
+                                                    <v-text-field v-model="scheduleTitle" label="Schedule Title" required></v-text-field>
+                                                    <v-select v-model="newScheduleOption" :items="scheduleOptions" label="Week" required></v-select>
+                                                </v-col>
+                                            </v-row>
+                                        </v-card-text>
+                                        <v-card-actions>
+                                            <v-spacer></v-spacer>
+                                            <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
+                                            <v-btn color="primary" text="Add" variant="tonal" @click="newSchedule()"></v-btn>
+                                        </v-card-actions>
+                                    </v-card>
+                                </v-dialog>
                             </h1>
                         </div>
 
@@ -40,30 +64,88 @@
                             <img class ="printer" src="../assets/printer.png" alt="Print Button">
                         </button>
 
-                        <v-dialog v-model="dialog" max-width="500" style="font-family: Poppins;">
+
+                        <!--WEEKDAYS AND WEEKENDS ADD EVENTS POPUP-->
+                        <v-dialog v-model="dialog_event" max-width="900" style="font-family: Poppins;" v-if="scheduleOption === 'Weekdays and Weekends'">
                             <template v-slot:activator="{ props: activatorProps }">
-                                <v-btn class="add-schedule" v-bind="activatorProps">Add A Schedule</v-btn>
+                                <v-btn class="add-weekly-event" v-bind="activatorProps">Add An Event</v-btn>
                             </template>
                             <!--Pop up -->
-                            <v-card title="Add a weekly schedule">
+                            <v-card title="Add a weekly event">
                                 <v-card-text>
                                     <v-row dense>
                                         <v-col>  
-                                            <v-text-field v-model="scheduleTitle" label="Schedule Title" required></v-text-field>
-                                            <v-select v-model="newScheduleOption" :items="scheduleOptions" label="Week" required></v-select>
+                                            <v-text-field v-model="weeklyEventDesc" label="Event Description" required ></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row dense>
+                                        <v-col auto>
+                                            <v-select v-model="eventColor" :items="this.scheduleColors" label="Color" required></v-select>
+                                        </v-col>
+                                        <v-col auto>
+                                                <v-text-field v-model="weeklyEventStart" placeholder="00:00 AM" hint="8:00 AM - 7:00 PM" label="Start Time"></v-text-field>
+                                        </v-col>
+                                        <v-col auto>
+                                                <v-text-field v-model="weeklyEventEnd" placeholder="00:00 PM" hint="End times must be in intervals of ten minutes" label="End Time"></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row dense>
+                                        <v-col v-for="(day, index) in ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']" :key="index" cols="auto">
+                                            <v-checkbox v-model="daysOfWeek[day]" :label="day" style="font-size: 16px;"></v-checkbox>
                                         </v-col>
                                     </v-row>
                                 </v-card-text>
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
-                                    <v-btn color="primary" text="Add" variant="tonal" @click="newSchedule()"></v-btn>
+                                    <v-btn text="Close" variant="plain" @click="dialog_event = false"></v-btn>
+                                    <v-btn color="primary" text="Add" variant="tonal" @click="createWeeklyEvent()"></v-btn>
                                 </v-card-actions>
                             </v-card>
                         </v-dialog>
+
+                        <!--POP UP FOR WEEKDAYS EVENT ADD-->
+                        <v-dialog v-model="dialog_weekdaysevent" max-width="700" style="font-family: Poppins;" v-if="scheduleOption === 'Weekdays'">
+                            <template v-slot:activator="{ props: activatorProps }">
+                                <v-btn class="add-weekly-event" v-bind="activatorProps">Add An Event</v-btn>
+                            </template>
+                            <!--Pop up -->
+                            <v-card title="Add a weekly event">
+                                <v-card-text>
+                                    <v-row dense>
+                                        <v-col>  
+                                            <v-text-field v-model="weeklyEventDesc" label="Event Description" required></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row dense>
+                                        <v-col auto>
+                                            <v-select v-model="eventColor" :items="this.scheduleColors" label="Color" required></v-select>
+                                        </v-col>
+                                        <v-col auto>
+                                                <v-text-field v-model="weeklyEventStart" placeholder="00:00 AM" hint="8:00 AM - 7:00 PM" label="Start Time"></v-text-field>
+                                        </v-col>
+                                        <v-col auto>
+                                                <v-text-field v-model="weeklyEventEnd" placeholder="00:00 PM" hint="End times must be in intervals of ten minutes" label="End Time"></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row dense>
+                                        <v-col v-for="(day, index) in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']" :key="index" cols="auto">
+                                            <v-checkbox v-model="daysOfWeek[day]" :label="day" style="font-size: 16px;"></v-checkbox>
+                                        </v-col>
+                                    </v-row>
+                                </v-card-text>
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn text="Close" variant="plain" @click="dialog_weekdaysevent = false"></v-btn>
+                                    <v-btn color="primary" text="Add" variant="tonal" @click="createWeeklyEvent()"></v-btn>
+                                </v-card-actions>
+                            </v-card>
+                        </v-dialog>
+                        
                     </div>
                 </div>
 
+
+                <!--DISPLAYS OF WEEKDAY SCHEDULE OPTION-->
                 <div id="schedule-page" ref="schedulePage" >
                     <div class="container-fluid mt-3" v-if="scheduleOption === 'Weekdays' || scheduleOption === 'Class Schedule'">
                         <div class="schedule-days">
@@ -105,12 +187,25 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div v-if="scheduleOption === 'Weekdays'">
+                                                <div v-for="eventBlock in generateWeeklyBlocks(day)" :key="eventBlock.id" :style="eventBlock.style">
+                                                    <div class="class-info">
+                                                        {{ eventBlock.events[0].description }}
+                                                        <br>
+                                                        {{ eventBlock.events[0].start }} - {{ eventBlock.events[0].end }}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </template>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+
+
+                    <!--DISPLAYS OF WEEKDAYS AND WEEKENDS SCHEDULE OPTION-->
                     <div class="container-fluid mt-3" v-if="scheduleOption === 'Weekdays and Weekends'">
                         <div class="schedule-days">
                             <!-- This is the very top of the schedule, showing the days -->
@@ -135,9 +230,18 @@
                                     <div class="time-slot" v-for="time in ['8', '9', '10', '11', '12', '1', '2', '3', '4', '5', '6', '7']" :key="time">
                                         <div class="day-slot-hour"></div> <!-- height of each row-->
                                         <div class="day-slot-bar"></div> <!-- bars for time -->
-                                        <template v-if="time === '8' && day === 'Monday' || time === '8' && day === 'Tuesday'
+                                        <template v-if="time === '8' && day === 'Sunday' || time === '8' && day === 'Monday' || time === '8' && day === 'Tuesday'
                                                 || time === '8' && day === 'Wednesday' || time === '8' && day === 'Thursday'
-                                                || time === '8' && day === 'Friday'">
+                                                || time === '8' && day === 'Friday' || time === '8' && day === 'Saturday'">
+                                            <div v-if="scheduleOption === 'Weekdays and Weekends'">
+                                                <div v-for="eventBlock in generateWeeklyBlocks(day)" :key="eventBlock.id" :style="eventBlock.style">
+                                                    <div class="class-info">
+                                                        {{ eventBlock.events[0].description }}
+                                                        <br>
+                                                        {{ eventBlock.events[0].start }} - {{ eventBlock.events[0].end }}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </template>
                                     </div>
                                 </div>
@@ -210,40 +314,51 @@
                 classSchedule: true,
                 calendar: false,
 
-                //schedule options
-                scheduleTitle: '',
-                newScheduleOption: 'Weekdays',
-                scheduleOption: 'Class Schedule',
-                weekdays: true,
-                scheduleOptions: ['Weekdays', 'Weekdays and Weekends'],
-
                 user: {
                     firstname: '',
                     lastname: '',
                     major: '',
                 },
 
+                dialog: false,
+                dialog_event: false,
+                dialog_weekdaysevent: false,
+
+                //Every data that involves schedule under this
+                scheduleTitle: '',
+                selectedScheduleTitle: 'Class Schedule',
+                newScheduleOption: 'Weekdays',
+                scheduleOption: 'Class Schedule',
+                weekdays: true,
+                scheduleOptions: ['Weekdays', 'Weekdays and Weekends'],
                 userSchedules: [
                     {option: 'Class Schedule', title: 'Class Schedule', weeklyEvents:[]},
+                    {option: 'Weekdays', title: 'TestDays', weeklyEvents:[{description:'Johns Lab', color: 'pink', start: '8:00 AM', end: '9:30 PM', daysOfWeek:{Monday:true, Tuesday:true, Friday:true}}]},
+                    {option: 'Weekdays and Weekends', title: 'TestEnds', weeklyEvents:[]},
                 ],
+                schedule: [],
+                scheduleColors: ['aliceblue', 'beige', 'darkgrey', 'darksalmon', 'honeydew', 'lightblue', 'darkseagreen','plum', 'springgreen', 'lightyellow','pink'],
 
-                schedule: [
-/*                      { course: 'CS 135', days: ['Monday','Wednesday','Friday'], time: '10:00 AM - 10:50 AM', start: '10:00 AM', end: '10:50 AM', location: 'SEM 104' },
-                    { course: 'CS 425', days: ['Tuesday','Thursday'], time: '10:30 AM - 11:45 AM', start: '10:30 AM', end: '11:45 AM', location: 'WPEB 101' },
-                    { course: 'CS 302', days: ['Monday', 'Wednesday'], time: '3:00 PM - 4:15 PM', start: '3:00 PM', end: '4:15 PM', location: 'PSAC 1002' },
-                    { course: 'ENG 101', days: ['Monday', 'Wednesday', 'Friday'], time: '6:00 PM - 6:50 PM', start: '6:00 PM', end: '6:50 PM', location: 'MKIC 320' },
-                    { course: 'EE 165', days: ['Monday', 'Wednesday', 'Friday'], time: '8:30 AM - 9:45 AM', start: '8:30 AM', end: '9:45 AM', location: 'SLC 102' },
-                    { course: 'MUS 123', days: ['Tuesday', 'Thursday'], time: '5:00 PM - 6:50 PM', start: '5:00 PM', end: '6:30 PM', location: 'CFA 102' },
-                 */],
+                weeklyEventDesc: '',
+                weeklyEventStart: '',
+                weeklyEventEnd: '',
+                daysOfWeek: {
+                    Sunday: false,
+                    Monday: false,
+                    Tuesday: false,
+                    Wednesday: false,
+                    Thursday: false,
+                    Friday: false,
+                    Saturday: false
+                },
 
                 //Every data that involves calendar under this
                 today: ref(new Date()),
                 focus: '',
                 events: [],
-                colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey'],
-                dialog: false,
+                colors: ['aliceblue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey','red', 'brown', 'yellow','black'],
                 eventTitle: '',
-                eventColor: 'blue',
+                eventColor: '',
                 eventDescription: '',
                 allDay: false,
                 eventDate: new Date(),
@@ -355,7 +470,7 @@
 
                         const blockHeight = ((endHour - startHour) * 60 + (endMinute - startMinute - 3));
 
-                        const yTransformation = (startHour - 8) * 56.5 + (startMinute / 60) * 56.5;
+                        const yTransformation = (startHour - 8) * 56.06 + (startMinute / 60) * 56.06;
 
                         blocks.push({
                             id: course.course + day,
@@ -391,6 +506,133 @@
                 this.scheduleTitle ='';
             },
 
+            createWeeklyEvent(){
+                const selectedDays = Object.keys(this.daysOfWeek).filter(day => this.daysOfWeek[day]);
+                this.newWeeklyEvent(selectedDays);
+            },
+
+            newWeeklyEvent(selectedDays){
+                const selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
+                
+                const newEvent = {
+                    description: this.weeklyEventDesc,
+                    color: this.eventColor,
+                    start: this.weeklyEventStart,
+                    end: this.weeklyEventEnd,
+                    daysOfWeek: {},
+                };
+
+                // Set the selected days in the event object
+                selectedDays.forEach(day => {
+                    newEvent.daysOfWeek[day] = true;
+                });
+
+                // Add the new event to the selected schedule
+                selectedSchedule.weeklyEvents.push(newEvent);
+
+                this.weeklyEventDesc = '';
+                this.eventColor = '';
+                this.weeklyEventStart = '';
+                this.weeklyEventEnd = '';
+                this.daysOfWeek = {
+                    Sunday: false,
+                    Monday: false,
+                    Tuesday: false,
+                    Wednesday: false,
+                    Thursday: false,
+                    Friday: false,
+                    Saturday: false,
+                };
+
+                this.dialog_event = false;
+                this.dialog_weekdaysevent = false;                
+            },
+
+            generateWeeklyBlocks(day) {
+                const blocks = [];
+                const selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
+                if (selectedSchedule && selectedSchedule.weeklyEvents) {
+                    // Proceed only if the selected schedule is found and it has weekly events
+                    selectedSchedule.weeklyEvents.forEach(event => {
+                        if (event.daysOfWeek && event.daysOfWeek[day]) {
+                                const startHour = parseInt(event.start.split(':')[0]); //hours
+                                const startMinute = parseInt(event.start.split(':')[1]); //minutes
+                                const endHour = parseInt(event.end.split(':')[0]); //hours
+                                const endMinute = parseInt(event.end.split(':')[1]); //minutes
+
+                                const blockHeight = ((endHour - startHour) * 58 + (endMinute - startMinute));
+
+                                let yTransformation;
+
+
+                                if(startHour === 8){
+                                    yTransformation = 2;
+                                }
+                                else if(startHour === 9){
+                                    yTransformation = 58;
+                                }
+                                else if(startHour === 10){
+                                    yTransformation = 113;
+                                }
+                                else if(startHour === 11){
+                                    yTransformation = 169;
+                                }
+                                else if(startHour === 12){
+                                    yTransformation = 224;
+                                }
+                                else if(startHour === 1){
+                                    yTransformation = 280;
+                                }
+                                else if(startHour === 2){
+                                    yTransformation = 335;
+                                }
+                                else if(startHour === 3){
+                                    yTransformation = 391;
+                                }
+                                else if(startHour === 4){
+                                    yTransformation = 446;
+                                }
+                                else if(startHour === 5){
+                                    yTransformation = 502;
+                                }
+                                else if(startHour === 6){
+                                    yTransformation = 558;
+                                }
+                                else if(startHour === 7){
+                                    yTransformation = 613;
+                                }
+                                
+                                if(startMinute === 30){
+                                        yTransformation += 27;
+                                    }
+
+
+                                blocks.push({
+                                    id: blocks.length + 1,
+                                    style: {
+                                        'background-color': event.color,
+                                        'border-radius': '8px',
+                                        'height': `${blockHeight}px`,
+                                        'width': '100%',
+                                        'transform': `translateY(${yTransformation}px)`,
+                                        'position': 'absolute',
+                                        'top': `0`,
+                                        'z-index': '1',
+                                    },
+                                    events: [event] // Store the event details in an array for easy access
+                                });
+                            }
+                        });
+                    }
+
+                return blocks;
+            },
+
+            handleScheduleChange() {
+                this.selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
+                this.scheduleOption = this.selectedSchedule.option;
+            },
+
             //Any method under this are for the calendar
             getEventColor (event) {
                 return event.color
@@ -407,6 +649,8 @@
                 this.events.push(newEvent);
                 this.fetchEvents(newEvent);
                 this.dialog = false;
+                this.eventTitle ='';
+                this.eventDescription ='';
             },
 
             fetchEvents (newEvent) {
@@ -570,7 +814,7 @@
         box-shadow: none;
     }
 
-    .add-schedule{
+    .add-weekly-event{
         width: 150px;
         margin-top: 17px;
         margin-right: 25px;
@@ -579,8 +823,19 @@
         background-color: rgb(0, 0, 0);
         box-shadow: none;
     }
+    
+    .add-schedule{
+        margin-left: 15px;
+        margin-bottom: 4px;
+        font-family: Poppins;
+        box-shadow: none;
+    }
 
     .selected-tab{
         background-color: rgb(224, 224, 224);
+    }
+
+    .custom-label .v-label{
+        font-size: 5px;
     }
 </style>
