@@ -20,14 +20,14 @@
                         <p><strong>Name:</strong> {{ course.name || 'N/A' }}</p>
                         <p><strong>Code:</strong> {{ course.code || 'N/A' }}</p>
                         <p><strong>Professor:</strong> {{ course.professor || 'N/A' }}</p>
-                        <p><strong>Format:</strong> {{ course.format || 'N/A' }}</p>
                         <br>
+                        <p><strong>Format:</strong> {{ course.format || 'N/A' }}</p>
                         <p><strong>Term:</strong> {{ course.term || 'N/A' }}</p>
                         <p><strong>Units:</strong> {{ course.units || 'N/A' }}</p>
+                        <br>
                         <p><strong>Class Capacity:</strong> {{ course.classCapacity || 'N/A' }}</p>
                         <p><strong>Enrollment Total:</strong> {{ course.enrollmentTotal || 'N/A' }}</p>
                         <p><strong>Available Seats:</strong> {{ course.availableSeats || 'N/A' }}</p>
-                        <br>
                         <p><strong>Meeting Details:</strong></p>
                         <p><strong>Location:</strong> {{ course.location || 'N/A' }}</p>
                         <p><strong>Days:</strong> {{ course.days && course.days.length > 0 ? course.days.join(' | ') : 'Information not available' }}</p>
@@ -89,8 +89,9 @@
 
     .popup-content {
         background: #ffffff;
-        padding: 20px;
+        padding: 25px;
         border-radius: 8px;
+        min-width: 800px;
     }
 
     .left-column {
@@ -108,11 +109,15 @@
 
     h2{
         font-family: 'coolvetica', coolvetica;
+        font-size: 20px;
         text-align: center;
         color:#000000;
+        margin-top: -5px;
     }
     p{
         font-family: Poppins, sans-serif;
+        font-size: 15px;
+        margin-bottom: -1px;
     }
 
     .button-container {
@@ -127,8 +132,8 @@
         font-family: coolvetica;
         background-color: #000000;
         color: #ffffff;
-        padding: 10px 30px;
-        font-size: 20px;
+        padding: 5px 25px;
+        font-size: 15px;
         border: none;
         cursor: pointer;
         display: inline-block;

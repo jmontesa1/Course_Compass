@@ -50,9 +50,9 @@
                                     <span v-if="dataLoaded">{{ calculateClassStanding }}</span>
                                     <span v-else> </span>
                                     </p>
-                                    <p><strong>Current GPA:</strong> 3.75</p>
-                                    <p><strong>Current Credits:</strong> 12</p>
-                                    <p><strong>Dean's List?:</strong> Yes</p>
+                                    <p><strong>Current GPA:</strong> 0.00</p>
+                                    <p><strong>Current Credits:</strong> 0</p>
+                                    <p><strong>Dean's List?:</strong> N/A</p>
                                     <p><strong>Academic Standing:</strong> Good Standing</p>
                                     <p><strong>Credits Completed:</strong> {{ unitsCompleted }}/{{ major.units }}</p>
                                     <v-btn class="save-changes-btn" color="success" @click="confirmationDialog = true" size="small">Save Progress</v-btn>
@@ -517,7 +517,7 @@
         min-height: 400px;
         background-color:#e2e2e25d;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        margin-left: 5px;
+        margin-left: 35px;
         margin-right: 5px;
     }
 
@@ -532,7 +532,7 @@
         min-height: 250px;
         background-color:#e2e2e234;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        margin-left: 5px;
+        margin-left: 35px;
         margin-right: 5px;
     }
 

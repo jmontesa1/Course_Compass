@@ -559,8 +559,14 @@
                                 const startMinute = parseInt(event.start.split(':')[1]); //minutes
                                 const endHour = parseInt(event.end.split(':')[0]); //hours
                                 const endMinute = parseInt(event.end.split(':')[1]); //minutes
+                                let blockHeight;
 
-                                const blockHeight = ((endHour - startHour) * 56 + (endMinute - startMinute ));
+                                if (startHour === 12 && endHour != 12){
+                                    blockHeight = (((12-endHour) - startHour) * -56 + (endMinute - startMinute ));
+                                }
+                                else{
+                                    blockHeight = ((endHour - startHour) * 56 + (endMinute - startMinute - 3));
+                                }
 
                                 let yTransformation;
 
@@ -751,7 +757,7 @@
     }
 
     .class-info {
-        font-size: 16px;
+        font-size: 14px;
         flex-direction: column;
         align-items: center;
         justify-content: center;
