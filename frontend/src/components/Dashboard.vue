@@ -412,5 +412,6 @@
 
     .upcoming{
         font-weight: bold;
+        background-color: rgba(255, 0, 0, 0.168);
     }
 </style>
