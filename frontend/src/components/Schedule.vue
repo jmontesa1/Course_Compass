@@ -497,7 +497,7 @@
                 const schedule = {
                     title: this.scheduleTitle,
                     option: this.newScheduleOption,
-                    events: [],
+                    weeklyEvents: [],
                 };
 
                 this.userSchedules.push(schedule);
@@ -560,10 +560,9 @@
                                 const endHour = parseInt(event.end.split(':')[0]); //hours
                                 const endMinute = parseInt(event.end.split(':')[1]); //minutes
 
-                                const blockHeight = ((endHour - startHour) * 58 + (endMinute - startMinute));
+                                const blockHeight = ((endHour - startHour) * 56 + (endMinute - startMinute ));
 
                                 let yTransformation;
-
 
                                 if(startHour === 8){
                                     yTransformation = 2;
@@ -608,7 +607,7 @@
 
 
                                 blocks.push({
-                                    id: blocks.length + 1,
+                                    id: event.event + day,
                                     style: {
                                         'background-color': event.color,
                                         'border-radius': '8px',
