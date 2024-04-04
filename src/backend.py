@@ -337,40 +337,48 @@ def get_enrolled_courses():
         cursor = connection.cursor()
 
         query = """
-        SELECT
+        SELECT 
             cs.scheduleID,
             cs.courseCode AS course,
+            c.courseName,
             cs.meetingDays AS days,
             cs.meetingTimes AS time,
             TIME_FORMAT(cs.startTime, '%l:%i %p') AS start,
             TIME_FORMAT(cs.endTime, '%l:%i %p') AS end,
-            cs.Location AS location
-        FROM
+            cs.Location AS location,
+            cs.Instructor AS instructor,
+            cs.Section,
+            c.Credits,
+            cs.Section
+        FROM 
             tblUserSchedule us
-        JOIN
-            tblcourseSchedule cs ON us.scheduleID = cs.scheduleID
-        WHERE
+            JOIN tblcourseSchedule cs ON us.scheduleID = cs.scheduleID
+            JOIN tblCourses c ON cs.courseID = c.courseID
+        WHERE 
             us.studentID = %s
             AND cs.semesterID = (
-                SELECT semesterID
-                FROM tblSemesters
+                SELECT semesterID 
+                FROM tblSemesters 
                 WHERE startDate < CURDATE()
-                ORDER BY startDate ASC
+                ORDER BY startDate DESC
                 LIMIT 1
             );
         """
         cursor.execute(query, (user.studentID,))
         result = cursor.fetchall()
-
         enrolled_courses = [
             {
                 'scheduleID': course[0],
                 'course': course[1],
-                'days': course[2].split(','),
-                'time': course[3],
-                'start': course[4],
-                'end': course[5],
-                'location': course[6]
+                'courseName': course[2],
+                'days': course[3].split(','),
+                'time': course[4],
+                'start': course[5],
+                'end': course[6],
+                'location': course[7],
+                'instructor': course[8],
+                'Credits': course[10],
+                'Section': course[9],
             }
             for course in result
         ]

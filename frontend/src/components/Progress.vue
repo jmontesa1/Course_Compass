@@ -39,9 +39,17 @@
                             <div class="row">
                                 <div class="col-md d-flex flex-column" style="border-right: 1px solid black;">
                                     <h2>Career</h2>
-                                    <p><strong>Major:</strong> {{ majorName }}</p>
+                                    <p>
+                                    <strong>Major: </strong>
+                                    <span v-if="dataLoaded">{{ majorName }}</span>
+                                    <span v-else> </span>
+                                    </p>
                                     <p><strong>Term:</strong> Spring 2024</p>
-                                    <p><strong>Class Standing:</strong> Senior</p>
+                                    <p>
+                                    <strong>Class Standing: </strong>
+                                    <span v-if="dataLoaded">{{ calculateClassStanding }}</span>
+                                    <span v-else> </span>
+                                    </p>
                                     <p><strong>Current GPA:</strong> 3.75</p>
                                     <p><strong>Current Credits:</strong> 12</p>
                                     <p><strong>Dean's List?:</strong> Yes</p>
@@ -240,6 +248,8 @@
                 progress: true,
                 calculators: false,
                 analytics: false,
+                classStanding: '',
+                dataLoaded: false,
 
                 unitsCompleted: 0,
                 user: {
@@ -385,6 +395,7 @@
 
                         majorToUpdate.units = response.data.totalCreditsReq;
                     }
+                    this.dataLoaded = true;
                 } catch (error) {
                     console.error("Error fetching user courses", error.message);
                 }
@@ -468,6 +479,18 @@
 
             isCourseSaved() {
                 return (course) => course.saved;
+            },
+
+            calculateClassStanding() {
+                if (this.unitsCompleted >= 90) {
+                return 'Senior';
+                } else if (this.unitsCompleted >= 60) {
+                return 'Junior';
+                } else if (this.unitsCompleted >= 30) {
+                return 'Sophomore';
+                } else {
+                return 'Freshman';
+                }
             },
         },
     };
