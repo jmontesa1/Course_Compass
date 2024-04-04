@@ -89,7 +89,10 @@
                             <v-card-text>
                                 <v-row dense>
                                     <v-col cols = "12" md="6">
-                                        Add information
+                                        <strong>Course Name: </strong> {{ course.courseName }}<br>
+                                        <strong>Instructor: </strong> {{ course.instructor }}<br>
+                                        <strong>Credits: </strong> {{ course.Credits }}<br>
+                                        <strong>Section: </strong> {{ course.Section }}<br>
                                     </v-col>
                                 </v-row>
                             </v-card-text> 
