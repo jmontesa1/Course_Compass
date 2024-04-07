@@ -348,8 +348,7 @@ def get_enrolled_courses():
             cs.Location AS location,
             cs.Instructor AS instructor,
             cs.Section,
-            c.Credits,
-            cs.Section
+            c.Credits
         FROM 
             tblUserSchedule us
             JOIN tblcourseSchedule cs ON us.scheduleID = cs.scheduleID
@@ -636,7 +635,7 @@ def courses_for_progress_page():
 
 
             return jsonify({
-                "majorName": user.majorName,
+                #"majorName": user.majorName,
                 "totalCreditsReq": total_credits_req,
                 "user_courses": course_list
             }), 200
@@ -647,6 +646,64 @@ def courses_for_progress_page():
             connection.close()
     else:
         return jsonify({"error": "DB connection failed"}), 500
+    
+
+@app.route('/getCareerProgress', methods=['GET'])
+@jwt_required()
+def get_career_progress():
+    identity = get_jwt_identity()
+    current_user_email = identity['email']
+    user = User.get_user_by_email(current_user_email)
+
+    if not user or not user.studentID:
+        return jsonify({"error": "User not found or not a student"}), 404
+
+    connection = connectToDB()
+    if connection:
+        cursor = connection.cursor()
+        try:
+            query = """
+            SELECT 
+                SUM(c.Credits) as TotalCredits,
+                cs.Term,
+                g.cumulativeGPA
+            FROM 
+                tblUserSchedule us
+                JOIN tblcourseSchedule cs ON us.scheduleID = cs.scheduleID
+                JOIN tblCourses c ON cs.courseID = c.courseID
+                LEFT JOIN tblGPA g ON us.studentID = g.studentID AND g.semesterID = cs.semesterID
+            WHERE 
+                us.studentID = %s
+                AND cs.semesterID = (
+                    SELECT semesterID 
+                    FROM tblSemesters 
+                    WHERE startDate < CURDATE()
+                    ORDER BY startDate DESC
+                    LIMIT 1
+                )
+            GROUP BY cs.Term, g.cumulativeGPA;
+            """
+            cursor.execute(query, (user.studentID,))
+            result = cursor.fetchone()
+
+            if result:
+                total_credits, term, cumulative_gpa = result
+                return jsonify({
+                    "majorName": user.majorName,
+                    "totalCredits": total_credits,
+                    "Term": term,
+                    "cumulativeGPA": cumulative_gpa if cumulative_gpa is not None else 0.00
+                }), 200
+            else:
+                return jsonify({"error": "No career progress found for the current term"}), 404
+        except Error as err:
+            return jsonify({"error": "Error while fetching career progress: " + str(err)}), 500
+        finally:
+            cursor.close()
+            connection.close()
+    else:
+        return jsonify({"error": "DB connection failed"}), 500
+
     
     
 # Retrieve courses related to user input at department search

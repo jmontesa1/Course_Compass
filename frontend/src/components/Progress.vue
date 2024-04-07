@@ -44,14 +44,14 @@
                                     <span v-if="dataLoaded">{{ majorName }}</span>
                                     <span v-else> </span>
                                     </p>
-                                    <p><strong>Term:</strong> Spring 2024</p>
+                                    <p><strong>Term:</strong> {{ currentTerm }}</p>
                                     <p>
                                     <strong>Class Standing: </strong>
                                     <span v-if="dataLoaded">{{ calculateClassStanding }}</span>
                                     <span v-else> </span>
                                     </p>
-                                    <p><strong>Current GPA:</strong> 0.00</p>
-                                    <p><strong>Current Credits:</strong> 0</p>
+                                    <p><strong>Current GPA:</strong> {{ currentGPA }}</p>
+                                    <p><strong>Current Credits:</strong> {{ currentCredits }}</p>
                                     <p><strong>Dean's List?:</strong> N/A</p>
                                     <p><strong>Academic Standing:</strong> Good Standing</p>
                                     <p><strong>Credits Completed:</strong> {{ unitsCompleted }}/{{ major.units }}</p>
@@ -59,7 +59,7 @@
                                 </div>
                                 <div class="col-md-6 d-flex flex-column">
                                     <h2>Courses</h2>
-                                    <div class="scroll">
+                                    <div class="scroll"> 
                                         <div v-for="(course, index) in major.courses" :key="index">
                                             <div class="course-container">
                                                 <input type="checkbox" v-model="course.completed" @change="course.changed = true" :disabled="isCourseSaved(course)" />
@@ -261,6 +261,9 @@
                 classStanding: '',
                 dataLoaded: false,
                 studentRating: 0,
+                currentTerm: '',
+                currentCredits: 0,
+                currentGPA: 0,
 
                 unitsCompleted: 0,
                 user: {
@@ -389,8 +392,6 @@
                         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
                     });
 
-                    this.majorName = response.data.majorName;
-
                     let majorToUpdate = this.majors.find(major => major.name === this.user.major);
 
                     if (majorToUpdate) {
@@ -410,6 +411,20 @@
                     this.dataLoaded = true;
                 } catch (error) {
                     console.error("Error fetching user courses", error.message);
+                }
+            },
+
+            async fetchCareerProgress() {
+                try {
+                    const response = await axios.get('http://127.0.0.1:5000/getCareerProgress', {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                    });
+                    this.majorName = response.data.majorName;
+                    this.currentTerm = response.data.Term;
+                    this.currentCredits = response.data.totalCredits;
+                    this.currentGPA = response.data.cumulativeGPA;
+                } catch (error) {
+                    console.error("Error fetching career progress", error.message);
                 }
             },
 
@@ -468,7 +483,8 @@
         created() {
             this.selectedMajor = this.user.major; 
             this.fetchUserCourses();
-            this.fetchTags(); 
+            this.fetchTags();
+            this.fetchCareerProgress();
         },
 
         computed: {
