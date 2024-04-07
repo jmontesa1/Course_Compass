@@ -254,16 +254,16 @@ create table cs425.tblPlanner(
 create table cs425.tblGrades(
     gradeID int primary key auto_increment,
     studentID int,
-    courseID int,
+    scheduleID int,
     grade varchar(5),
     semesterID int,
-    instructorID int,
-    comments text,
+    instructorID int, 
     submissionDate date,
     foreign key(studentID) references tblStudents(studentID),
-    foreign key(courseID) references tblCourses(courseID),
+    foreign key(scheduleID) references tblcourseSchedule(scheduleID),
     foreign key(semesterID) references tblSemesters(semesterID),
-    foreign key(instructorID) references tblInstructor(instructorID)
+    foreign key(instructorID) references tblInstructor(instructorID),
+    unique (studentID, scheduleID, semesterID)
 );
 
 /*GPA table*/
@@ -272,9 +272,11 @@ create table cs425.tblGPA(
     studentID int,
     cumulativeGPA decimal(3,2),
     creditsEarned int,
-    semesterCredits decimal(3,2),
+    semesterCredits decimal(4,2),
     semesterGPA decimal(3,2),
-    lastUpdate datetime,
-    foreign key (studentID) references tblStudents(studentID)
+    semesterID int,
+    foreign key (studentID) references tblStudents(studentID),
+    foreign key (semesterID) references tblSemesters(semesterID),
+    unique (studentID, semesterID)
 );
 
