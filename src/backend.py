@@ -371,7 +371,7 @@ def get_enrolled_courses():
                 'scheduleID': course[0],
                 'course': course[1],
                 'courseName': course[2],
-                'days': course[3].split(','),
+                'days': course[3].split(',') if course[3] else [],
                 'time': course[4],
                 'start': course[5],
                 'end': course[6],
@@ -457,11 +457,12 @@ def mark_course_completed_endpoint():
         course_code = data.get('courseCode')
         completed = data.get('completed')
         review = data.get('review')
+        student_rating = data.get('studentRating')
         tags = data.get('tags')
 
         app.logger.info(f"Received tags from frontend: {tags}")  #log the received tags
 
-        success, message = mark_course_completed(user_email, course_code, completed, review, tags)
+        success, message = mark_course_completed(user_email, course_code, completed, review, tags, student_rating)
         if success:
             return jsonify({"message": message}), 200
         else:
@@ -471,14 +472,14 @@ def mark_course_completed_endpoint():
         return jsonify({"error": "An internal server error occurred"}), 500
     
 
-def mark_course_completed(user_email, course_code, completed, review, tags):
+def mark_course_completed(user_email, course_code, completed, review, tags, student_rating):
     try:
         connection = connectToDB()
         if not connection:
             return False, "DB connection failed"
 
         cursor = connection.cursor()
-        cursor.callproc('MarkCourseCompleted', [user_email, course_code, completed, review, json.dumps(tags)])
+        cursor.callproc('MarkCourseCompleted', [user_email, course_code, completed, review, json.dumps(tags), student_rating])
         connection.commit()
         return True, "Course marked as completed successfully"
     except Error as err:

@@ -130,14 +130,15 @@ delimiter ;
 call GetCoursesForProgress('jose@gmail.com');
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------
-/*Post a course as completed */
+/*Post a course as completed takes in 5 arguments*/
 delimiter $$
-create procedure `MarkCourseCompleted23`(
+create procedure `MarkCourseCompleted`(
     in userEmail varchar(150),
     in courseCode varchar(25),
     in isCompleted boolean,
     in reviewText text,
-    in selectedTags json
+    in selectedTags json,
+    in ratingValue int --added ratingValue 
 )
 begin
     declare v_courseID int;
@@ -165,10 +166,11 @@ begin
         isCompleted = values(isCompleted),
         completionDate = values(completionDate);
 
-    --insert or update the rating record
-    insert into cs425.tblRatings (courseID, studentID, ratingText, ratingDate)
-    values (v_courseID, v_studentID, reviewText, curdate())
+    --Insert or update the rating record including the rating column
+    insert into cs425.tblRatings (courseID, studentID, rating, ratingText, ratingDate)
+    values (v_courseID, v_studentID, ratingValue, reviewText, curdate())
     on duplicate key update
+        rating = values(rating),
         ratingText = values(ratingText),
         ratingDate = values(ratingDate);
 
@@ -190,7 +192,6 @@ begin
 end$$
 delimiter ;
 
-call MarkCourseCompleted('jose@gmail.com', 'CS 365')
 
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------

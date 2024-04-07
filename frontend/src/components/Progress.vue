@@ -82,6 +82,16 @@
                                                                     >
                                                                         {{ tag.name }}
                                                                     </span>
+                                                                    <label>Your Rating:</label>
+                                                                        <v-rating
+                                                                        v-model="course.studentRating"
+                                                                        :length="5"
+                                                                        color="yellow darken-3"
+                                                                        background-color="grey lighten-1"
+                                                                        empty-icon="$ratingEmpty"
+                                                                        hover
+                                                                        @input="course.changed = true"
+                                                                        ></v-rating>
                                                                 </div>
                                                             </div>
                                                             <br>
@@ -250,6 +260,7 @@
                 analytics: false,
                 classStanding: '',
                 dataLoaded: false,
+                studentRating: 0,
 
                 unitsCompleted: 0,
                 user: {
@@ -390,7 +401,8 @@
                             credits: course.credits,
                             review: course.review || '',
                             saved: course.isCompleted === 1,
-                            tags: course.tags || [] //empty array of tags
+                            tags: course.tags || [], //empty array of tags
+                            studentRating: course.studentRating || 0,
                         }));
 
                         majorToUpdate.units = response.data.totalCreditsReq;
@@ -409,7 +421,8 @@
                             courseCode: course.name.split(':')[0],
                             completed: course.completed ? 1 : 0,
                             review: course.review,
-                            tags: course.tags.map(tag => tag.id) //send tagID values
+                            tags: course.tags.map(tag => tag.id), //send tagID values
+                            studentRating: course.studentRating, //send rating integer(star)
                         }, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` } });
                     })
                 );
