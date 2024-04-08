@@ -200,10 +200,12 @@
                     this.fetchDepartments(selectedLevel);
                 }
             },
-            fetchDepartments(selectedLevel = null) {
+            fetchDepartments(selectedLevel = null, selectedStartTime = null) {
                 let url = 'http://127.0.0.1:5000/search-departments';
                 if (selectedLevel) {
                     url += `?level=${encodeURIComponent(selectedLevel)}`;
+                } else if (selectedStartTime) {
+                    url += `?startTime=${encodeURIComponent(selectedStartTime)}`;
                 } else if (this.departmentSearch.trim() !== '') {
                     url += `?query=${encodeURIComponent(this.departmentSearch)}`;
                 } else {
@@ -253,8 +255,11 @@
 
             handleFilterSelected(filter) {
                 const isLevel = /^\d+00\+$/.test(filter);
+                const isStartTime = /^\d+-\d+\s(?:AM|PM)$/.test(filter);
                 if (isLevel) {
-                    this.fetchDepartments(filter)
+                    this.fetchDepartments(filter);
+                } else if (isStartTime) {
+                    this.fetchDepartments(null, filter);
                 } else {
                     const index = this.selectedFilters.indexOf(filter);
                     if (index !== -1) {
