@@ -712,6 +712,7 @@ def get_career_progress():
 def search_departments():
     query_param = request.args.get('query', '')
     level_param = request.args.get('level', None)
+    start_time_param = request.args.get('startTime', None)
     default_param = request.args.get('default', None)
     connection = connectToDB()
     if connection:
@@ -752,6 +753,36 @@ def search_departments():
                     SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
                 """
                 cursor.execute(query, (f"{query_param}%", numeric_level))
+            elif start_time_param:
+                start_time_range = start_time_param.split('-')
+                start_time_lower = datetime.strptime(start_time_range[0].strip(), '%I').time()
+                start_time_upper = datetime.strptime(start_time_range[1].strip().split(' ')[0], '%I').time()
+                print(f"Start time lower: {start_time_lower}")
+                print(f"Start time upper: {start_time_upper}")
+                query = """
+                SELECT DISTINCT 
+                    scheduleID,
+                    courseName,
+                    courseCode,
+                    courseMajor,
+                    department,
+                    professor,
+                    term,
+                    format,
+                    units,
+                    meetingTime,
+                    Location,
+                    days,
+                    classCapacity,
+                    enrollmentTotal,
+                    availableSeats
+                FROM vwCourseDetails
+                WHERE TIME_FORMAT(LEFT(meetingTime, LOCATE('-', meetingTime) - 1), '%H:%i') BETWEEN 
+                    TIME_FORMAT(%s, '%H:%i') AND TIME_FORMAT(%s, '%H:%i')
+                    AND term = '2024 Spring'
+                ORDER BY courseName;
+                """
+                cursor.execute(query, (start_time_lower, start_time_upper))
             elif default_param:
                 query = """
                 SELECT DISTINCT 
