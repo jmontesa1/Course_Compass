@@ -349,18 +349,16 @@ def get_enrolled_courses():
             cs.Instructor AS instructor,
             cs.Section,
             c.Credits
-        FROM 
+        FROM
             tblUserSchedule us
-            JOIN tblcourseSchedule cs ON us.scheduleID = cs.scheduleID
-            JOIN tblCourses c ON cs.courseID = c.courseID
-        WHERE 
+        JOIN
+            tblcourseSchedule cs ON us.scheduleID = cs.scheduleID
+        JOIN
+            tblCourses c ON cs.courseID = c.courseID
+        WHERE
             us.studentID = %s
-            AND cs.semesterID = (
-                SELECT semesterID 
-                FROM tblSemesters 
-                WHERE startDate < CURDATE()
-                ORDER BY startDate DESC
-                LIMIT 1
+            AND cs.startDate <= CURDATE()
+            AND cs.endDate >= CURDATE();
             );
         """
         cursor.execute(query, (user.studentID,))
@@ -648,6 +646,7 @@ def courses_for_progress_page():
         return jsonify({"error": "DB connection failed"}), 500
     
 
+#get career variables for progress page (left hand side of page)
 @app.route('/getCareerProgress', methods=['GET'])
 @jwt_required()
 def get_career_progress():
@@ -669,19 +668,34 @@ def get_career_progress():
                 g.cumulativeGPA
             FROM 
                 tblUserSchedule us
-                JOIN tblcourseSchedule cs ON us.scheduleID = cs.scheduleID
-                JOIN tblCourses c ON cs.courseID = c.courseID
-                LEFT JOIN tblGPA g ON us.studentID = g.studentID AND g.semesterID = cs.semesterID
-            WHERE 
+            JOIN
+                tblcourseSchedule cs ON us.scheduleID = cs.scheduleID
+            JOIN
+                tblCourses c ON cs.courseID = c.courseID
+            LEFT JOIN
+                (
+                    SELECT
+                        studentID,
+                        cumulativeGPA
+                    FROM
+                        tblGPA
+                    WHERE
+                        (studentID, semesterID) IN (
+                            SELECT
+                                studentID,
+                                MAX(semesterID)
+                            FROM
+                                tblGPA
+                            GROUP BY
+                                studentID
+                        )
+                ) g ON us.studentID = g.studentID
+            WHERE
                 us.studentID = %s
-                AND cs.semesterID = (
-                    SELECT semesterID 
-                    FROM tblSemesters 
-                    WHERE startDate < CURDATE()
-                    ORDER BY startDate DESC
-                    LIMIT 1
-                )
-            GROUP BY cs.Term, g.cumulativeGPA;
+                AND cs.startDate <= CURDATE()
+                AND cs.endDate >= CURDATE()
+            GROUP BY
+                cs.Term, g.cumulativeGPA;
             """
             cursor.execute(query, (user.studentID,))
             result = cursor.fetchone()

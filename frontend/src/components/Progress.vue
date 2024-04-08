@@ -52,7 +52,11 @@
                                     </p>
                                     <p><strong>Current GPA:</strong> {{ currentGPA }}</p>
                                     <p><strong>Current Credits:</strong> {{ currentCredits }}</p>
-                                    <p><strong>Dean's List?:</strong> N/A</p>
+                                    <p>
+                                    <strong>Dean's List?: </strong> 
+                                    <span v-if="dataLoaded">   {{ isOnDeansList }}</span>
+                                    <span v-else> </span>
+                                    </p>
                                     <p><strong>Academic Standing:</strong> Good Standing</p>
                                     <p><strong>Credits Completed:</strong> {{ unitsCompleted }}/{{ major.units }}</p>
                                     <v-btn class="save-changes-btn" color="success" @click="confirmationDialog = true" size="small">Save Progress</v-btn>
@@ -520,6 +524,10 @@
                 } else {
                 return 'Freshman';
                 }
+            },
+
+            isOnDeansList() {
+                return this.currentGPA >= 3.75 && this.currentCredits >= 12 ? 'Yes' : 'No';
             },
         },
     };
