@@ -34,10 +34,91 @@
             <v-col>
                 <div class="dashboard-page" v-if="this.dashboard === true">
                     <div class="dashboard-container">
-                        <p>Admin Options</p>
-                        <p>Send a site-wide announcement:</p>
-                        <p>Send an email to all users:</p>
-                        <p>Log out</p>
+                        <h3 class="admin-text">Admin Options</h3>
+
+                        <v-container>
+                            <v-row>
+                                <v-col cols="4" class="d-flex justify-center align-center">
+                                    <v-dialog v-model="notificationDialog" max-width="1000" style="font-family: Poppins;">
+                                        <template v-slot:activator="{ props: activatorProps }">
+                                            <v-btn v-bind="activatorProps" stacked variant="outlined" style="height:150px; width:350px;">
+                                                <span class="material-symbols-outlined">
+                                                    campaign
+                                                </span>
+                                                <br>
+                                                Send a Site Wide Notification
+                                            </v-btn>
+                                        </template>
+                                        <!--Pop up -->
+                                        <v-card title="Send A Site Wide Notification">
+                                            <v-card-text>
+                                                <br>
+                                                <v-row>
+                                                    <v-col cols="4">
+                                                        <v-menu
+                                                            v-model="menu"
+                                                            :close-on-content-click="false"
+                                                            transition="scale-transition"
+                                                            offset-y
+                                                        >
+                                                            <template v-slot:activator="{ on }">
+                                                            <v-btn
+                                                                color="primary"
+                                                                dark
+                                                                v-on="on"
+                                                            >
+                                                                Open Date Picker
+                                                            </v-btn>
+                                                            </template>
+                                                            <v-date-picker
+                                                            v-model="selectedDate"
+                                                            @input="menu = false"
+                                                            locale="en-us"
+                                                            scrollable
+                                                            ></v-date-picker>
+                                                        </v-menu>
+                                                    </v-col>
+                                                </v-row>
+                                            </v-card-text> 
+                                            <v-card-actions>
+                                                <v-spacer></v-spacer>
+                                                <v-btn text="Close" variant="plain" @click="notificationDialog = false"></v-btn>
+                                                <v-btn color="primary" text="Send" variant="tonal"></v-btn>
+                                            </v-card-actions>
+                                        </v-card>
+                                    </v-dialog>
+
+                                </v-col>
+                                <v-col cols="4" class="d-flex justify-center align-center">
+                                    <v-btn stacked variant="outlined" style="height:150px; width:350px;">
+                                        <span class="material-symbols-outlined">
+                                            stacked_email
+                                        </span>
+                                        <br>
+                                        Send an Email to Users
+                                    </v-btn>
+                                </v-col>
+                                <v-col cols="4" class="d-flex justify-center align-center">
+                                    <v-btn stacked variant="outlined" style="height:150px; width:350px;">
+                                        <span class="material-symbols-outlined">
+                                            settings
+                                        </span>
+                                        <br>
+                                        Other Admin Settings
+                                    </v-btn>
+                                </v-col>
+                            </v-row>
+
+                            <v-row>
+                                <v-col cols="4"></v-col>
+                                <v-col cols="4"></v-col>
+                                <v-col cols="4" class="d-flex justify-end align-center" style="margin-left:-12px;">
+                                    <v-btn variant="outlined">
+                                        Log Out
+                                    </v-btn>
+                                </v-col>
+                            </v-row>
+                        </v-container>
                     </div>
                 </div>
 
@@ -57,18 +138,52 @@
                                         <p>{{pendingInstructors[index].name}} - {{pendingInstructors[index].email}}</p>
                                     </v-col>
                                     <v-col cols="1">
-                                        <v-btn icon="$close" variant="plain" @click="removePendingInstructor(index)">
-                                            <span class="material-symbols-outlined">
-                                            block
-                                            </span>
-                                        </v-btn>
+                                        <v-dialog v-model="removeDialog[index]" max-width="500" style="font-family: Poppins;">
+                                            <template v-slot:activator="{ props: activatorProps }">
+                                                <v-btn v-bind="activatorProps" icon="$close" variant="plain">
+                                                    <span class="material-symbols-outlined">
+                                                    block
+                                                    </span>
+                                                </v-btn>
+                                            </template>
+                                            <!--Pop up -->
+                                            <v-card title="Are you sure you want to remove instructor:">
+                                                <v-card-text>
+                                                    <br>
+                                                    <p>{{pendingInstructors[index].name}} - {{pendingInstructors[index].email}}</p>
+                                                </v-card-text> 
+                                                <v-card-actions>
+                                                    <v-spacer></v-spacer>
+                                                    <v-btn text="No" variant="plain" @click="removeDialog[index] = false"></v-btn>
+                                                    <v-btn color="primary" text="Yes" variant="tonal" @click="removePendingInstructor(index)"></v-btn>
+                                                </v-card-actions>
+                                            </v-card>
+                                        </v-dialog>                                        
+
                                     </v-col>
                                     <v-col cols="1">
-                                        <v-btn icon="$close" variant="plain" @click="approvePendingInstructor(index)">
-                                            <span class="material-symbols-outlined">
-                                            check_circle
-                                            </span>
-                                        </v-btn>
+                                        <v-dialog v-model="approveDialog[index]" max-width="500" style="font-family: Poppins;">
+                                            <template v-slot:activator="{ props: activatorProps }">
+                                                <v-btn v-bind="activatorProps" icon="$close" variant="plain">
+                                                    <span class="material-symbols-outlined">
+                                                    check_circle
+                                                    </span>
+                                                </v-btn>
+                                            </template>
+                                            <!--Pop up -->
+                                            <v-card title="Are you sure you want to approve instructor:">
+                                                <v-card-text>
+                                                    <br>
+                                                    <p>{{pendingInstructors[index].name}} - {{pendingInstructors[index].email}}</p>
+                                                </v-card-text> 
+                                                <v-card-actions>
+                                                    <v-spacer></v-spacer>
+                                                    <v-btn text="No" variant="plain" @click="approveDialog[index] = false"></v-btn>
+                                                    <v-btn color="primary" text="Yes" variant="tonal" @click="approvePendingInstructor(index)"></v-btn>
+                                                </v-card-actions>
+                                            </v-card>
+                                        </v-dialog>   
+
                                     </v-col>
                                     <v-divider class="instructor-divider"></v-divider>
                                 </v-row>
@@ -91,11 +206,28 @@
                                         <p>{{approvedInstructors[index].name}} - {{approvedInstructors[index].email}}</p>
                                     </v-col>
                                     <v-col cols="1">
-                                        <v-btn icon="$close" variant="plain" @click="removeApprovedInstructor(index)">
-                                            <span class="material-symbols-outlined">
-                                            block
-                                            </span>
-                                        </v-btn>
+                                        <v-dialog v-model="removeDialog[index]" max-width="500" style="font-family: Poppins;">
+                                            <template v-slot:activator="{ props: activatorProps }">
+                                                <v-btn v-bind="activatorProps" icon="$close" variant="plain">
+                                                    <span class="material-symbols-outlined">
+                                                    block
+                                                    </span>
+                                                </v-btn>
+                                            </template>
+                                            <!--Pop up -->
+                                            <v-card title="Are you sure you want to remove instructor:">
+                                                <v-card-text>
+                                                    <br>
+                                                    <p>{{approvedInstructors[index].name}} - {{approvedInstructors[index].email}}</p>
+                                                </v-card-text> 
+                                                <v-card-actions>
+                                                    <v-spacer></v-spacer>
+                                                    <v-btn text="No" variant="plain" @click="removeDialog[index] = false"></v-btn>
+                                                    <v-btn color="primary" text="Yes" variant="tonal" @click="removeApprovedInstructor(index)"></v-btn>
+                                                </v-card-actions>
+                                            </v-card>
+                                        </v-dialog> 
+
                                     </v-col>
                                     <v-divider class="instructor-divider"></v-divider>
                                 </v-row>
@@ -139,6 +271,13 @@
                     {name: 'Jeremy Potts', email: 'jeremypotts@nevada.unr.edu'},
                     {name: 'Jimmy Fraschia', email: 'jimmy.fraschia@gmail'},
                 ],
+                
+                notificationDialog: false,
+                removeDialog: [],
+                approveDialog: [],
+
+                date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+                menu: false,
             };
         },
 
@@ -171,14 +310,17 @@
 
             removePendingInstructor(index) {
                 this.pendingInstructors.splice(index, 1);
+                this.removeDialog[index] = false;
             },
 
             removeApprovedInstructor(index) {
                 this.approvedInstructors.splice(index, 1);
+                this.removeDialog[index] = false;
             },
 
             approvePendingInstructor(index) {
                 const instructor = this.pendingInstructors[index];
+                this.approveDialog[index] = false;                
                 this.approvedInstructors.push(instructor);
                 this.removePendingInstructor(index);
             },
@@ -197,8 +339,12 @@
         font-family: Poppins;
         margin-left: 14px;
         margin-top: 13px;
-
     }
+
+    .admin-text{
+        margin-left: 10px;
+    }
+    
     .v-tab{
         font-family: Poppins;
     }
@@ -209,18 +355,17 @@
 
     .dashboard-page{
         border-left: 1px solid black;
-        min-height: 250px;
+        height: 100%;
     }
 
     .instructors-page{
         border-left: 1px solid black;
-        min-height: 250px;
+        height: 100%;
     }
 
     .analytics-page{
         border-left: 1px solid black;
-        min-height: 250px;
-    }
+        height: 100%;    }
 
     .v-expansion-panel{
         position: relative;
@@ -230,14 +375,10 @@
     }
 
     .dashboard-container{
-        background-color: rgba(187, 187, 187, 0.242);
         position: relative;
-        top: 15px;
-        margin-left: 15px;
-        margin-right: 15px;
-        border-radius: 7px;
         font-family: Poppins;
     }
+
     .instructor-divider{
         width: 90%;
     }
