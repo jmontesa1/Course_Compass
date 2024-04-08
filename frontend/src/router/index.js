@@ -9,6 +9,7 @@ import Signup from '../views/SignupView.vue'
 import MyAccount from '../views/MyAccountView.vue'
 import Dashboard from '../views/DashboardView.vue'
 import ChangePassword from '../views/ChangePasswordView.vue'
+import AdminDashboard from '../views/AdminDashboardView.vue'
 
 const routes = [
   {
@@ -60,6 +61,11 @@ const routes = [
     path: '/changepassword',
     name: 'changepassword',
     component: ChangePassword
+  },
+  {
+    path: '/admin-dashboard',
+    name: 'admindashboard',
+    component: AdminDashboard
   }
 ]
 

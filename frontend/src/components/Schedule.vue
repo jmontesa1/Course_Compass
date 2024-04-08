@@ -290,7 +290,7 @@
                             color="primary"
                             type="month"
                             :events="events"
-                            @click:day="(event)=>dateClick(event,true)"
+                            @contextmenu:day="dateClick"
                             ></v-calendar>
                         </v-sheet>
                     </v-col>
@@ -374,8 +374,8 @@
             },
 
         methods: {
-            dateClick(event, Boolean) {
-                console.log('Clicked day:', event);
+            dateClick(date) {
+                console.log('Clicked day', date);
             },
             chooseClassSchedule(){
                 this.tab = 'class-schedule';
