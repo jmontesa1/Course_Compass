@@ -10,6 +10,7 @@ import MyAccount from '../views/MyAccountView.vue'
 import Dashboard from '../views/DashboardView.vue'
 import ChangePassword from '../views/ChangePasswordView.vue'
 import AdminDashboard from '../views/AdminDashboardView.vue'
+import InstructorHome from '../views/InstructorHomeView.vue'
 
 const routes = [
   {
@@ -66,6 +67,12 @@ const routes = [
     path: '/admin-dashboard',
     name: 'admindashboard',
     component: AdminDashboard
+  },
+  {
+    path: '/instructor-home',
+    name: 'instructorhome',
+    component: InstructorHome,
+    meta: { hideNavbar: true },
   }
 ]
 

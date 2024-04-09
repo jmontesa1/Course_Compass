@@ -1,6 +1,6 @@
 <template>
   <!-- Display the navbar and the router view on every page -->
-  <NavBar :isLoggedIn="isLoggedIn" @logout="handleLogout"/>
+  <NavBar v-if="!$route.meta.hideNavbar" :isLoggedIn="isLoggedIn" @logout="handleLogout"/>
   <router-view @login-status-changed="updateLoginStatus" @show-toast="showToastMessage" />
   <Footer></Footer>
   <Toast :showToast="showToast" :toastMessage="toastMessage" :toastColor="toastColor" />

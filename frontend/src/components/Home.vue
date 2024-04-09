@@ -14,7 +14,7 @@
 -->
         <div class="home-container">
             <div class="text1-container">
-                <h1 class="hero">Remove the clutter of your college experience.<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Use Course Compass. </h1>
+                <h1 class="hero">Remove the clutter of your college experience.<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Use Course Compass. </h1>
             </div>
             <div class="text2-container">
                 <p>Refine, enhance, and restructure your college experience with
@@ -223,7 +223,9 @@ import About from './About.vue';
     
     .hero{
         font-family: Coolvetica;
-        font-size: 2.5vw;
+        font-size: 2.3vw;
+        padding-right: 610px;
+        padding-top: 30px;
     }
 
     .hero2{
