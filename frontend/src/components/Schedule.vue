@@ -260,18 +260,17 @@
                     <!--Pop up -->
                     <v-card title="Enter event details">
                         <v-card-text>
-                        <v-row dense>
-                            <v-col cols = "12" md="6">  
-                                <v-text-field v-model="eventTitle" label="Event Title" required></v-text-field>
-                                <v-select v-model="eventColor" :items="this.colors" label="Color" required></v-select>
-                                <v-textarea v-model="eventDescription" label="Event Description" single-line rows="8"></v-textarea>
-                                <v-checkbox v-model="allDay" label="Is this event all day?" hint="All day events are blue and square."></v-checkbox>
-                            </v-col>
-                            <v-col cols="12" md="6">
-                                <v-date-picker v-model="eventDate" width="100%"></v-date-picker>
-                            </v-col>
-                        </v-row>
-
+                            <v-row dense>
+                                <v-col cols = "12" md="6">  
+                                    <v-text-field v-model="eventTitle" label="Event Title" required></v-text-field>
+                                    <v-select v-model="eventColor" :items="this.colors" label="Color" required></v-select>
+                                    <v-textarea v-model="eventDescription" label="Event Description" single-line rows="8"></v-textarea>
+                                    <v-checkbox v-model="allDay" label="Is this event all day?" hint="All day events are blue and square."></v-checkbox>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-date-picker v-model="eventDate" width="100%"></v-date-picker>
+                                </v-col>
+                            </v-row>
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
