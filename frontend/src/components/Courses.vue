@@ -152,7 +152,6 @@
                 schedule: [],
                 selectedFilters: [],
                 filterMenuOpen: ['Filters'],
-                courseList: [],
                 dialog: false,
 
                 //pagination
@@ -171,6 +170,23 @@
                 const firstCourse = (this.currentPage - 1) * this.itemsPerPage;
                 const lastCourse = firstCourse + this.itemsPerPage;
                 return this.courseList.slice(firstCourse, lastCourse);
+            },
+            searchParams() {
+                const params = {};
+
+                if (this.selectedFilters.some(filter => /^\d+00\+$/.test(filter))) {
+                params.level = this.selectedFilters.find(filter => /^\d+00\+$/.test(filter));
+                }
+
+                if (this.selectedFilters.some(filter => /^\d+-\d+\s(?:AM|PM)$/.test(filter))) {
+                params.startTime = this.selectedFilters.find(filter => /^\d+-\d+\s(?:AM|PM)$/.test(filter));
+                }
+
+                if (this.departmentSearch.trim() !== '') {
+                params.query = this.departmentSearch.trim();
+                }
+
+                return params;
             },
         },
 
@@ -200,41 +216,52 @@
                     this.fetchDepartments(selectedLevel);
                 }
             },
-            fetchDepartments(selectedLevel = null, selectedStartTime = null) {
+            fetchDepartments() {
                 let url = 'http://127.0.0.1:5000/search-departments';
+                const queryParams = new URLSearchParams();
+
+                const selectedLevel = this.selectedFilters.find(filter => /^\d+00\+$/.test(filter));
+                const selectedStartTime = this.selectedFilters.find(filter => /^\d+-\d+\s(?:AM|PM)$/.test(filter));
+
                 if (selectedLevel) {
-                    url += `?level=${encodeURIComponent(selectedLevel)}`;
-                } else if (selectedStartTime) {
-                    url += `?startTime=${encodeURIComponent(selectedStartTime)}`;
-                } else if (this.departmentSearch.trim() !== '') {
-                    url += `?query=${encodeURIComponent(this.departmentSearch)}`;
-                } else {
-                    url += `?default=true`;
+                    queryParams.append('level', selectedLevel);
+                }
+
+                if (selectedStartTime) {
+                    queryParams.append('startTime', selectedStartTime);
+                }
+
+                if (this.departmentSearch.trim() !== '') {
+                    queryParams.append('query', this.departmentSearch.trim());
+                }
+
+                if (queryParams.toString()) {
+                    url += `?${queryParams.toString()}`;
                 }
 
                 axios.get(url, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
-                .then(response => {
-                    this.courseList = response.data.map(department => ({
-                        scheduleID: department.scheduleID,
-                        name: department.courseName,
-                        code: department.courseCode,
-                        department: department.courseMajor,
-                        professor: department.professor,
-                        format: department.format,
-                        term: department.term,
-                        units: department.units,
-                        meetingTime: department.meetingTime,
-                        location: department.Location,
-                        days: department.days ? department.days.split(', ') : [],
-                        classCapacity: department.classCapacity,
-                        enrollmentTotal: department.enrollmentTotal,
-                        availableSeats: department.availableSeats
-                    }));
-                })
-                .catch(error => {
-                    console.error("Failed to load departments:", error);
-                    this.courseList = [];
-                });
+                    .then(response => {
+                        this.courseList = response.data.map(department => ({
+                            scheduleID: department.scheduleID,
+                            name: department.courseName,
+                            code: department.courseCode,
+                            department: department.courseMajor,
+                            professor: department.professor,
+                            format: department.format,
+                            term: department.term,
+                            units: department.units,
+                            meetingTime: department.meetingTime,
+                            location: department.Location,
+                            days: department.days ? department.days.split(', ') : [],
+                            classCapacity: department.classCapacity,
+                            enrollmentTotal: department.enrollmentTotal,
+                            availableSeats: department.availableSeats
+                        }));
+                    })
+                    .catch(error => {
+                        console.error("Failed to load departments:", error);
+                        this.courseList = [];
+                    });
             },
 
             addToSchedule(course) {
@@ -254,20 +281,11 @@
             },
 
             handleFilterSelected(filter) {
-                const isLevel = /^\d+00\+$/.test(filter);
-                const isStartTime = /^\d+-\d+\s(?:AM|PM)$/.test(filter);
-                if (isLevel) {
-                    this.fetchDepartments(filter);
-                } else if (isStartTime) {
-                    this.fetchDepartments(null, filter);
+                const index = this.selectedFilters.indexOf(filter);
+                if (index !== -1) {
+                    this.selectedFilters.splice(index, 1);
                 } else {
-                    const index = this.selectedFilters.indexOf(filter);
-                    if (index !== -1) {
-                        this.selectedFilters.splice(index, 1);
-                    } else {
-                        this.selectedFilters.push(filter);
-                    }
-                    this.fetchDepartments();
+                    this.selectedFilters.push(filter);
                 }
             },
 

@@ -727,6 +727,7 @@ def search_departments():
     query_param = request.args.get('query', '')
     level_param = request.args.get('level', None)
     start_time_param = request.args.get('startTime', None)
+    format_param = request.args.get('format', None)
     default_param = request.args.get('default', None)
     connection = connectToDB()
     if connection:
@@ -791,12 +792,16 @@ def search_departments():
                     enrollmentTotal,
                     availableSeats
                 FROM vwCourseDetails
-                WHERE TIME_FORMAT(LEFT(meetingTime, LOCATE('-', meetingTime) - 1), '%H:%i') BETWEEN 
-                    TIME_FORMAT(%s, '%H:%i') AND TIME_FORMAT(%s, '%H:%i')
+                WHERE 
+                    TIME_FORMAT(LEFT(meetingTime, LOCATE('-', meetingTime) - 1), '%H:%i') 
+                        BETWEEN TIME_FORMAT(%s, '%H:%i') AND TIME_FORMAT(%s, '%H:%i')
+                    AND courseMajor LIKE %s
                     AND term = '2024 Spring'
-                ORDER BY courseName;
+                ORDER BY 
+                    CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED),
+                    SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
                 """
-                cursor.execute(query, (start_time_lower, start_time_upper))
+                cursor.execute(query, (start_time_lower, start_time_upper, f"{query_param}%"))
             elif default_param:
                 query = """
                 SELECT DISTINCT 
