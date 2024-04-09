@@ -222,6 +222,7 @@
 
                 const selectedLevel = this.selectedFilters.find(filter => /^\d+00\+$/.test(filter));
                 const selectedStartTime = this.selectedFilters.find(filter => /^\d+-\d+\s(?:AM|PM)$/.test(filter));
+                const selectedFormat = this.selectedFilters.find(filter => /^(In Person|Online|Hybrid)$/.test(filter));
 
                 if (selectedLevel) {
                     queryParams.append('level', selectedLevel);
@@ -229,6 +230,10 @@
 
                 if (selectedStartTime) {
                     queryParams.append('startTime', selectedStartTime);
+                }
+
+                if (selectedFormat) {
+                queryParams.append('format', selectedFormat);
                 }
 
                 if (this.departmentSearch.trim() !== '') {
