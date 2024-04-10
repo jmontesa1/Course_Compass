@@ -78,7 +78,9 @@
         <v-row>
             <h1 class="header-text">Enrolled Courses</h1>
         </v-row>
-        <p v-if="schedule.length === 0"><br>No courses enrolled, please visit the <a href="../courses">Courses</a> page to add courses!</p>
+
+        <p v-if="schedule.length === 0"><br>No courses enrolled, please visit the <router-link to="/courses" >Courses</router-link> page to add courses!</p>
+
         <v-row>
             <v-card class="enrolled-cards" v-for="(course, index) in schedule" :key="index" :title="course.course" :subtitle="course.location">
                 <v-card-text>
@@ -88,17 +90,19 @@
                 <v-card-actions>
                     <v-dialog v-model="dialog[index]" max-width="500" style="font-family: Poppins;">
                         <template v-slot:activator="{ props: activatorProps }">
-                            <v-btn v-bind="activatorProps">View Details</v-btn>
+                            <v-btn color="dark-grey" variant="tonal" v-bind="activatorProps">View Details</v-btn>
                         </template>
                         <!--Pop up -->
                         <v-card title="Course Details">
                             <v-card-text>
                                 <v-row dense>
-                                    <v-col cols = "12" md="6">
+                                    <v-col cols = "auto">
                                         <strong>Course Name: </strong> {{ course.courseName }}<br>
                                         <strong>Instructor: </strong> {{ course.instructor }}<br>
                                         <strong>Credits: </strong> {{ course.Credits }}<br>
                                         <strong>Section: </strong> {{ course.Section }}<br>
+                                        <strong>Office Hours: </strong> FIGURE OUT OFFICE HOURS<br>
+                                        <strong>Office Hours Location: </strong> FIGURE OUT OFFICE HOURS<br>
                                     </v-col>
                                 </v-row>
                             </v-card-text> 

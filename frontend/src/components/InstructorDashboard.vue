@@ -182,28 +182,72 @@
                     {{ formatDays(course.days) }}<br>
                     {{ course.time }}
                 </v-card-text>
+
                 <v-card-actions>
                     <v-dialog v-model="dialog[index]" max-width="500" style="font-family: Poppins;">
                         <template v-slot:activator="{ props: activatorProps }">
-                            <v-btn v-bind="activatorProps">View Details</v-btn>
+                            <v-btn color="dark-grey" variant="tonal" v-bind="activatorProps">View Details</v-btn>
                         </template>
                         <!--Pop up -->
                         <v-card title="Course Details">
                             <v-card-text>
                                 <v-row dense>
-                                    <v-col cols = "12" md="6">
+                                    <v-col cols="auto">
                                         <strong>Course Name: </strong> {{ course.courseName }}<br>
                                         <strong>Instructor: </strong> {{ course.instructor }}<br>
                                         <strong>Credits: </strong> {{ course.Credits }}<br>
                                         <strong>Section: </strong> {{ course.Section }}<br>
+                                        <strong>Office Hours: </strong> FIGURE OUT OFFICE HOURS<br>
+                                        <strong>Office Hours Location: </strong> FIGURE OUT OFFICE HOURS LOC<br>
                                     </v-col>
                                 </v-row>
                             </v-card-text> 
-
                             <v-card-actions>
                                 <v-btn text="Close" variant="plain" @click="dialog[index] = false"></v-btn>
                                 <v-spacer></v-spacer>
                                 <v-btn color="dark-grey" text="Unenroll" variant="tonal" @click="confirmUnenrollment(course.scheduleID, index)"></v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+                </v-card-actions>
+
+                <v-card-actions>
+                    <v-dialog v-model="officeHoursDialog[index]" max-width="700" style="font-family: Poppins;">
+                        <template v-slot:activator="{ props: activatorProps }">
+                            <v-btn variant="outlined" v-bind="activatorProps">Office Hours</v-btn>
+                        </template>
+                        <!--Pop up -->
+                        <v-card title="Adjust Office Hours">
+                            <v-card-text>
+                                <v-row dense>
+                                    <v-col cols="auto">
+                                        Current Office Hours: 11:00 AM - 12:15 PM, Mon We Fr, SEM 314
+                                    </v-col>
+                                </v-row>
+                                <br>
+                                <v-row dense>
+                                    <v-col auto>
+                                            <v-text-field v-model="officeHoursStart" placeholder="00:00 AM" label="Start Time"></v-text-field>
+                                    </v-col>
+                                    <v-col auto>
+                                            <v-text-field v-model="officeHoursEnd" placeholder="00:00 AM" label="End Time"></v-text-field>
+                                    </v-col>
+                                    <v-col auto>
+                                            <v-text-field v-model="officeHoursLocation" label="Location"></v-text-field>
+                                    </v-col>
+                                </v-row>
+
+                                <v-row dense>
+                                    <p>Choose which days to change to:</p>
+                                    <div class="checkboxes-container">
+                                        <v-checkbox v-for="(day, index) in daysOfWeek.slice(1,6)" :key="index" :label="daysOfWeek[index + 1]" v-model="chosenOfficeHoursDays[index]" style="margin-bottom: -35px;"></v-checkbox>
+                                    </div>
+                                </v-row>
+                            </v-card-text> 
+                            <v-card-actions>
+                                <v-btn text="Close" variant="plain" @click="officeHoursDialog[index] = false"></v-btn>
+                                <v-spacer></v-spacer>
+                                <v-btn color="dark-grey" text="Change" variant="tonal" @click="confirmOfficeHours(course.scheduleID, index)"></v-btn>
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
@@ -222,6 +266,29 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+
+        <v-dialog v-model="officeHoursConfirmDialog" max-width="500" style="font-family: Poppins;">
+            <v-card>
+                <v-card-title class="headline">Confirm Office Hours Changes</v-card-title>
+                <v-card-text>Are you sure you want to change Office Hours details?</v-card-text>
+
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="dark-grey" variant="tonal" text @click="officeHoursConfirmDialog = false">Cancel</v-btn>
+                    <v-btn color="primary" variant="tonal" text @click="changeOfficeHours">Confirm</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        </div>
+    </v-container>
+
+    <v-container class="dashboard-container4">
+        <div class="inner-container">
+        <v-row>
+            <h1 class="header-text">Student Reviews</h1>
+        </v-row>
+        <p v-if="studentReviews.length === 0"><br>No recent student reviews</p>
+        <p v-for="(review, index) in studentReviews" :key="index"><br>{{studentReviews[index].course}} - {{studentReviews[index].review}}</p>
         </div>
     </v-container>
 </template>
@@ -232,6 +299,8 @@
     export default {
         data() {
             return {
+                daysOfWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+
                 unenrollScheduleID: null,
                 currentDate: null,
                 user: {
@@ -244,6 +313,8 @@
                 },
 
                 showUnenrollDialog: false,
+                officeHoursDialog: [],
+                officeHoursConfirmDialog: false,
                 dialog: [],
                 notificationDialog: false,
                 removeNotificationDialog: [],
@@ -274,6 +345,17 @@
                     {date: '5/16/2024', source: 'UNR', message: 'Commencement'},
                     {date: '5/20/2024', source: 'UNR', message: 'Faculty to post final grades in MyNEVADA by 5 p.m.'},
                     {date: '5/20/2024', source: 'UNR', message: 'Spring semester ends, last day faculty on campus for spring semester'},
+                ],
+
+                //Office Hours
+                officeHoursStart: '',
+                officeHoursEnd: '',
+                officeHoursLocation: '',
+                chosenOfficeHoursDays: [],
+
+                //student reviews
+                studentReviews: [
+                    {course: 'CS 302', review: 'Class was extremely easy'},
                 ],
             };
         },
@@ -338,6 +420,22 @@
                 this.unenrollScheduleID = scheduleID;
                 this.showUnenrollDialog = true;
                 this.dialog[index] = false;
+            },
+
+            confirmOfficeHours(scheduleID, index) {
+                //this.unenrollScheduleID = scheduleID;
+                this.officeHoursConfirmDialog = true;
+                this.officeHoursDialog[index] = false;
+            },
+
+            changeOfficeHours(){
+                //NEEDS IMPLEMENTATION TO CHANGE OFFICE HOURS FROM
+
+                this.officeHoursStart = '';
+                this.officeHoursEnd = '';
+                this.officeHoursLocation = '';
+                this.chosenOfficeHoursDays = [];
+                this.officeHoursConfirmDialog = false;
             },
 
             sendNotification(){
@@ -424,8 +522,7 @@
             //retrieves todays and tomorrows classes
             retrieveSchedule(){
                 const currentDayIndex = new Date().getDay();
-                const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                const currentDay = daysOfWeek[currentDayIndex];
+                const currentDay = this.daysOfWeek[currentDayIndex];
 
                 return this.schedule.filter(course => {
                     return course.days.some(day => day.trim() === currentDay);
@@ -452,8 +549,7 @@
                 tomorrow.setDate(tomorrow.getDate() + 1); //Tomorrow
 
                 const nextDayIndex = tomorrow.getDay();
-                const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                const nextDay = daysOfWeek[nextDayIndex];
+                const nextDay = this.daysOfWeek[nextDayIndex];
 
                 return this.schedule.filter(course => {
                     return course.days.some(day => day.trim() === nextDay);
@@ -558,6 +654,15 @@
         border-radius: 1px;
         border-top: 1px solid black;
         border-left: 1px solid black;
+    }
+
+    .dashboard-container4{
+        margin: 10px auto;
+        position: relative;
+        max-width: 90%;
+        border-radius: 1px;
+        border-top: 1px solid black;
+        border-right: 1px solid black;
     }
 
     .deadlines-container{

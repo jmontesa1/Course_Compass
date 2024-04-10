@@ -124,7 +124,7 @@
                                                 <v-text-field v-model="weeklyEventStart" placeholder="00:00 AM" hint="8:00 AM - 7:00 PM" label="Start Time"></v-text-field>
                                         </v-col>
                                         <v-col auto>
-                                                <v-text-field v-model="weeklyEventEnd" placeholder="00:00 PM" hint="End times must be in intervals of ten minutes" label="End Time"></v-text-field>
+                                                <v-text-field v-model="weeklyEventEnd" placeholder="00:00 AM" hint="End times must be in intervals of ten minutes" label="End Time"></v-text-field>
                                         </v-col>
                                     </v-row>
                                     <v-row dense>
