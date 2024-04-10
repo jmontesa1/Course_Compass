@@ -69,16 +69,113 @@
                 </v-container>
             </v-col>
         </v-row>
-
-
     </v-container>
 
     <v-container class="dashboard-container2">
         <div class="inner-container">
+            <v-row>
+                <h1 class="header-text">Announcements</h1>
+            </v-row>
+            <v-row>
+                <v-expansion-panels>
+                    <v-expansion-panel>
+                        <v-expansion-panel-title>
+                            <v-row no-gutters>
+                                <v-col class="d-flex justify-start">
+                                    <p>Your active announcements ({{instructorNotifications.length}})</p>
+                                </v-col>
+                            </v-row>
+                        </v-expansion-panel-title>
+                        <v-expansion-panel-text>
+                            <v-row  no-gutters v-for="(notification, index) in instructorNotifications" :key="index">
+                                <v-col cols="11">
+                                    <p class="row-text"><strong>{{instructorNotifications[index].date}}</strong> {{instructorNotifications[index].source}} - {{instructorNotifications[index].description}}</p>
+                                    <br><p>Sent to: {{instructorNotifications[index].courses}}</p>
+                                </v-col>
+                                <v-col cols="1">
+                                    <v-dialog v-model="removeNotificationDialog[index]" max-width="800" style="font-family: Poppins;">
+                                        <template v-slot:activator="{ props: activatorProps }">
+                                            <v-btn v-bind="activatorProps" icon="$close" variant="plain">
+                                                <span class="material-symbols-outlined">
+                                                delete
+                                                </span>
+                                            </v-btn>
+                                        </template>
+                                        <!--Pop up -->
+                                        <v-card title="Are you sure you want to remove announcement:">
+                                            <v-card-text>
+                                                <br>
+                                                <p><strong>{{instructorNotifications[index].date}}</strong> {{instructorNotifications[index].source}} - {{instructorNotifications[index].description}}</p>
+                                                <br><p>Sent to: {{instructorNotifications[index].courses}}</p>
+                                            </v-card-text> 
+                                            <v-card-actions>
+                                                <v-spacer></v-spacer>
+                                                <v-btn text="No" variant="plain" @click="removeNotificationDialog[index] = false"></v-btn>
+                                                <v-btn color="primary" text="Yes" variant="tonal" @click="removeNotification(index)"></v-btn>
+                                            </v-card-actions>
+                                        </v-card>
+                                    </v-dialog> 
+                                </v-col>
+                                <v-divider class="instructor-divider"></v-divider>
+                            </v-row>
+                        </v-expansion-panel-text>
+                    </v-expansion-panel>
+                </v-expansion-panels>
+            </v-row>
+
+            <v-row>
+                <v-col cols="10">
+                </v-col>
+                <v-col cols="2" class="d-flex justify-end align-center">
+                    <v-dialog v-model="notificationDialog" max-width="1000" style="font-family: Poppins;">
+                        <template v-slot:activator="{ props: activatorProps }">
+                            <v-btn  v-bind="activatorProps" class="announcement-btn" variant="outlined" @click="handleLogout">
+                                <p>Send announcement</p>
+                            </v-btn>
+                        </template>
+                        <!--Pop up -->
+                        <v-card title="Send An Announcement">
+                            <v-card-text>
+                                <v-row dense>
+                                    <v-col cols = "12" md="6">  
+                                        <br>
+                                        <p>Choose courses to send to:</p>
+                                        <div class="checkboxes-container">
+                                            <v-checkbox v-for="(course, index) in schedule" :key="index" :label="course.course" v-model="chosenCourses[index]" style="margin-bottom: -35px;"></v-checkbox>
+                                        </div>
+                                        <br>
+                                        <v-textarea v-model="notificationDescription" label="Announcement Description" single-line rows="7"></v-textarea>
+                                        <br>
+                                        <v-checkbox v-model="notificationDeadline" label="Add announcement to your dashboard" hint="This announcement will appear under your deadlines."></v-checkbox>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-date-picker v-model="notificationDate" width="100%"></v-date-picker>
+                                    </v-col>
+                                </v-row>
+                            </v-card-text> 
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn text="Close" variant="plain" @click="notificationDialog = false"></v-btn>
+                                <v-btn color="primary" text="Send" variant="tonal" @click="sendNotification()"></v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+
+                </v-col>
+            </v-row>
+        </div>
+    </v-container>
+
+
+
+    <v-container class="dashboard-container3">
+        <div class="inner-container">
         <v-row>
-            <h1 class="header-text">Enrolled Courses</h1>
+            <h1 class="header-text">Courses Taught</h1>
         </v-row>
-        <p v-if="schedule.length === 0"><br>No courses enrolled, please visit the <a href="../courses">Courses</a> page to add courses!</p>
+
+        <p v-if="schedule.length === 0"><br>No courses taught, please visit the <a href="../courses">Courses</a> page to add courses!</p>
+
         <v-row>
             <v-card class="enrolled-cards" v-for="(course, index) in schedule" :key="index" :title="course.course" :subtitle="course.location">
                 <v-card-text>
@@ -114,7 +211,6 @@
             </v-card>
         </v-row>
         <br>
-
         <v-dialog v-model="showUnenrollDialog" max-width="500" style="font-family: Poppins;">
             <v-card>
                 <v-card-title class="headline">Confirm Unenrollment</v-card-title>
@@ -128,19 +224,6 @@
         </v-dialog>
         </div>
     </v-container>
-
-
-
-    <!--<v-container v-if="schedule.length !== 0" class="dashboard-container3">
-        <v-row>
-            <h1 class="header-text">Major Progress</h1>
-        </v-row>
-        <br>
-        <br>
-        <br>
-        <br>
-    </v-container>-->
-
 </template>
 
 <script>
@@ -150,8 +233,6 @@
         data() {
             return {
                 unenrollScheduleID: null,
-                showUnenrollDialog: false,
-                dialog: [],
                 currentDate: null,
                 user: {
                     firstname: '',
@@ -162,12 +243,24 @@
                     avatar: require('@/assets/profile-picture.jpg'),
                 },
 
+                showUnenrollDialog: false,
+                dialog: [],
+                notificationDialog: false,
+                removeNotificationDialog: [],
+
                 schedule: [],
 
+                //send announcement vars under
+                source: "Instructor",
+                chosenCourses: [],
+                notificationDate: new Date(),
+                notificationDeadline: false,
+                notificationDescription: '',
+
+                instructorNotifications:[],
                 notifications: [
                     {date: '5/15/2024', source: 'UNR', message: 'Instruction Ends'},
-                    {date: '3/1/2024', source: 'UNR', message: 'Deadline to apply for May graduation'},
-                    {date: '3/25/2024', source: 'Professor Mike', message: 'Hello Students, hw 1 is due in the next few weeks, and there is an exam tomorrow about coffee.'},
+                    {date: '4/25/2024', source: 'Professor Mike', message: 'Hello Students, hw 1 is due in the next few weeks, and there is an exam tomorrow about coffee.'},
                     {date: '3/1/2024', source: 'UNR', message: 'Deadline to apply for May graduation'},
                     {date: '3/18/2024', source: 'UNR', message: 'Summer Session registration starts'},
                     {date: '3/19/2024', source: 'UNR', message: 'Final fee payment due for those on a payment plan'},
@@ -245,6 +338,63 @@
                 this.unenrollScheduleID = scheduleID;
                 this.showUnenrollDialog = true;
                 this.dialog[index] = false;
+            },
+
+            sendNotification(){
+                //Month Date, Year
+                const reformatDate = new Date(this.notificationDate).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                });
+
+                //Month/Date/Year
+                const reformatDate2 = new Date(this.notificationDate).toLocaleDateString('en-US', {
+                    month: 'numeric',
+                    day: 'numeric',
+                    year: 'numeric',
+                });
+                const selectedCourses = this.schedule.filter((course, index) => this.chosenCourses[index]);
+                const reformatCourses = selectedCourses.map(course => course.course).join(', ');
+
+                const notification = {
+                    date: reformatDate,
+                    source: this.source + ' ' + this.user.firstname + ' ' + this.user.lastname,
+                    description: this.notificationDescription,
+                    courses: reformatCourses,
+                    deadline: this.notificationDeadline,
+                };
+
+                if(this.notificationDeadline === true){
+                    const notification2 = {
+                        date: reformatDate2,
+                        source: this.source + ' ' + this.user.firstname + ' ' + this.user.lastname,
+                        message: this.notificationDescription,
+                    }
+
+                    this.notifications.push(notification2);
+                }
+
+                this.instructorNotifications.push(notification);
+
+                this.notificationDate = new Date();
+                this.notificationDescription ='';
+                this.chosenCourses = [];
+                this.notificationDeadline = false;
+                this.notificationDialog = false;
+            },
+
+            removeNotification(index){
+                const removedNotification = this.instructorNotifications[index];
+                this.instructorNotifications.splice(index, 1);
+                
+                //find notification under deadlines
+                const deadlineNotification = this.notifications.findIndex(notification =>
+                    notification.date === removedNotification.date &&
+                    notification.message === removedNotification.description);
+
+                this.notifications.splice(deadlineNotification, 1);
+                this.removeNotificationDialog[index] = false;
             },
         },
         
@@ -362,7 +512,7 @@
     .class-block-right{
         border-top: 1px solid black;
     }
-    
+
     .welcome-text{
         font-family: coolvetica;
         position: relative;
@@ -437,6 +587,12 @@
         background-color: rgba(255, 0, 0, 0.168);
     }
 
+    .announcement-btn{
+        left: 11px;
+        font-size: 0px;
+        min-width: 170px;
+    }
+
     .inner-container {
         position: relative;
         display: flex;
@@ -445,4 +601,15 @@
         width: 96%;
         margin: 0 auto;
     }
+
+    .v-date-picker{
+        margin-top: -29px;
+        margin-bottom: -38px;
+    }
+
+    .checkboxes-container {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
 </style>

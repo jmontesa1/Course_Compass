@@ -6,7 +6,7 @@
 
 <template>
     <div class="login-container">
-            
+            <img class="logo" src="../assets/course compass logo.png" alt="Course Compass Logo">
             <h2>Log In</h2>
 
             <!-- Input fields for email and password -->
@@ -113,6 +113,7 @@
     }
 
     .logo {
+        position: relative;
         max-width: 100px;
         margin-bottom: 20px;
     }

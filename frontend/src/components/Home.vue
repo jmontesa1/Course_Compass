@@ -222,14 +222,12 @@ import About from './About.vue';
     }
     
     .hero{
-        font-family: Coolvetica;
-        font-size: 2.3vw;
-        padding-right: 610px;
-        padding-top: 30px;
+        font-family: 'coolvetica';
+        font-size: 2.5vw;
     }
 
     .hero2{
-        font-family: Coolvetica;
+        font-family: 'coolvetica';
         text-align: center;
         font-size: 25px;
     }

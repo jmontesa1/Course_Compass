@@ -132,14 +132,14 @@
                                                             <v-expansion-panel-text>
                                                                 <v-row  no-gutters v-for="(notification, index) in adminNotifications" :key="index">
                                                                     <v-col cols="11">
-                                                                        <p class="row-text"><strong>{{adminNotifications[index].date}}</strong> {{adminNotifications[index].source}} - {{adminNotifications[index].description}}</p>
+                                                                        <p class="row-text"><strong>{{adminNotifications[index].date}}</strong> {{adminNotifications[index].source}} - {{adminNotifications[index].description}}<br>Override Status: {{adminNotifications[index].override}}</p>
                                                                     </v-col>
                                                                     <v-col cols="1">
                                                                         <v-dialog v-model="removeNotificationDialog[index]" max-width="800" style="font-family: Poppins;">
                                                                             <template v-slot:activator="{ props: activatorProps }">
                                                                                 <v-btn v-bind="activatorProps" icon="$close" variant="plain">
                                                                                     <span class="material-symbols-outlined">
-                                                                                    block
+                                                                                    delete
                                                                                     </span>
                                                                                 </v-btn>
                                                                             </template>
@@ -409,7 +409,7 @@
                         console.log(response.data.message);
                         if (response.status === 200) {
                         setTimeout(() => {
-                            this.$emit('logout');
+                            this.$emit('login-status-changed', false);                        
                             this.$router.push('/');
                         }, 1000);
                         } else {
@@ -480,6 +480,7 @@
                     date: reformatDate,
                     source: this.source,
                     description: this.notificationDescription,
+                    override: this.notificationOverride,
                 };
 
                 this.adminNotifications.push(notification);

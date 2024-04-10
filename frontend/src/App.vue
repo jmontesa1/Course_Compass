@@ -1,10 +1,10 @@
 <template>
   <!-- Display the navbar and the router view on every page -->
-  <NavBar v-if="!$route.meta.hideNavbar" :isLoggedIn="isLoggedIn" @logout="handleLogout"/>
+  <NavBar :isLoggedIn="isLoggedIn" @logout="handleLogout"/>
   <router-view @login-status-changed="updateLoginStatus" @show-toast="showToastMessage" />
   <Footer></Footer>
   <Toast :showToast="showToast" :toastMessage="toastMessage" :toastColor="toastColor" />
-
+  <h1>{{this.userType}}</h1>
 
 </template>
 
@@ -24,6 +24,7 @@
     data() {
         return {
             isLoggedIn: false,
+            userType: '',
             showToast: false,
             toastMessage: "",
             toastColor: '#da4d4d',
@@ -46,6 +47,7 @@
 
         handleLogout() {
           this.isLoggedIn = false;
+          this.userType = '';
           // Clear the login status from local storage on logout
           localStorage.removeItem('isLoggedIn');
         },
