@@ -8,6 +8,7 @@ from mysql.connector import connect, Error
 from datetime import datetime
 from flask_bcrypt import Bcrypt
 import logging, json
+from urllib.parse import unquote
 
 
 app = Flask(__name__)
@@ -728,264 +729,101 @@ def search_departments():
     level_param = request.args.get('level', None)
     start_time_param = request.args.get('startTime', None)
     format_param = request.args.get('format', None)
+    location_param = request.args.get('location', None)
+    term_param = request.args.get('term', None)
     default_param = request.args.get('default', None)
+    
     connection = connectToDB()
     if connection:
-        cursor = connection.cursor(dictionary=True)  # Use dictionary cursor to directly get column names
+        cursor = connection.cursor(dictionary=True)
         try:
-            if level_param:
+            query = """
+            SELECT DISTINCT 
+                scheduleID,
+                courseName,
+                courseCode,
+                courseMajor,
+                department,
+                professor,
+                term,
+                format,
+                units,
+                meetingTime,
+                Location,
+                days,
+                classCapacity,
+                enrollmentTotal,
+                availableSeats
+            FROM (
+                SELECT *,
+                    ROW_NUMBER() OVER(PARTITION BY courseName ORDER BY courseCode) AS rn,
+                    CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED) AS numericCourseLevel
+                FROM vwCourseDetails
+                WHERE 1=1
+            ) AS courses
+            WHERE 1=1
+            """
+            
+            params = []
+            filters_applied = False
+            applied_filters = {}
+            
+            if 'query' in request.args and query_param:
+                applied_filters['query'] = query_param
+                query += " AND courseMajor LIKE %s"
+                params.append(f"{query_param}%")
+                filters_applied = True
+            
+            if 'level' in request.args and level_param:
+                applied_filters['query'] = query_param
                 level = level_param.rstrip('+')
-                print(level)
                 numeric_level = int(level)
-                if format_param:
-                    query = """
-                    SELECT DISTINCT 
-                        scheduleID,
-                        courseName,
-                        courseCode,
-                        courseMajor,
-                        department,
-                        professor,
-                        term,
-                        format,
-                        units,
-                        meetingTime,
-                        Location,
-                        days,
-                        classCapacity,
-                        enrollmentTotal,
-                        availableSeats
-                    FROM (
-                        SELECT *,
-                            ROW_NUMBER() OVER(PARTITION BY courseName ORDER BY courseCode) AS rn,
-                            CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED) AS numericCourseLevel
-                        FROM vwCourseDetails
-                        WHERE courseMajor LIKE %s AND term = '2024 Spring' AND format = %s
-                    ) AS courses
-                    WHERE rn = 1 AND numericCourseLevel >= %s
-                    ORDER BY
-                        numericCourseLevel,
-                        SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
-                    """
-                    cursor.execute(query, (f"{query_param}%", format_param, numeric_level))
-                else:
-                    query = """
-                    SELECT DISTINCT 
-                        scheduleID,
-                        courseName,
-                        courseCode,
-                        courseMajor,
-                        department,
-                        professor,
-                        term,
-                        format,
-                        units,
-                        meetingTime,
-                        Location,
-                        days,
-                        classCapacity,
-                        enrollmentTotal,
-                        availableSeats
-                    FROM (
-                        SELECT *,
-                            ROW_NUMBER() OVER(PARTITION BY courseName ORDER BY courseCode) AS rn,
-                            CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED) AS numericCourseLevel
-                        FROM vwCourseDetails
-                        WHERE courseMajor LIKE %s AND term = '2024 Spring'
-                    ) AS courses
-                    WHERE rn = 1 AND numericCourseLevel >= %s
-                    ORDER BY
-                        numericCourseLevel,
-                        SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
-                    """
-                    cursor.execute(query, (f"{query_param}%", numeric_level))
-            elif start_time_param:
+                query += " AND numericCourseLevel >= %s"
+                params.append(numeric_level)
+                filters_applied = True
+            
+            if 'startTime' in request.args and start_time_param:
+                applied_filters['query'] = query_param
+                start_time_param = unquote(request.args.get('startTime', ''))
                 start_time_range = start_time_param.split('-')
                 start_time_lower = datetime.strptime(start_time_range[0].strip(), '%I').time()
-                start_time_upper = datetime.strptime(start_time_range[1].strip().split(' ')[0], '%I').time()
-                if format_param:
-                    query = """
-                    SELECT DISTINCT 
-                        scheduleID,
-                        courseName,
-                        courseCode,
-                        courseMajor,
-                        department,
-                        professor,
-                        term,
-                        format,
-                        units,
-                        meetingTime,
-                        Location,
-                        days,
-                        classCapacity,
-                        enrollmentTotal,
-                        availableSeats
-                    FROM vwCourseDetails
-                    WHERE 
-                        TIME_FORMAT(LEFT(meetingTime, LOCATE('-', meetingTime) - 1), '%H:%i') 
-                            BETWEEN TIME_FORMAT(%s, '%H:%i') AND TIME_FORMAT(%s, '%H:%i')
-                        AND courseMajor LIKE %s
-                        AND term = '2024 Spring'
-                        AND format = %s
-                    ORDER BY 
-                        CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED),
-                        SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
-                    """
-                    cursor.execute(query, (start_time_lower, start_time_upper, f"{query_param}%", format_param))
-                else:
-                    query = """
-                    SELECT DISTINCT 
-                        scheduleID,
-                        courseName,
-                        courseCode,
-                        courseMajor,
-                        department,
-                        professor,
-                        term,
-                        format,
-                        units,
-                        meetingTime,
-                        Location,
-                        days,
-                        classCapacity,
-                        enrollmentTotal,
-                        availableSeats
-                    FROM vwCourseDetails
-                    WHERE 
-                        TIME_FORMAT(LEFT(meetingTime, LOCATE('-', meetingTime) - 1), '%H:%i') 
-                            BETWEEN TIME_FORMAT(%s, '%H:%i') AND TIME_FORMAT(%s, '%H:%i')
-                        AND courseMajor LIKE %s
-                        AND term = '2024 Spring'
-                    ORDER BY 
-                        CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED),
-                        SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
-                    """
-                    cursor.execute(query, (start_time_lower, start_time_upper, f"{query_param}%"))
-            elif default_param:
-                if format_param:
-                    query = """
-                    SELECT DISTINCT 
-                        scheduleID,
-                        courseName,
-                        courseCode,
-                        courseMajor,
-                        department,
-                        professor,
-                        term,
-                        format,
-                        units,
-                        meetingTime,
-                        Location,
-                        days,
-                        classCapacity,
-                        enrollmentTotal,
-                        availableSeats
-                    FROM (
-                        SELECT *,
-                            ROW_NUMBER() OVER(PARTITION BY courseName ORDER BY courseCode) AS rn
-                        FROM vwCourseDetails
-                        WHERE term = '2024 Spring' AND format = %s
-                    ) AS courses
-                    WHERE rn = 1
-                    ORDER BY
-                        CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED),
-                        SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
-                    """
-                    cursor.execute(query, (format_param,))
-                else:
-                    query = """
-                    SELECT DISTINCT 
-                        scheduleID,
-                        courseName,
-                        courseCode,
-                        courseMajor,
-                        department,
-                        professor,
-                        term,
-                        format,
-                        units,
-                        meetingTime,
-                        Location,
-                        days,
-                        classCapacity,
-                        enrollmentTotal,
-                        availableSeats
-                    FROM (
-                        SELECT *,
-                            ROW_NUMBER() OVER(PARTITION BY courseName ORDER BY courseCode) AS rn
-                        FROM vwCourseDetails
-                        WHERE term = '2024 Spring'
-                    ) AS courses
-                    WHERE rn = 1
-                    ORDER BY
-                        CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED),
-                        SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
-                    """
-                    cursor.execute(query)
-            else:
-                if format_param:
-                    query = """
-                    SELECT DISTINCT 
-                        scheduleID,
-                        courseName,
-                        courseCode,
-                        courseMajor,
-                        department,
-                        professor,
-                        term,
-                        format,
-                        units,
-                        meetingTime,
-                        Location,
-                        days,
-                        classCapacity,
-                        enrollmentTotal,
-                        availableSeats
-                    FROM (
-                        SELECT *,
-                            ROW_NUMBER() OVER(PARTITION BY courseName ORDER BY courseCode) AS rn
-                        FROM vwCourseDetails
-                        WHERE courseMajor LIKE %s AND term = '2024 Spring' AND format = %s
-                    ) AS courses
-                    
-                    ORDER BY
-                        CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED),
-                        SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
-                    """
-                    cursor.execute(query, (f"{query_param}%", format_param))
-                else:
-                    query = """
-                    SELECT DISTINCT 
-                        scheduleID,
-                        courseName,
-                        courseCode,
-                        courseMajor,
-                        department,
-                        professor,
-                        term,
-                        format,
-                        units,
-                        meetingTime,
-                        Location,
-                        days,
-                        classCapacity,
-                        enrollmentTotal,
-                        availableSeats
-                    FROM (
-                        SELECT *,
-                            ROW_NUMBER() OVER(PARTITION BY courseName ORDER BY courseCode) AS rn
-                        FROM vwCourseDetails
-                        WHERE courseMajor LIKE %s AND term = '2024 Spring'
-                    ) AS courses
-                    WHERE rn = 1
-                    ORDER BY
-                        CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED),
-                        SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
-                    """
-                    cursor.execute(query, (f"{query_param}%",))
+                end_time_value = start_time_range[1].strip().split(' ')[0]  # Extract the end time value
+                start_time_upper = datetime.strptime(end_time_value, '%I').time()
+                query += " AND TIME_FORMAT(LEFT(meetingTime, LOCATE('-', meetingTime) - 1), '%H:%i') BETWEEN TIME_FORMAT(%s, '%H:%i') AND TIME_FORMAT(%s, '%H:%i')"
+                params.extend([start_time_lower, start_time_upper])
+                filters_applied = True
+            
+            if 'format' in request.args and format_param:
+                applied_filters['query'] = query_param
+                query += " AND format = %s"
+                params.append(format_param)
+                filters_applied = True
+            
+            if 'location' in request.args and location_param:
+                applied_filters['query'] = query_param
+                query += " AND LEFT(Location, LOCATE(' ', Location) - 1) = %s"
+                params.append(location_param)
+                filters_applied = True
 
-            result = cursor.fetchall()
+            if 'term' in request.args and term_param:
+                applied_filters['query'] = query_param
+                query += " AND term = %s"
+                params.append(term_param)
+                filters_applied = True
+            
+            if not filters_applied:
+                query += " AND rn = 1"
+            
+            query += """
+            ORDER BY
+                CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED),
+                SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
+            """
+            
+            print("Query Parameters:", params)
+
+            cursor.execute(query, tuple(params))
+            result = cursor.fetchall()       
             departments = [{
                 'scheduleID': dept['scheduleID'],
                 'professor': dept['professor'],

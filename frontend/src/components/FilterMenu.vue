@@ -62,7 +62,7 @@
                                           { label: '4+ Stars' }] },
               { label: 'Keywords', children: [{ label: 'Attendance' }, { label: 'Lecture Heavy' }, { label: 'Pop Quizzes' },
                                               { label: 'Exam Heavy' }, { label: 'Textbook Required' }, { label: 'Presentations' }, { label: 'Projects' }]},
-              { label: 'Location', children: [{ label: 'SEM' }, { label: 'WPEB' }] },
+              { label: 'Location', children: [{ label: 'SEM' }, { label: 'WPEB' }, { label: 'AB' }, { label: 'MS' }, { label: 'DMSC' }, { label: 'PSAC' }, { label: 'SLH' }] },
               { label: 'Format', children: [{ label: 'In-Person' }, { label: 'Online' }, { label: 'Hybrid' }] },
               { label: 'Requirement', children: [{ label: 'CO1' }, { label: 'CO2' },{ label: 'CO3' },
                                               { label: 'CO4' },{ label: 'CO5' },{ label: 'CO6' },{ label: 'CO7' },
