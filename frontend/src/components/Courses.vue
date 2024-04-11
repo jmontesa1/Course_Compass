@@ -186,6 +186,14 @@
                 params.query = this.departmentSearch.trim();
                 }
 
+                if (this.selectedFilters.some(filter => /^(?:SEM|WPEB)$/.test(filter))) {
+                    params.location = this.selectedFilters.find(filter => /^(?:SEM|WPEB|AB|MS|DMSC|PSAC|SLH)$/.test(filter));
+                }
+
+                if (this.selectedFilters.some(filter => /^(?:Fall|Winter|Spring|Summer)$/.test(filter))) {
+                    const currentYear = new Date().getFullYear();
+                    params.term = `${currentYear} ${this.selectedFilters.find(filter => /^(?:Fall|Winter|Spring|Summer)$/.test(filter))}`;
+                }
                 return params;
             },
         },
@@ -217,32 +225,41 @@
                 }
             },
             fetchDepartments() {
-                let url = 'http://127.0.0.1:5000/search-departments';
-                const queryParams = new URLSearchParams();
+                let baseUrl = 'http://127.0.0.1:5000/search-departments';
+                let queryParts = [];
 
                 const selectedLevel = this.selectedFilters.find(filter => /^\d+00\+$/.test(filter));
                 const selectedStartTime = this.selectedFilters.find(filter => /^\d+-\d+\s(?:AM|PM)$/.test(filter));
                 const selectedFormat = this.selectedFilters.find(filter => /^(In Person|Online|Hybrid)$/.test(filter));
+                const selectedLocation = this.selectedFilters.find(filter => /^(?:SEM|WPEB|AB|MS|DMSC|PSAC|SLH)$/.test(filter));
+                const selectedTerm = this.selectedFilters.find(filter => /^(?:Fall|Winter|Spring|Summer)$/.test(filter));
 
                 if (selectedLevel) {
-                    queryParams.append('level', selectedLevel);
+                    queryParts.push(`level=${encodeURIComponent(selectedLevel)}`);
                 }
 
                 if (selectedStartTime) {
-                    queryParams.append('startTime', selectedStartTime);
+                    queryParts.push(`startTime=${encodeURIComponent(selectedStartTime)}`);
                 }
 
                 if (selectedFormat) {
-                queryParams.append('format', selectedFormat);
+                    queryParts.push(`format=${encodeURIComponent(selectedFormat)}`);
                 }
 
                 if (this.departmentSearch.trim() !== '') {
-                    queryParams.append('query', this.departmentSearch.trim());
+                    queryParts.push(`query=${encodeURIComponent(this.departmentSearch.trim())}`);
                 }
 
-                if (queryParams.toString()) {
-                    url += `?${queryParams.toString()}`;
+                if (selectedLocation) {
+                    queryParts.push(`location=${encodeURIComponent(selectedLocation)}`);
                 }
+
+                if (selectedTerm) {
+                    const currentYear = new Date().getFullYear();
+                    queryParts.push(`term=${encodeURIComponent(`${currentYear} ${selectedTerm}`)}`);
+                }
+
+                let url = queryParts.length > 0 ? `${baseUrl}?${queryParts.join('&')}` : baseUrl;
 
                 axios.get(url, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                     .then(response => {
