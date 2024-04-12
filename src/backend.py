@@ -878,7 +878,7 @@ def enroll_courses():
 
             for schedule_id in schedule_ids:
                 cursor.execute("""
-                    SELECT availableSeats
+                    SELECT availableSeats, courseCode
                     FROM tblcourseSchedule
                     WHERE scheduleID = %s
                     FOR UPDATE
@@ -887,10 +887,10 @@ def enroll_courses():
                 result = cursor.fetchone()
 
                 if result:
-                    availableSeats = result[0]
+                    availableSeats, course_code = result
 
                     if availableSeats <= 0:
-                        raise Exception(f"Course with scheduleID {schedule_id} has no available seats")
+                        raise Exception(f"Course {course_code} has no available seats")
 
                     cursor.execute("""
                         INSERT INTO tblUserSchedule (studentID, scheduleID)
