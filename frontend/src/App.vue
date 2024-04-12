@@ -1,11 +1,10 @@
 <template>
   <!-- Display the navbar and the router view on every page -->
   <NavBar :isLoggedIn="isLoggedIn" @logout="handleLogout"/>
-  <router-view @login-status-changed="updateLoginStatus" @show-toast="showToastMessage" />
+  <router-view @login-status-changed="updateLoginStatus" @show-toast="showToastMessage" @update-user-type="updateUserType" />
   <Footer></Footer>
   <Toast :showToast="showToast" :toastMessage="toastMessage" :toastColor="toastColor" />
-  <h1>{{this.userType}}</h1>
-
+  <h1>{{ userType }}</h1>
 </template>
 
 <script>
@@ -36,6 +35,12 @@
       if (storedLoginStatus) {
         this.isLoggedIn = JSON.parse(storedLoginStatus);
       }
+      
+      // Check local storage for user type on component mount
+      const storedUserType = localStorage.getItem('userType');
+      if (storedUserType) {
+        this.userType = storedUserType;
+      }
     },
 
     methods: {
@@ -50,6 +55,7 @@
           this.userType = '';
           // Clear the login status from local storage on logout
           localStorage.removeItem('isLoggedIn');
+          localStorage.removeItem('userType');
         },
 
         showToastMessage(payload){
@@ -59,7 +65,13 @@
                 setTimeout(() => {
                     this.showToast = false;
                 },5000);
-            }
+            },
+        
+        updateUserType(userType) {
+          this.userType = userType;
+          // Update local storage with the user type
+          localStorage.setItem('userType', userType);
+        }
     },
 
   }

@@ -124,16 +124,18 @@ def login():
         try:
             connection = connectToDB()
             cursor = connection.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM tblUser WHERE Email = %s", (email,))
+            cursor.execute("SELECT userID, Email, Passwd, role FROM tblUser WHERE Email = %s", (email,))
             user = cursor.fetchone()
             
             if user and bcrypt.check_password_hash(user['Passwd'], password):
                 session['email'] = email
                 
                 print("LOGIN SUCCESSFUL")
+
+                role = user['role']
                 
-                access_token = create_access_token(identity={"email": user['Email'], "userID": user['userID']})
-                return jsonify({"message": "Login successful", "access_token": access_token}), 200
+                access_token = create_access_token(identity={"email": user['Email'], "userID": user['userID'], "role": role})
+                return jsonify({"message": "Login successful", "access_token": access_token, "role": role}), 200
             else:
                 print("INVALID EMAIL OR PASSWORD")
                 return jsonify({"message": "Invalid email or password"}), 401
@@ -194,7 +196,7 @@ def signup():
             
             #insert into user table
             hashed_pw = bcrypt.generate_password_hash(pw).decode('utf-8')
-            cursor.execute("INSERT INTO tblUser (Fname, Lname, DOB, Email, Passwd) VALUES (%s, %s, %s, %s, %s)", (fname, lname, dob, email, hashed_pw))
+            cursor.execute("INSERT INTO tblUser (Fname, Lname, DOB, Email, Passwd, role) VALUES (%s, %s, %s, %s, %s, %s)", (fname, lname, dob, email, hashed_pw, userType))
             
             #retrieve the new userID
             cursor.execute("SELECT userID FROM tblUser WHERE Email = %s", (email,))
