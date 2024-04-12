@@ -328,7 +328,11 @@
                     }
                 } catch (error) {
                     console.error("Failed to add courses to schedule.", error);
-                    this.$emit("show-toast", { message: "Failed to add courses to schedule.", color: '#da5151' });
+                    let errorMessage = "Failed to add course to schedule."; //default message
+                    if (error.response && error.response.data && error.response.data.message) {
+                        errorMessage = error.response.data.message; //use  server's error message
+                    }
+                    this.$emit("show-toast", { message: errorMessage, color: '#da5151' });
                 }
                 this.dialog = false;
             }
