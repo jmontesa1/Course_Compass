@@ -351,18 +351,25 @@ def get_enrolled_courses():
             cs.Location AS location,
             cs.Instructor AS instructor,
             cs.Section,
-            c.Credits
-        FROM
+            c.Credits,
+            IFNULL(i.officeHours, 'N/A') AS officeHours,
+            IFNULL(i.officeLocation, 'N/A') AS officeLocation
+        FROM 
             tblUserSchedule us
         JOIN
             tblcourseSchedule cs ON us.scheduleID = cs.scheduleID
-        JOIN
+        JOIN 
             tblCourses c ON cs.courseID = c.courseID
-        WHERE
-            us.studentID = %s
-            AND cs.startDate <= CURDATE()
-            AND cs.endDate >= CURDATE();
-            );
+        LEFT JOIN 
+            tblInstructor i ON cs.instructorID = i.instructorID
+        WHERE 
+            us.studentID = %s AND cs.semesterID = (
+            SELECT semesterID
+            FROM tblSemesters
+            WHERE startDate < CURDATE()
+            ORDER BY startDate ASC
+            LIMIT 1
+        );
         """
         cursor.execute(query, (user.studentID,))
         result = cursor.fetchall()
@@ -377,8 +384,10 @@ def get_enrolled_courses():
                 'end': course[6],
                 'location': course[7],
                 'instructor': course[8],
-                'Credits': course[10],
                 'Section': course[9],
+                'Credits': course[10],
+                'officeHours': course[11],
+                'officeLocation': course[12]
             }
             for course in result
         ]
@@ -695,8 +704,13 @@ def get_career_progress():
                 ) g ON us.studentID = g.studentID
             WHERE
                 us.studentID = %s
-                AND cs.startDate <= CURDATE()
-                AND cs.endDate >= CURDATE()
+                AND cs.semesterID = (
+                    SELECT semesterID
+                    FROM tblSemesters
+                    WHERE startDate < CURDATE()
+                    ORDER BY startDate DESC
+                    LIMIT 1
+                )
             GROUP BY
                 cs.Term, g.cumulativeGPA;
             """
