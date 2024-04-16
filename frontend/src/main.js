@@ -9,13 +9,15 @@ import * as directives from 'vuetify/directives'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import '@mdi/font/css/materialdesignicons.css'
 import { VCalendar } from 'vuetify/labs/VCalendar'
-
+import { VSparkline } from 'vuetify/labs/VSparkline'
 
 const vuetify = createVuetify({
     components:{
       VCalendar,
+      VSparkline,
       ...components,
     },
+    
     directives,
     icons: {
         defaultSet: 'mdi',

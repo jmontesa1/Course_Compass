@@ -4,7 +4,7 @@
   <router-view @login-status-changed="updateLoginStatus" @show-toast="showToastMessage" @update-user-type="updateUserType" />
   <Footer></Footer>
   <Toast :showToast="showToast" :toastMessage="toastMessage" :toastColor="toastColor" />
-  <h1>{{ userType }}</h1>
+  <h1>User Type : {{ this.userType }}</h1>
 </template>
 
 <script>

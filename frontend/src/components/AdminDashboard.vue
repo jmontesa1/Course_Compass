@@ -19,7 +19,7 @@
                         <v-icon start>
                             <span class="material-icons" style="color:black">verified</span>
                         </v-icon>
-                        Approve Instructors
+                        Manage Instructors
                     </v-tab>
                     <v-tab value="analytics" @click="chooseAnalytics()">
                         <v-icon start>
@@ -228,124 +228,279 @@
                 </div>
 
                 <div class="instructors-page" v-if="this.instructors === true">
-                    <v-expansion-panels>
-                        <v-expansion-panel>
-                            <v-expansion-panel-title>
-                                    <v-row no-gutters>
-                                        <v-col class="d-flex justify-start" cols="4">
-                                        Pending Instructors ({{pendingInstructors.length}})
+                    <h3 class="admin-text">Manage Instructors</h3>
+                    <div class="instructors-container">
+                        <v-container class="panel-container">
+                        <v-expansion-panels>
+                            <v-expansion-panel>
+                                <v-expansion-panel-title>
+                                        <v-row no-gutters>
+                                            <v-col class="d-flex justify-start" cols="4">
+                                            Pending Instructors ({{pendingInstructors.length}})
+                                            </v-col>
+                                        </v-row>
+                                </v-expansion-panel-title>
+                                <v-expansion-panel-text>
+                                    <v-row no-gutters v-for="(instructor, index) in pendingInstructors" :key="index">
+                                        <v-col cols="10">
+                                            <p class="row-text">{{pendingInstructors[index].name}} - {{pendingInstructors[index].email}}</p>
                                         </v-col>
+                                        <v-col cols="1">
+                                            <v-dialog v-model="removeDialog[index]" max-width="500" style="font-family: Poppins;">
+                                                <template v-slot:activator="{ props: activatorProps }">
+                                                    <v-btn v-bind="activatorProps" icon="$close" variant="plain">
+                                                        <span class="material-symbols-outlined">
+                                                        block
+                                                        </span>
+                                                    </v-btn>
+                                                </template>
+                                                <!--Pop up -->
+                                                <v-card title="Are you sure you want to remove instructor:">
+                                                    <v-card-text>
+                                                        <br>
+                                                        <p>{{pendingInstructors[index].name}} - {{pendingInstructors[index].email}}</p>
+                                                    </v-card-text> 
+                                                    <v-card-actions>
+                                                        <v-spacer></v-spacer>
+                                                        <v-btn text="No" variant="plain" @click="removeDialog[index] = false"></v-btn>
+                                                        <v-btn color="primary" text="Yes" variant="tonal" @click="removePendingInstructor(index)"></v-btn>
+                                                    </v-card-actions>
+                                                </v-card>
+                                            </v-dialog>                                        
+
+                                        </v-col>
+                                        <v-col cols="1">
+                                            <v-dialog v-model="approveDialog[index]" max-width="500" style="font-family: Poppins;">
+                                                <template v-slot:activator="{ props: activatorProps }">
+                                                    <v-btn v-bind="activatorProps" icon="$close" variant="plain">
+                                                        <span class="material-symbols-outlined">
+                                                        check_circle
+                                                        </span>
+                                                    </v-btn>
+                                                </template>
+                                                <!--Pop up -->
+                                                <v-card title="Are you sure you want to approve instructor:">
+                                                    <v-card-text>
+                                                        <br>
+                                                        <p>{{pendingInstructors[index].name}} - {{pendingInstructors[index].email}}</p>
+                                                    </v-card-text> 
+                                                    <v-card-actions>
+                                                        <v-spacer></v-spacer>
+                                                        <v-btn text="No" variant="plain" @click="approveDialog[index] = false"></v-btn>
+                                                        <v-btn color="primary" text="Yes" variant="tonal" @click="approvePendingInstructor(index)"></v-btn>
+                                                    </v-card-actions>
+                                                </v-card>
+                                            </v-dialog>   
+
+                                        </v-col>
+                                        <v-divider class="instructor-divider"></v-divider>
                                     </v-row>
-                            </v-expansion-panel-title>
-                            <v-expansion-panel-text>
-                                <v-row no-gutters v-for="(instructor, index) in pendingInstructors" :key="index">
-                                    <v-col cols="10">
-                                        <p class="row-text">{{pendingInstructors[index].name}} - {{pendingInstructors[index].email}}</p>
-                                    </v-col>
-                                    <v-col cols="1">
-                                        <v-dialog v-model="removeDialog[index]" max-width="500" style="font-family: Poppins;">
-                                            <template v-slot:activator="{ props: activatorProps }">
-                                                <v-btn v-bind="activatorProps" icon="$close" variant="plain">
-                                                    <span class="material-symbols-outlined">
-                                                    block
-                                                    </span>
-                                                </v-btn>
-                                            </template>
-                                            <!--Pop up -->
-                                            <v-card title="Are you sure you want to remove instructor:">
-                                                <v-card-text>
-                                                    <br>
-                                                    <p>{{pendingInstructors[index].name}} - {{pendingInstructors[index].email}}</p>
-                                                </v-card-text> 
-                                                <v-card-actions>
-                                                    <v-spacer></v-spacer>
-                                                    <v-btn text="No" variant="plain" @click="removeDialog[index] = false"></v-btn>
-                                                    <v-btn color="primary" text="Yes" variant="tonal" @click="removePendingInstructor(index)"></v-btn>
-                                                </v-card-actions>
-                                            </v-card>
-                                        </v-dialog>                                        
-
-                                    </v-col>
-                                    <v-col cols="1">
-                                        <v-dialog v-model="approveDialog[index]" max-width="500" style="font-family: Poppins;">
-                                            <template v-slot:activator="{ props: activatorProps }">
-                                                <v-btn v-bind="activatorProps" icon="$close" variant="plain">
-                                                    <span class="material-symbols-outlined">
-                                                    check_circle
-                                                    </span>
-                                                </v-btn>
-                                            </template>
-                                            <!--Pop up -->
-                                            <v-card title="Are you sure you want to approve instructor:">
-                                                <v-card-text>
-                                                    <br>
-                                                    <p>{{pendingInstructors[index].name}} - {{pendingInstructors[index].email}}</p>
-                                                </v-card-text> 
-                                                <v-card-actions>
-                                                    <v-spacer></v-spacer>
-                                                    <v-btn text="No" variant="plain" @click="approveDialog[index] = false"></v-btn>
-                                                    <v-btn color="primary" text="Yes" variant="tonal" @click="approvePendingInstructor(index)"></v-btn>
-                                                </v-card-actions>
-                                            </v-card>
-                                        </v-dialog>   
-
-                                    </v-col>
-                                    <v-divider class="instructor-divider"></v-divider>
-                                </v-row>
-                            </v-expansion-panel-text>
-                        </v-expansion-panel>
-                        
-                        <v-expansion-panel>
-                            <v-expansion-panel-title>
-                                    <v-row no-gutters>
-                                        <v-col class="d-flex justify-start" cols="4">
-                                        Approved Instructors ({{approvedInstructors.length}})
+                                </v-expansion-panel-text>
+                            </v-expansion-panel>
+                            
+                            <v-expansion-panel>
+                                <v-expansion-panel-title>
+                                        <v-row no-gutters>
+                                            <v-col class="d-flex justify-start" cols="4">
+                                            Approved Instructors ({{approvedInstructors.length}})
+                                            </v-col>
+                                            <v-col class="text-grey" cols="8">
+                                            </v-col>
+                                        </v-row>
+                                </v-expansion-panel-title>
+                                <v-expansion-panel-text>
+                                    <v-row no-gutters v-for="(instructor, index) in approvedInstructors" :key="index">
+                                        <v-col cols="11">
+                                            <p class="row-text">{{approvedInstructors[index].name}} - {{approvedInstructors[index].email}}</p>
                                         </v-col>
-                                        <v-col class="text-grey" cols="8">
+                                        <v-col cols="1">
+                                            <v-dialog v-model="removeDialog[index]" max-width="500" style="font-family: Poppins;">
+                                                <template v-slot:activator="{ props: activatorProps }">
+                                                    <v-btn v-bind="activatorProps" icon="$close" variant="plain">
+                                                        <span class="material-symbols-outlined">
+                                                        block
+                                                        </span>
+                                                    </v-btn>
+                                                </template>
+                                                <!--Pop up -->
+                                                <v-card title="Are you sure you want to remove instructor:">
+                                                    <v-card-text>
+                                                        <br>
+                                                        <p>{{approvedInstructors[index].name}} - {{approvedInstructors[index].email}}</p>
+                                                    </v-card-text> 
+                                                    <v-card-actions>
+                                                        <v-spacer></v-spacer>
+                                                        <v-btn text="No" variant="plain" @click="removeDialog[index] = false"></v-btn>
+                                                        <v-btn color="primary" text="Yes" variant="tonal" @click="removeApprovedInstructor(index)"></v-btn>
+                                                    </v-card-actions>
+                                                </v-card>
+                                            </v-dialog> 
+
                                         </v-col>
+                                        <v-divider class="instructor-divider"></v-divider>
                                     </v-row>
-                            </v-expansion-panel-title>
-                            <v-expansion-panel-text>
-                                <v-row no-gutters v-for="(instructor, index) in approvedInstructors" :key="index">
-                                    <v-col cols="11">
-                                        <p class="row-text">{{approvedInstructors[index].name}} - {{approvedInstructors[index].email}}</p>
-                                    </v-col>
-                                    <v-col cols="1">
-                                        <v-dialog v-model="removeDialog[index]" max-width="500" style="font-family: Poppins;">
-                                            <template v-slot:activator="{ props: activatorProps }">
-                                                <v-btn v-bind="activatorProps" icon="$close" variant="plain">
-                                                    <span class="material-symbols-outlined">
-                                                    block
-                                                    </span>
-                                                </v-btn>
-                                            </template>
-                                            <!--Pop up -->
-                                            <v-card title="Are you sure you want to remove instructor:">
-                                                <v-card-text>
-                                                    <br>
-                                                    <p>{{approvedInstructors[index].name}} - {{approvedInstructors[index].email}}</p>
-                                                </v-card-text> 
-                                                <v-card-actions>
-                                                    <v-spacer></v-spacer>
-                                                    <v-btn text="No" variant="plain" @click="removeDialog[index] = false"></v-btn>
-                                                    <v-btn color="primary" text="Yes" variant="tonal" @click="removeApprovedInstructor(index)"></v-btn>
-                                                </v-card-actions>
-                                            </v-card>
-                                        </v-dialog> 
-
-                                    </v-col>
-                                    <v-divider class="instructor-divider"></v-divider>
-                                </v-row>
-                            </v-expansion-panel-text>
-                        </v-expansion-panel>
-                    </v-expansion-panels>
+                                </v-expansion-panel-text>
+                            </v-expansion-panel>
+                        </v-expansion-panels>
+                        </v-container>
+                    </div>
                 </div>
 
 
 
 
                 <div class="analytics-page" v-if="this.analytics === true">
+                    <h3 class="admin-text">Site Analytics</h3>
+                    <v-container>
+                        <v-row>
+                        <v-col cols="6">
+                            <v-card style="border: 1px solid black; height: 420px;">
+                            <v-card-title style="font-family:Poppins;">Registered Users</v-card-title>
+                            <br>
+                            <v-card-text>
+                                <v-sparkline
+                                    :auto-line-width="false"
+                                    :gradient="['navy']"
+                                    :line-width="'15'"
+                                    :smooth="2"
+                                    :model-value="[userAnalytics[0].count, userAnalytics[1].count, userAnalytics[2].count]"
+                                    :padding="'0'"
+                                    :type="'bar'"
+                                    auto-draw
+                                    style="font-family: Poppins;"
+                                >
+                                <template v-slot:label="item">
+                                    {{ item.value }}
+                                </template>
+                                </v-sparkline>
+                                <v-divider></v-divider>
+                                <v-row>
+                                    <v-col cols="4">
+                                        <p class="analytics-label" style="margin-left: 17px;">{{userAnalytics[0].label}}</p>
+                                    </v-col>
+                                    <v-col cols="4">
+                                        <p class="analytics-label">{{userAnalytics[1].label}}</p>
+                                    </v-col>
+                                    <v-col cols="4">
+                                        <p class="analytics-label" style="margin-right: 17px;">{{userAnalytics[2].label}}</p>
+                                    </v-col>
+                                </v-row>
+                            </v-card-text>
+                            </v-card>
+                        </v-col>
 
+                        <v-col cols="6">
+                            <v-card style="border: 1px solid black; height: 420px;">
+                                <v-card-title style="font-family:Poppins;">User Analytics</v-card-title>
+                                <v-card-text>
+                                    <v-row>
+                                        <p style="font-family:Poppins; margin-left:19px;">Average Users Per Day</p>
+                                        <v-col cols="12">
+                                            <v-sparkline
+                                                :auto-line-width="false"
+                                                :gradient="['pink']"
+                                                :line-width="'2'"
+                                                :smooth="0"
+                                                :model-value="[2, 5, 9, 5, 10, 3, 5]"
+                                                :padding="'5'"
+                                                :type="'trend'"
+                                                auto-draw
+                                                style="font-family: Poppins;"
+                                            >
+                                            <template v-slot:label="item">
+                                                {{ item.value }}
+                                            </template>
+                                            </v-sparkline>
+                                        </v-col>
+                                    </v-row>
+                                    <v-divider></v-divider>
+                                    <v-row>
+                                        <v-col cols="1.5">
+                                            <p style="font-family: Poppins; margin-left: 5px;">Sun</p>
+                                        </v-col>
+                                        <v-col cols="1.5">
+                                            <p style="font-family: Poppins; margin-left: 6px;">Mon</p>
+                                        </v-col>
+                                        <v-col cols="1.5">
+                                            <p style="font-family: Poppins;margin-left: 12px;">Tue</p>
+                                        </v-col>
+                                        <v-col cols="1.5">
+                                            <p style="font-family: Poppins;margin-left: 12px;">Wed</p>
+                                        </v-col>
+                                        <v-col cols="1.5">
+                                            <p style="font-family: Poppins;margin-left: 11px;">Thurs</p>
+                                        </v-col>
+                                        <v-col cols="1.5">
+                                            <p style="font-family: Poppins;margin-left: 22px;">Fri</p>
+                                        </v-col>
+                                        <v-col cols="1">
+                                            <p style="font-family: Poppins;margin-left: 15px;">Sat</p>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12">
+                                            <p style="font-family: Poppins;">Currently Active Users: 0</p>
+                                        </v-col>
+                                    </v-row>
+
+                                </v-card-text>
+                                </v-card>                            
+                            </v-col>
+                        </v-row>
+
+                        <v-row>
+                            <v-col cols="12">
+                            <v-card style="border: 1px solid black;">
+                                <v-card-title style="font-family:Poppins;">Stored Data</v-card-title>
+                                <v-card-text>
+                                    <v-row>
+                                        <v-col cols="12">
+                                            <v-sparkline
+                                                :auto-line-width="false"
+                                                :gradient="['black']"
+                                                :line-width="'2'"
+                                                :smooth="0"
+                                                :model-value="[2, 5, 9, 5, 10, 3, 5]"
+                                                :padding="'5'"
+                                                :type="'bar'"
+                                                auto-draw
+                                                style="font-family: Poppins;"
+                                            >
+                                            <template v-slot:label="item">
+                                                {{ item.value }}
+                                            </template>
+                                            </v-sparkline>
+                                        </v-col>
+                                    </v-row>
+                                    <v-divider></v-divider>
+                                    <v-row>
+                                        <v-col cols="1.5">
+                                            <p style="font-family: Poppins; margin-left: 5px;">Courses</p>
+                                        </v-col>
+                                        <v-col cols="1.5">
+                                            <p style="font-family: Poppins; margin-left: 6px;">Majors</p>
+                                        </v-col>
+                                        <v-col cols="1.5">
+                                            <p style="font-family: Poppins;margin-left: 12px;">Student Reviews</p>
+                                        </v-col>
+                                        <v-col cols="1.5">
+                                            <p style="font-family: Poppins;margin-left: 12px;">Schedules</p>
+                                        </v-col>
+                                        <v-col cols="1.5">
+                                            <p style="font-family: Poppins;margin-left: 11px;">Thurs</p>
+                                        </v-col>
+                                        <v-col cols="1.5">
+                                            <p style="font-family: Poppins;margin-left: 22px;">Fri</p>
+                                        </v-col>
+                                        <v-col cols="1">
+                                            <p style="font-family: Poppins;margin-left: 15px;">Sat</p>
+                                        </v-col>
+                                    </v-row>
+                                </v-card-text>
+                                </v-card>                            
+                            </v-col>
+                        </v-row>
+                    </v-container>
                 </div>
 
             </v-col>
@@ -399,6 +554,12 @@
                 emailTo: '',
                 emailContent: '',
                 emailSent: [],
+
+                userAnalytics:[
+                    {label: 'Students', count: 25}, 
+                    {label: 'Instructors', count: 10}, 
+                    {label: 'Admins', count: 3}, 
+                ],
             };
         },
 
@@ -529,6 +690,7 @@
     }
 
     .admin-text{
+        font-family: Poppins;
         position: relative;
         top: 12px;
         margin-left: 10px;
@@ -573,6 +735,23 @@
         font-family: Poppins;
     }
 
+    .instructors-container{
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 96%;
+        margin: 0 auto;
+    }
+
+    .panel-container{
+        min-height: 500px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+        border: 1px solid black;
+    }
     .instructor-divider{
         width: 90%;
     }
@@ -580,5 +759,11 @@
     .v-date-picker{
         margin-top: -29px;
         margin-bottom: -38px;
+    }
+
+    .analytics-label{
+        display: flex;
+        justify-content: center;
+        font-family: Poppins;
     }
 </style>
