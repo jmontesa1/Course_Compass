@@ -621,7 +621,7 @@
                                         'top': `0`,
                                         'z-index': '1',
                                     },
-                                    events: [event] // Store the event details in an array for easy access
+                                    events: [event]
                                 });
                             }
                         });
