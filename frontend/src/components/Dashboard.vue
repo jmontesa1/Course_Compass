@@ -7,7 +7,7 @@
     <div class="top-container">
         <v-row v-if="user && user.firstname">
             <h1 class="welcome-text">
-                Welcome, {{ user.firstname }}
+                &nbsp;Welcome, {{ user.firstname }}
             </h1>
         </v-row>
     </div>
