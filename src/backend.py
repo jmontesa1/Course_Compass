@@ -630,18 +630,36 @@ def editProfile():
             connection.close()
     
     
-@app.route('/changepassword', methods=['GET'])
+@app.route('/changepassword', methods=['POST'])
 @jwt_required()
 def changePassword():
-    identity = get_jwt_identity()
-    current_user_email = identity['email']
-    print(f"Extracted email: {current_user_email}")
-    user = User.get_user_by_email(current_user_email)
-    if user:
-        print("STILL LOGGED IN MY ACCOUNT")
-        return jsonify(user.conv_to_json()), 200
-    else:
-        return jsonify({"message": "User not found"}), 404
+    try:
+        user_identity = get_jwt_identity()
+        email = user_identity['email']
+        new_password = request.json.get('newPassword')
+
+        if not new_password:
+            return jsonify({"message": "New password is required"}), 400
+        
+        connection = connectToDB();
+        cursor = connection.cursor(dictionary=True)
+        hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
+        update_query = "UPDATE tblUser SET Passwd = %s WHERE Email = %s"
+        cursor.execute(update_query, (hashed_password, email))
+        connection.commit()
+
+        if cursor.rowcount == 0:
+            return jsonify({"message": "User not found"}), 404
+
+        return jsonify({"message": "Password updated successfully"}), 200
+    except Error as e:
+        print(e)
+        return jsonify({"message": "Database connection error"}), 500
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'connection' in locals():
+            connection.close()
 
 
 #retrieve courses with completion status

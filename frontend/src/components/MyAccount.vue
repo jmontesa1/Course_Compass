@@ -129,9 +129,6 @@
             navigateToChangePassword() {
                 this.$router.push('/changepassword');
             },
-            navigateToChangePassword() {
-                this.$router.push('/changepassword');
-            }
         }
     }
 </script>
