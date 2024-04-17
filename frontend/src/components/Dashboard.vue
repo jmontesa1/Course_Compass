@@ -7,9 +7,6 @@
     <div class="top-container">
         <v-row v-if="user && user.firstname">
             <h1 class="welcome-text">
-                <v-avatar size="37" >
-                    <v-img :src="user.avatar" alt="User profile picture"></v-img>
-                </v-avatar>
                 Welcome, {{ user.firstname }}
             </h1>
         </v-row>
@@ -24,12 +21,12 @@
 
                     <v-container class="class-block">
                         <v-row class="class-rows" no-gutters v-for="(course, index) in retrieveSchedule" :key="index">
-                            <v-col class="class-block-left" cols="2">
+                            <v-col class="class-block-left2" cols="2" :class="{'class-block-left': index === 0}">
                                 <v-sheet class="pa-2 ma-2">
                                     {{ course.course }}
                                 </v-sheet>
                             </v-col>
-                            <v-col class="class-block-right">
+                            <v-col class="class-block-right2" :class="{'class-block-right': index === 0}">
                                 <v-sheet class="pa-2 ma-2">
                                     {{ course.time }} - {{ course.location }}
                                 </v-sheet>
@@ -41,12 +38,12 @@
                     <p>Classes Tomorrow:</p>
                         <v-container class="class-block">
                             <v-row class="class-rows" no-gutters v-for="(course, index) in retrieveScheduleTomorrow" :key="index">
-                                <v-col class="class-block-left" cols="2">
+                                <v-col class="class-block-left2" cols="2" :class="{'class-block-left': index === 0}">
                                     <v-sheet class="pa-2 ma-2">
                                         {{ course.course }}
                                     </v-sheet>
                                 </v-col>
-                                <v-col class="class-block-right">
+                                <v-col class="class-block-right2" :class="{'class-block-right': index === 0}">
                                     <v-sheet class="pa-2 ma-2">
                                         {{ course.time }} - {{ course.location }}
                                     </v-sheet>
@@ -363,17 +360,28 @@
         border-bottom: 1px solid black;
     }
 
+    .class-block-left2{
+        border-right: 1px solid black;
+        border-bottom: 1px solid black;
+    }
+
     .class-block-right{
+        border-top: 1px solid black;
+        position: relative;
+        top: 1px;
+    }
+
+    .class-block-right2{
+        margin-top: -1px;
         border-top: 1px solid black;
     }
     
     .welcome-text{
         font-family: coolvetica;
         position: relative;
-        margin-top: 14px;
-        margin-bottom: 10px;
+        margin-top: 16px;
         font-size: 32px;
-        left:1.5%;
+        left:1%;
     }
 
     .top-container{
