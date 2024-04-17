@@ -11,6 +11,7 @@ import Dashboard from '../views/DashboardView.vue'
 import ChangePassword from '../views/ChangePasswordView.vue'
 import AdminDashboard from '../views/AdminDashboardView.vue'
 import InstructorDashboard from '../views/InstructorDashboardView.vue'
+import RegistrationConfirm from '../views/RegistrationConfirmView.vue'
 
 const routes = [
   {
@@ -72,7 +73,12 @@ const routes = [
     path: '/instructor-dashboard',
     name: 'instructordashboard',
     component: InstructorDashboard,
-  }
+  },
+  {
+    path: '/registration-confirm',
+    name: 'registration-confirm',
+    component: RegistrationConfirm,
+  },
 ]
 
 const router = createRouter({
