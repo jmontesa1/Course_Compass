@@ -806,7 +806,7 @@ def search_departments():
         cursor = connection.cursor(dictionary=True)
         try:
             query = """
-            SELECT DISTINCT 
+            SELECT DISTINCT
                 scheduleID,
                 courseName,
                 courseCode,
@@ -824,13 +824,10 @@ def search_departments():
                 availableSeats
             FROM (
                 SELECT *,
-                    ROW_NUMBER() OVER(PARTITION BY courseName ORDER BY courseCode) AS rn,
-                    CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED) AS numericCourseLevel
+                    ROW_NUMBER() OVER(PARTITION BY courseCode ORDER BY scheduleID) AS rn  -- Adjusted for unique course codes
                 FROM vwCourseDetails
-                WHERE 1=1
             ) AS courses
-            WHERE 1=1
-            """
+            WHERE rn = 1"""
             
             params = []
             filters_applied = False
