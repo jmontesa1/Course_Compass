@@ -2,8 +2,28 @@
 <!-- This is the Account page for Course Compass -->
 
 <template>
+    <head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spinkit/1.2.5/spinkit.min.css">
+    </head>
     <div class="settings-container">
-        <div class="container-fluid mt-3">
+        <div class="loading-container" v-if="loading">
+            <!-- loading anim -->
+            <div class="sk-circle">
+                <div class="sk-circle1 sk-child"></div>
+                <div class="sk-circle2 sk-child"></div>
+                <div class="sk-circle3 sk-child"></div>
+                <div class="sk-circle4 sk-child"></div>
+                <div class="sk-circle5 sk-child"></div>
+                <div class="sk-circle6 sk-child"></div>
+                <div class="sk-circle7 sk-child"></div>
+                <div class="sk-circle8 sk-child"></div>
+                <div class="sk-circle9 sk-child"></div>
+                <div class="sk-circle10 sk-child"></div>
+                <div class="sk-circle11 sk-child"></div>
+                <div class="sk-circle12 sk-child"></div>
+            </div>
+        </div>
+        <div class="container-fluid mt-3" v-else>
             <div class="row">
                 <!--LEFT SIDE OF PAGE-->
                 <div class="col-md-1 d-flex flex-column">
@@ -81,6 +101,7 @@
                 dialog: false,
                 majorOptions: [],
                 error: null,
+                loading: false,
             };
         },
         watch: {
@@ -97,6 +118,7 @@
         },
         methods: {
             fetchUserInfo() {
+                this.loading = true;
                 axios.get('http://127.0.0.1:5000/myaccount', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                 .then(response => {
                     this.user.firstname = response.data.Fname;
@@ -105,9 +127,11 @@
                     this.user.dob = response.data.DOB;
                     this.user.major = response.data.majorName;
                     console.log('My Account page loaded successfully', response.data);
+                    this.loading = false;
                 })
                 .catch(error => {
                     console.error("Error loading My Account page", error);
+                    this.loading = false;
                 });        
             },
             updateProfile() {
@@ -186,5 +210,11 @@
     button:hover {
         background-color: #555555;
     }
-
+    .loading-container {
+        background-color: #e1e1e1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 343px;
+    }
 </style>
