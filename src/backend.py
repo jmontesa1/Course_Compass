@@ -637,20 +637,21 @@ def changePassword():
         user_identity = get_jwt_identity()
         email = user_identity['email']
         new_password = request.json.get('newPassword')
-
         if not new_password:
             return jsonify({"message": "New password is required"}), 400
-        
         connection = connectToDB();
         cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT Passwd FROM tblUser WHERE Email = %s", (email,))
+        user_data = cursor.fetchone()
+        curr_hashed_pw = user_data['Passwd']
+        if bcrypt.check_password_hash(curr_hashed_pw, new_password):
+            return jsonify({"message": "New password cannot match old"}), 400
         hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
         update_query = "UPDATE tblUser SET Passwd = %s WHERE Email = %s"
         cursor.execute(update_query, (hashed_password, email))
         connection.commit()
-
         if cursor.rowcount == 0:
             return jsonify({"message": "User not found"}), 404
-
         return jsonify({"message": "Password updated successfully"}), 200
     except Error as e:
         print(e)
