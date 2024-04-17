@@ -583,18 +583,51 @@ def myAccount():
         return jsonify({"message": "User not found"}), 404
     
     
-@app.route('/editprofile', methods=['GET'])
+@app.route('/editprofile', methods=['POST'])
 @jwt_required()
 def editProfile():
     identity = get_jwt_identity()
     current_user_email = identity['email']
     print(f"Extracted email: {current_user_email}")
-    user = User.get_user_by_email(current_user_email)
-    if user:
-        print("STILL LOGGED IN MY ACCOUNT")
-        return jsonify(user.conv_to_json()), 200
-    else:
-        return jsonify({"message": "User not found"}), 404
+    data = request.get_json()
+    if not current_user_email:
+        print("AUTH REQUIRED")
+        return jsonify({"message": "Authentication required"}), 401
+    try:
+        user = User.get_user_by_email(current_user_email)
+        if not user:
+            return jsonify({"message": "User not found"}), 404
+
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary=True)
+
+        updates = []
+        params = []
+        if 'firstname' in data:
+            updates.append("Fname = %s")
+            params.append(data['firstname'])
+        if 'lastname' in data:
+            updates.append("Lname = %s")
+            params.append(data['lastname'])
+        if 'major' in data:
+            updates.append("majorName = %s")
+            params.append(data['major'])
+        
+        if updates:
+            query = f"UPDATE tblUser SET {', '.join(updates)} WHERE Email = %s"
+            params.append(current_user_email)
+            cursor.execute(query, params)
+            connection.commit()
+
+        return jsonify({"message": "Profile updated successfully"}), 200
+    except Error as err:
+        print("Error updating profile:", err)
+        return jsonify({"message": "An error occurred"}), 500
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'connection' in locals():
+            connection.close()
     
     
 @app.route('/changepassword', methods=['GET'])

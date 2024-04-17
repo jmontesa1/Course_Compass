@@ -9,12 +9,9 @@
                 <div class="col-md-1 d-flex flex-column">
                     <img class="gear" src="../assets/gear.png" alt="Settings Icon">
                 </div>
-
-
                 <!--RIGHT SIDE OF PAGE-->
                 <div class="col d-flex flex-column">
                     <h2>My Account</h2>
-
                     <div>
                         <br>
                         <br>
@@ -23,7 +20,6 @@
                         <p><strong>Email:</strong> {{ user.email }}</p>
                         <p><strong>Birthdate:</strong> {{ user.dob }}</p>
                         <p><strong>Major:</strong> {{ user.major }}</p>
-
                         <v-dialog v-model="dialog" max-width="500" style="font-family: Poppins;">
                             <template v-slot:activator="{ props: activatorProps }">
                                 <btn class="account-button" v-bind="activatorProps">Edit Profile</btn>
@@ -32,23 +28,16 @@
                             <v-card title="Edit Profile Information">
                                 <v-card-text>
                                     <v-form>
-                                        <v-text-field v-model="firstName" label="First Name"></v-text-field>
-                                        <v-text-field v-model="lastName" label="Last Name"></v-text-field>
-                                        <v-text-field v-model="email" label="Email"></v-text-field>
-                                        <!--<v-menu offset-y>
-                                            <template v-slot:activator="{ on, attrs }">
-                                                <v-text-field v-model="birthdate" label="Birthdate" v-bind="attrs" v-on="on" readonly></v-text-field>
-                                            </template>
-                                            <v-date-picker v-model="birthdate" @input="$refs.menu.save(birthdate)"></v-date-picker>
-                                        </v-menu>-->
-                                        <v-select v-model="major" :items="majorOptions" label="Major"></v-select>
+                                        <v-text-field v-model="editData.firstName" label="First Name"></v-text-field>
+                                        <v-text-field v-model="editData.lastName" label="Last Name"></v-text-field>
+                                        <v-select v-model="editData.major" :items="majorOptions" label="Major"></v-select>
                                     </v-form>
                                 </v-card-text>
                                 <v-card-actions>
 
                                     <v-spacer></v-spacer>
                                     <v-btn text="Cancel" variant="plain" @click="dialog = false"></v-btn>
-                                    <v-btn color="primary" text="Confirm Changes" variant="tonal"></v-btn>
+                                    <v-btn color="primary" text="Confirm Changes" variant="tonal" @click="updateProfile"></v-btn>
                                 </v-card-actions>
                             </v-card>
                         </v-dialog>
@@ -84,9 +73,24 @@
                     major: '',
                     profilePicture: require('../assets/profile-picture.jpg'),
                 },
+                editData: {
+                    firstName: '',
+                    lastName: '',
+                    major: '',
+                },
                 dialog: false,
+                majorOptions: [],
                 error: null,
             };
+        },
+        watch: {
+            dialog(newVal) {
+                if (newVal) {
+                    this.editData.firstName = this.user.firstname;
+                    this.editData.lastName = this.user.lastname;
+                    this.editData.major = this.major;
+                }
+            }
         },
         created() {
             this.fetchUserInfo();
@@ -105,6 +109,25 @@
                 .catch(error => {
                     console.error("Error loading My Account page", error);
                 });        
+            },
+            updateProfile() {
+                const updatedInfo = {
+                    firstname: this.editData.firstName,
+                    lastname: this.editData.lastName,
+                    major: this.editData.major,
+                };
+                axios.post('http://127.0.0.1:5000/editprofile', updatedInfo, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
+                .then(response => {
+                    this.fetchUserInfo();  // Refresh the displayed user data
+                    this.dialog = false;   // Close the dialog
+                    console.log('Profile updated successfully');
+                })
+                .catch(error => {
+                    console.error("Error updating profile", error);
+                });
+            },
+            navigateToChangePassword() {
+                this.$router.push('/changepassword');
             },
             navigateToChangePassword() {
                 this.$router.push('/changepassword');

@@ -14,7 +14,7 @@
 -->
         <div class="home-container">
             <div class="text1-container">
-                <h1 class="hero">Remove the clutter of your college experience.<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Use Course Compass. </h1>
+                <h1 class="hero"><br>Remove the clutter of your college experience.<br>Use Course Compass. </h1>
             </div>
             <div class="text2-container">
                 <p>Refine, enhance, and restructure your college experience with
