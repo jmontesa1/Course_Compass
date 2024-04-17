@@ -171,7 +171,7 @@
         background-color: #e1e1e1;
         margin: 3% auto;
         padding: 20px;
-        width: 80%;
+        width: 50%;
         height: auto;
         border-radius: 8px;
         box-shadow: 0 0 px rgba(232, 0, 0, 0.1);
