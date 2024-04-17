@@ -70,6 +70,10 @@
                     if (response.status === 200) {
                         localStorage.setItem('access_token', response.data.access_token);
                         this.$emit("show-toast", { message: "Login successful. Welcome back!", color: '#51da6e' });
+
+                        const userType = response.data.role;
+                        this.$emit('update-user-type', userType);
+
                         setTimeout(() => {
                             this.$router.push('/dashboard');
                             this.$emit('login-status-changed', true);                        
