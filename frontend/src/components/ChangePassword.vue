@@ -74,7 +74,7 @@ export default {
                 })
                 .catch(error => {
                     console.error("Failed to change password:", error);
-                    alert("Failed to change password.");
+                    alert("New password cannot match old password.");
                 });
         }
     }
