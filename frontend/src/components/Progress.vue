@@ -37,7 +37,7 @@
                         <h1>Progress</h1>
                         <div class="container-fluid mt-3">
                             <div class="row">
-                                <div class="col-md d-flex flex-column" style="border-right: 1px solid black;">
+                                <div class="col-md-4 d-flex flex-column" style="border-right: 1px solid black;">
                                     <h2>Career</h2>
                                     <p>
                                     <strong>Major: </strong>
@@ -51,18 +51,24 @@
                                     <span v-else> </span>
                                     </p>
                                     <p><strong>Current GPA:</strong> {{ currentGPA }}</p>
-                                    <p><strong>Current Credits:</strong> {{ currentCredits }}</p>
+                                    <p><strong>Currently Enrolled Credits:</strong> {{ currentCredits }}</p>
                                     <p>
                                     <strong>Dean's List?: </strong> 
-                                    <span v-if="dataLoaded">   {{ isOnDeansList }}</span>
+                                    <span v-if="dataLoaded">{{ isOnDeansList }}</span>
                                     <span v-else> </span>
                                     </p>
                                     <p><strong>Academic Standing:</strong> Good Standing</p>
                                     <p><strong>Credits Completed:</strong> {{ unitsCompleted }}/{{ major.units }}</p>
-                                    <v-btn class="save-changes-btn" color="success" @click="confirmationDialog = true" size="small">Save Progress</v-btn>
+                                    <br>
+                                    <v-btn class="save-changes-btn" @click="confirmationDialog = true" size="small">Save Progress</v-btn>
                                 </div>
-                                <div class="col-md-6 d-flex flex-column">
+                                
+                                <div class="col-md-8 d-flex flex-column">
                                     <h2>Courses</h2>
+                                    <div class="input-group mb-3">
+                                        <!--<span class="input-group-text" id="course-search">Search</span>-->
+                                        <input type="text" class="form-control" v-model="courseSearch" placeholder="Enter Course Name">
+                                    </div>
                                     <div class="scroll"> 
                                         <div v-for="(course, index) in major.courses" :key="index">
                                             <div class="course-container">
@@ -73,8 +79,36 @@
                                                             <label>{{ course.name }}</label>
                                                         </v-expansion-panel-title>
                                                         <v-expansion-panel-text>
-                                                            <p>Credits: {{ course.credits }}</p>
+                                                            <label>Credits: {{ course.credits }}</label>
+                                                            <br>
+                                                            <v-row>
+                                                                <v-col cols="auto">
+                                                                    <label style="position:relative;top:16px;">Grade:</label>
+                                                                </v-col>
+                                                                <v-col cols="4">
+                                                                    <v-select
+                                                                        class="grade-select"
+                                                                        clearable
+                                                                        density="compact"
+                                                                        label="Select your course grade"
+                                                                        :items="grades.map(item => item.grade)"
+                                                                        v-model="courseGrade[index]"
+                                                                    ></v-select>
+                                                                </v-col>
+                                                            </v-row>
                                                             <div>
+                                                                <label style="position:relative;top:-19px;">Your Rating:</label>
+                                                                    <v-rating
+                                                                    v-model="course.studentRating"
+                                                                    :length="5"
+                                                                    color="yellow darken-3"
+                                                                    background-color="grey lighten-1"
+                                                                    empty-icon="$ratingEmpty"
+                                                                    hover
+                                                                    @input="course.changed = true"
+                                                                    ></v-rating>
+                                                                <br>
+
                                                                 <label>Tags:</label>
                                                                 <div class="tag-container">
                                                                     <span
@@ -86,20 +120,12 @@
                                                                     >
                                                                         {{ tag.name }}
                                                                     </span>
-                                                                    <label>Your Rating:</label>
-                                                                        <v-rating
-                                                                        v-model="course.studentRating"
-                                                                        :length="5"
-                                                                        color="yellow darken-3"
-                                                                        background-color="grey lighten-1"
-                                                                        empty-icon="$ratingEmpty"
-                                                                        hover
-                                                                        @input="course.changed = true"
-                                                                        ></v-rating>
+
                                                                 </div>
+
                                                             </div>
                                                             <br>
-                                                            <p v-if="course.review">Your Review: {{ course.review }}</p>
+                                                            <!--<p v-if="course.review">Your Review: {{ course.review }}</p>-->
                                                             <v-textarea
                                                             v-model="course.review"
                                                             label="Your Thoughts"
@@ -268,6 +294,7 @@
                 currentTerm: '',
                 currentCredits: 0,
                 currentGPA: 0,
+                courseGrade: [],
 
                 unitsCompleted: 0,
                 user: {
@@ -549,13 +576,17 @@
     }
 
     .gpa-calculator{
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 96%;
+        margin: 0 auto;
         font-family: Poppins;
         border-radius: 8px;
         min-height: 400px;
         background-color:#e2e2e25d;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        margin-left: 35px;
-        margin-right: 5px;
     }
 
     .gpa-text{
@@ -564,13 +595,17 @@
     }
 
     .grade-calculator{
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 96%;
+        margin: 0 auto;
         font-family: Poppins;
         border-radius: 8px;
         min-height: 250px;
         background-color:#e2e2e234;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        margin-left: 35px;
-        margin-right: 5px;
     }
 
     h2 {
@@ -610,7 +645,7 @@
 
     .progress-bar {
         height: 100%;
-        background: #54ff59;
+        background: #51da6e;
         position: relative;
         transition: width 0.3s ease;
         border-radius: 10px;
@@ -641,10 +676,6 @@
         font-family: 'Poppins';
         display: flex;
         align-items: center;
-        align-items: center;
-        display: flex;
-        align-items: center;
-        display: flex;
         margin-bottom: 8px;
     }
 
@@ -667,8 +698,11 @@
     }
 
     .save-changes-btn{
+        font-size: 13px;
         font-family: Poppins;
-        max-width: 20%;
+        max-width: 30%;
+        background-color: #51da6e;
+        margin-left: auto;
     }
 
     .tag-container {
@@ -696,5 +730,22 @@
         background-color: #e0e0e0;
         color: #a0a0a0;
         cursor: not-allowed;
+    }
+
+    .grade-select{
+        margin-top: 6px;
+        margin-bottom: -19px;
+    }
+
+    .input-group-text{
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        height: 35px;
+    }
+
+    .form-control{
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        margin-bottom: 5px;
     }
 </style>

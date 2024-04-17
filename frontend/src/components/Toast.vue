@@ -88,6 +88,7 @@
         justify-content: center;
         align-items: center;
         height: auto;
+        font-family: Poppins;
     }
 
     .progress-bar {

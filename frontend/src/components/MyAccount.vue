@@ -66,13 +66,13 @@
                     </div>
                 </div>
 
-                <div class="col-md-2 d-flex flex-column">
+                <!--<div class="col-md-2 d-flex flex-column">
                     <br>
                     <br>
                     <img class="profile-picture" :src="user.profilePicture" alt="Profile Picture">
                     <p style="text-align:center;"><i>Profile Picture</i></p>
                     <br>
-                </div>
+                </div>-->
 
             </div>
         </div>

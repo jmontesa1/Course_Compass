@@ -332,8 +332,6 @@
                 scheduleOptions: ['Weekdays', 'Weekdays and Weekends'],
                 userSchedules: [
                     {option: 'Class Schedule', title: 'Class Schedule', weeklyEvents:[]},
-                    {option: 'Weekdays', title: 'TestDays', weeklyEvents:[{description:'Johns Lab', color: 'pink', start: '8:00 AM', end: '9:30 PM', daysOfWeek:{Monday:true, Tuesday:true, Friday:true}}]},
-                    {option: 'Weekdays and Weekends', title: 'TestEnds', weeklyEvents:[]},
                 ],
                 schedule: [],
                 scheduleColors: ['aliceblue', 'beige', 'darkgrey', 'darksalmon', 'honeydew', 'lightblue', 'darkseagreen','plum', 'springgreen', 'lightyellow','pink'],

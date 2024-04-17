@@ -198,7 +198,7 @@
     }
 
     .navbar-brand img {
-        max-width: 85px;
+        max-width: 74px;
         height: auto;
         margin: -8px auto;
     }
@@ -214,9 +214,6 @@
     .nav-link:hover {
         color: #ffffff;
         background-color: #000000;
-        margin-top: -5px;
-        margin-bottom: -5px;
-
     }
 
     .dropdown-menu {
