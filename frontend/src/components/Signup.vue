@@ -163,7 +163,7 @@
                             localStorage.setItem('access_token', response.data.access_token);
                             this.$emit("show-toast", { message: "Welcome to Course Compass!", color: '#51da6e' });
 
-                            this.$emit('update-user-type', this.selectedRole);
+                            //this.$emit('update-user-type', this.selectedRole);
                             
                             setTimeout(() => {
                                 //this.$router.push('/dashboard');

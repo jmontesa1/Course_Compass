@@ -72,12 +72,26 @@
                         this.$emit("show-toast", { message: "Login successful. Welcome back!", color: '#51da6e' });
 
                         const userType = response.data.role;
+                        console.log('User type:', userType);
+
                         this.$emit('update-user-type', userType);
 
-                        setTimeout(() => {
-                            this.$router.push('/dashboard');
-                            this.$emit('login-status-changed', true);                        
-                        }, 2500);
+                        switch(userType) {
+                            case 'Student':
+                                this.$router.push('/dashboard');
+                                break;
+                            case 'Instructor':
+                                this.$router.push('/instructor-dashboard');
+                                break;
+                            case 'Admin':
+                                this.$router.push('/admin-dashboard');
+                                break;
+                            default:
+                                this.$router.push('/');
+                        }
+
+                        this.$emit('login-status-changed', true);
+
                     } else{
                         console.error("Unexpected response during login: ", response);
                         this.$emit("show-toast",{ message: "An error occurred during login. Please try again."});

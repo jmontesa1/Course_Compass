@@ -31,7 +31,7 @@
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <!-- right-aligned menu items -->
                         <li class="nav-item" @click="dashboardRefresh">
-                            <a class="nav-link" style="cursor:pointer;">Dashboard</a>
+                            <a class="nav-link" style="cursor:pointer;">{{this.userType}} Dashboard</a>
                         </li>
                         <li class="nav-item">
                             <router-link to="/courses" class = "nav-link">Courses</router-link>
@@ -39,7 +39,7 @@
                         <li class="nav-item">
                             <router-link to="/schedule" class = "nav-link">Schedule</router-link>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item" v-if="this.userType === 'Student'">
                             <router-link to="/progress" class = "nav-link">Progress</router-link>
                         </li>
                         <li class="nav-item">
@@ -94,11 +94,16 @@
     import axios from 'axios';
 
     export default{
+
         props:{
             isLoggedIn: {
                 type: Boolean,
                 required: true, //login
             },
+            userType:{
+                type: String,
+                required: '',
+            }
         },
         data(){
             return{
@@ -107,14 +112,14 @@
             };
         },
 
-        computed:{
-            /* upcomingNotification(){
+        /*computed:{
+             upcomingNotification(){
                 //this.currentDate = new Date('2024-03-03'); //USE THIS AS A TEST CASE TO CHECK DIFFERENT DAYS, THIS SHOWS IT WORKS WHEN A DAY PASSES FOR A NOTIF
                 this.currentDate = new Date(); //get current day
                 const upcomingNotifications = this.notifications.filter(notification => new Date(notification.date) > this.currentDate).sort((a, b) => new Date(a.date) - new Date(b.date));
                 return upcomingNotifications.length > 0 ? upcomingNotifications[0] : null;
-            }, */
-        },
+            }, 
+        },*/
 
         created() {
             this.fetchNotifications();
@@ -137,11 +142,24 @@
 
 
             dashboardRefresh() {
-                if (this.$route.path === '/dashboard') {
+                if (this.$route.path === '/dashboard' && this.userType === 'Student') {
                     this.$router.go();
-                } else {
+                } else if(this.userType === 'Student'){
                     this.$router.push('/dashboard');
                 }
+
+                if (this.$route.path === '/instructor-dashboard' && this.userType === 'Instructor') {
+                    this.$router.go();
+                } else if(this.userType === 'Instructor'){
+                    this.$router.push('/instructor-dashboard');
+                }
+
+                if (this.$route.path === '/admin-dashboard' && this.userType === 'Admin') {
+                    this.$router.go();
+                } else if(this.userType === 'Admin'){
+                    this.$router.push('/admin-dashboard');
+                }
+
             },
 
             dismissBanner(){

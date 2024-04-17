@@ -1,10 +1,9 @@
 <template>
   <!-- Display the navbar and the router view on every page -->
-  <NavBar :isLoggedIn="isLoggedIn" @logout="handleLogout"/>
-  <router-view @login-status-changed="updateLoginStatus" @show-toast="showToastMessage" @update-user-type="updateUserType" />
+  <NavBar :userType="userType" :isLoggedIn="isLoggedIn" @logout="handleLogout" />
+  <router-view @login-status-changed="updateLoginStatus" @show-toast="showToastMessage" @update-user-type="updateUserType"/>
   <Footer></Footer>
   <Toast :showToast="showToast" :toastMessage="toastMessage" :toastColor="toastColor" />
-  <h1>User Type : {{ this.userType }}</h1>
 </template>
 
 <script>
@@ -29,6 +28,7 @@
             toastColor: '#da4d4d',
         };
     },
+
     mounted() {
       // Check local storage for login status on component mount
       const storedLoginStatus = localStorage.getItem('isLoggedIn');
@@ -40,6 +40,7 @@
       const storedUserType = localStorage.getItem('userType');
       if (storedUserType) {
         this.userType = storedUserType;
+        this.$emit('update-user-type', storedUserType);
       }
     },
 
@@ -71,7 +72,8 @@
           this.userType = userType;
           // Update local storage with the user type
           localStorage.setItem('userType', userType);
-        }
+          this.$emit('update-user-type', userType); 
+        },
     },
 
   }

@@ -60,9 +60,15 @@
                             </h1>
                         </div>
 
-                        <button class="print-btn" @click="downloadPDF">
+                        <div class="col d-flex flex-column">
+                            <v-btn class="add-schedule" @click="downloadPDF" style="max-width: 46px; height:46px; margin-left: auto; margin-right: 10px;">
+                                <span class="material-symbols-outlined" style="font-size: 46px;">print</span>
+                            </v-btn>
+                        </div>
+                        <!--<button class="print-btn" @click="downloadPDF">
                             <img class ="printer" src="../assets/printer.png" alt="Print Button">
-                        </button>
+                            <span class="material-symbols-outlined" style="font-size: 41px;">print</span>
+                        </button>-->
 
 
                         <!--WEEKDAYS AND WEEKENDS ADD EVENTS POPUP-->
