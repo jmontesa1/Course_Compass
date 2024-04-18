@@ -385,6 +385,9 @@
                                         <p class="analytics-label" style="margin-right: 17px;">{{userAnalytics[2].label}}</p>
                                     </v-col>
                                 </v-row>
+                                <v-row>
+                                    <p class="analytics-label" style="margin-left: 17px;"> Total users: {{ userAnalytics[0].count + userAnalytics[1].count + userAnalytics[2].count }}</p>
+                                </v-row>
                             </v-card-text>
                             </v-card>
                         </v-col>
@@ -458,9 +461,9 @@
                                             <v-sparkline
                                                 :auto-line-width="false"
                                                 :gradient="['black']"
-                                                :line-width="'2'"
-                                                :smooth="0"
-                                                :model-value="[2, 5, 9, 5, 10, 3, 5]"
+                                                :line-width="'10'"
+                                                :smooth="2"
+                                                :model-value="[78, 3, 9, 5, 10, 0, 0]"
                                                 :padding="'5'"
                                                 :type="'bar'"
                                                 auto-draw
@@ -475,25 +478,25 @@
                                     <v-divider></v-divider>
                                     <v-row>
                                         <v-col cols="1.5">
-                                            <p style="font-family: Poppins; margin-left: 5px;">Courses</p>
+                                            <p style="font-family: Poppins; margin-left: 77px;">Courses</p>
                                         </v-col>
                                         <v-col cols="1.5">
-                                            <p style="font-family: Poppins; margin-left: 6px;">Majors</p>
+                                            <p style="font-family: Poppins; margin-left: 67px;">Majors</p>
                                         </v-col>
                                         <v-col cols="1.5">
-                                            <p style="font-family: Poppins;margin-left: 12px;">Student Reviews</p>
+                                            <p style="font-family: Poppins;margin-left: 16px;">Student Reviews</p>
                                         </v-col>
                                         <v-col cols="1.5">
-                                            <p style="font-family: Poppins;margin-left: 12px;">Schedules</p>
+                                            <p style="font-family: Poppins;margin-left: 4px;">User Schedules</p>
                                         </v-col>
                                         <v-col cols="1.5">
-                                            <p style="font-family: Poppins;margin-left: 11px;">Thurs</p>
+                                            <p style="font-family: Poppins;margin-left: -18px;">Announcements</p>
                                         </v-col>
                                         <v-col cols="1.5">
-                                            <p style="font-family: Poppins;margin-left: 22px;">Fri</p>
+                                            <p style="font-family: Poppins;margin-left: 4px;">TBA</p>
                                         </v-col>
                                         <v-col cols="1">
-                                            <p style="font-family: Poppins;margin-left: 15px;">Sat</p>
+                                            <p style="font-family: Poppins;margin-left: -16px;">TBA</p>
                                         </v-col>
                                     </v-row>
                                 </v-card-text>
@@ -518,9 +521,9 @@
             return {
                 confirmationDialog: false,
                 tab: 'dashboard',
-                dashboard: true,
+                dashboard: false,
                 instructors: false,
-                analytics: false,
+                analytics: true,
                 user: {
                     firstname: 'John',
                     lastname: '',

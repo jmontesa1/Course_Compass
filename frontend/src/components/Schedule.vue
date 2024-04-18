@@ -57,6 +57,28 @@
                                         </v-card-actions>
                                     </v-card>
                                 </v-dialog>
+
+                                <v-dialog v-model="dialog_delete_schedule" max-width="500" style="font-family: Poppins;" v-if="scheduleOption === 'Weekdays and Weekends' || scheduleOption === 'Weekdays'">
+                                    <template v-slot:activator="{ props: activatorProps }">
+                                        <v-btn class="add-schedule" v-bind="activatorProps" style="max-width: 41px; height:41px;">
+                                            <span class="material-symbols-outlined" style="font-size: 41px;">delete</span>
+                                        </v-btn>
+                                    </template>
+                                    <!--Pop up -->
+                                    <v-card title="Delete Schedule">
+                                        <v-card-text>
+                                            <v-row dense>
+                                                <p>Are you sure you want to delete schedule <strong>{{this.selectedScheduleTitle}}</strong>?</p>
+                                                <p>This will delete all of your weekly events.</p>
+                                            </v-row>
+                                        </v-card-text>
+                                        <v-card-actions>
+                                            <v-spacer></v-spacer>
+                                            <v-btn text="Close" variant="plain" @click="dialog_delete_schedule = false"></v-btn>
+                                            <v-btn color="red" text="Delete" variant="tonal" @click="deleteSchedule()"></v-btn>
+                                        </v-card-actions>
+                                    </v-card>
+                                </v-dialog>
                             </h1>
                         </div>
 
@@ -86,7 +108,14 @@
                                     </v-row>
                                     <v-row dense>
                                         <v-col auto>
-                                            <v-select v-model="eventColor" :items="this.scheduleColors" label="Color" required></v-select>
+                                            <v-select v-model="eventColor" :items="scheduleColors" label="Color" required>
+                                                <template v-slot:item="{ item }">
+                                                    <div>
+                                                        <div class="color-square"></div>
+                                                        {{ item.name }}
+                                                    </div>
+                                                </template>
+                                            </v-select>
                                         </v-col>
                                         <v-col auto>
                                                 <v-text-field v-model="weeklyEventStart" placeholder="00:00 AM" hint="8:00 AM - 7:00 PM" label="Start Time"></v-text-field>
@@ -328,6 +357,7 @@
                 dialog: false,
                 dialog_event: false,
                 dialog_weekdaysevent: false,
+                dialog_delete_schedule: false,
 
                 //Every data that involves schedule under this
                 scheduleTitle: '',
@@ -509,6 +539,16 @@
                 this.scheduleTitle ='';
             },
 
+            deleteSchedule(){
+                const scheduleIndex = this.userSchedules.findIndex(schedule =>
+                    schedule.title === this.selectedScheduleTitle);
+
+                this.userSchedules.splice(scheduleIndex, 1);
+                this.dialog_delete_schedule = false;
+                this.selectedScheduleTitle = 'Class Schedule';
+                this.scheduleOption = 'Class Schedule';
+            },
+
             createWeeklyEvent(){
                 const selectedDays = Object.keys(this.daysOfWeek).filter(day => this.daysOfWeek[day]);
                 this.newWeeklyEvent(selectedDays);
@@ -626,6 +666,7 @@
                                         'position': 'absolute',
                                         'top': `0`,
                                         'z-index': '1',
+                                        'cursor': 'pointer',
                                     },
                                     events: [event]
                                 });
@@ -845,5 +886,14 @@
 
     .custom-label .v-label{
         font-size: 5px;
+    }
+
+    .color-square {
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+        margin-right: 10px;
+        vertical-align: middle;
+        background-color: rgb(255, 87, 51);
     }
 </style>
