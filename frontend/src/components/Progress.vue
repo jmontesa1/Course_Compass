@@ -92,7 +92,8 @@
                                                                         density="compact"
                                                                         label="Select your course grade"
                                                                         :items="grades.map(item => item.grade)"
-                                                                        v-model="courseGrade[index]"
+                                                                        v-model="course.letterGrade"
+                                                                        @change="course.changed = true"
                                                                     ></v-select>
                                                                 </v-col>
                                                             </v-row>
@@ -469,6 +470,7 @@
                             review: course.review,
                             tags: course.tags.map(tag => tag.id), //send tagID values
                             studentRating: course.studentRating, //send rating integer(star)
+                            letterGrade: course.letterGrade
                         }, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` } });
                     })
                 );
@@ -480,7 +482,11 @@
                     this.confirmationDialog = false;
                 } catch (error) {
                     console.error('Error saving changes:', error);
-                    this.$emit('show-toast', { message: 'Error saving progress. Please try again.', color: '#da6e51' });
+                    let errorMessage = 'Error saving progress. Please try again.'; //default message
+                    if (error.response && error.response.data && error.response.data.error) {
+                        errorMessage = error.response.data.error; //use backend message
+                    }
+                    this.$emit('show-toast', { message: errorMessage, color: '#da6e51' });
                 }
             },
 
