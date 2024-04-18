@@ -468,10 +468,19 @@ def mark_course_completed_endpoint():
         review = data.get('review')
         student_rating = data.get('studentRating')
         tags = data.get('tags')
+        letter_grade = data.get('letterGrade')
 
         app.logger.info(f"Received tags from frontend: {tags}")  #log the received tags
+        app.logger.info(f"Received letter grade from frontend: {letter_grade}")  #log the received letter grade
 
-        success, message = mark_course_completed(user_email, course_code, completed, review, tags, student_rating)
+        #check if course has already been reviewed by the student
+        reviewed = is_course_reviewed(user_email, course_code)
+        if reviewed:
+            error_message = f"{course_code} has already been reviewed."
+            app.logger.warning(error_message)
+            return jsonify({"error": error_message}), 400
+
+        success, message = mark_course_completed(user_email, course_code, completed, review, tags, student_rating, letter_grade)
         if success:
             return jsonify({"message": message}), 200
         else:
@@ -481,14 +490,14 @@ def mark_course_completed_endpoint():
         return jsonify({"error": "An internal server error occurred"}), 500
     
 
-def mark_course_completed(user_email, course_code, completed, review, tags, student_rating):
+def mark_course_completed(user_email, course_code, completed, review, tags, student_rating, letter_grade):
     try:
         connection = connectToDB()
         if not connection:
             return False, "DB connection failed"
 
         cursor = connection.cursor()
-        cursor.callproc('MarkCourseCompleted', [user_email, course_code, completed, review, json.dumps(tags), student_rating])
+        cursor.callproc('MarkCourseCompleted', [user_email, course_code, completed, review, json.dumps(tags), student_rating, letter_grade])
         connection.commit()
         return True, "Course marked as completed successfully"
     except Error as err:
@@ -498,6 +507,92 @@ def mark_course_completed(user_email, course_code, completed, review, tags, stud
     finally:
         cursor.close()
         connection.close()
+
+def is_course_reviewed(user_email, course_code):
+    try:
+        connection = connectToDB()
+        if not connection:
+            return False
+
+        cursor = connection.cursor()
+        query = """
+            SELECT COUNT(*) 
+            FROM tblRatings r
+            JOIN tblCourses c ON r.courseID = c.courseID
+            JOIN tblStudents s ON r.studentID = s.studentID
+            WHERE s.Email = %s AND c.courseCode = %s
+        """
+        values = (user_email, course_code)
+        cursor.execute(query, values)
+        result = cursor.fetchone()
+        review_count = result[0]
+
+        return review_count > 0
+    except Error as err:
+        app.logger.error(f"Error in is_course_reviewed: {str(err)}")
+        return False
+    finally:
+        cursor.close()
+        connection.close()
+
+#get tags for reviewed courses
+@app.route('/getUserCourseTags', methods=['GET'])
+@jwt_required()
+def get_user_course_tags():
+    try:
+        identity = get_jwt_identity()
+        user_email = identity['email']
+
+        tags_by_course = fetch_user_course_tags(user_email)
+        if tags_by_course is not None:
+            return jsonify({"tags_by_course": tags_by_course}), 200
+        else:
+            return jsonify({"error": "Failed to fetch user course tags"}), 500
+    except Exception as e:
+        app.logger.error(f"Error in get_user_course_tags: {str(e)}")
+        return jsonify({"error": "An internal server error occurred"}), 500
+
+def fetch_user_course_tags(email):
+    try:
+        with connectToDB() as connection:
+            with connection.cursor() as cursor:
+                query = """
+                SELECT 
+                    c.courseCode,
+                    GROUP_CONCAT(t.tagID) AS tags
+                FROM 
+                    tblStudents s
+                JOIN 
+                    tblUser u ON s.userID = u.userID
+                JOIN 
+                    tblRatings r ON s.studentID = r.studentID
+                JOIN
+                    tblCourses c ON r.courseID = c.courseID
+                JOIN
+                    tblRatingTags rt ON r.ratingID = rt.ratingID
+                JOIN
+                    tblTags t ON rt.tagID = t.tagID
+                WHERE 
+                    u.Email = %s
+                GROUP BY
+                    c.courseCode
+                """
+                cursor.execute(query, (email,))
+                results = cursor.fetchall()
+                
+                tags_by_course = {}
+                for result in results:
+                    course_code = result['courseCode']
+                    tags = result['tags'].split(',') if result['tags'] else []
+                    tags_by_course[course_code] = tags
+                    
+                    # Log the tags for each course
+                    app.logger.info(f"Course: {course_code}, Tags: {tags}")
+
+                return tags_by_course
+    except Exception as e:
+        print(f"Error fetching user course tags: {str(e)}")
+        return None
 
 
 # Retrieve majors
