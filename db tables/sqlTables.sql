@@ -30,7 +30,6 @@ create table cs425.tblInstructor(
     officeLocation varchar(100),
     phoneNum varchar(20),
     officeHours varchar (100),
-    isAdmin boolean,
     userID int,
     foreign key (deptID) references tblDepartment(deptID),
     foreign key (userID) references tblUser(userID)
@@ -124,6 +123,27 @@ create table cs425.tblUserSchedule(
     studentID int,
     foreign key (scheduleID) references tblcourseSchedule(scheduleID),
     foreign key (studentID) references tblStudents(studentID)
+);
+
+/*Custom Schedules table*/
+create table cs425.tblCustomSchedules(
+    scheduleID int primary key auto_increment,
+    studentID int,
+    title varchar(100),
+    scheduleOption varchar(50),
+    foreign key (studentID) references tblStudents(studentID)
+);
+
+/*Custom Events table*/
+create table cs425.tblCustomEvents(
+    eventID int primary key auto_increment,
+    scheduleID int,
+    description varchar(255),
+    color varchar(50),
+    startTime varchar(10),
+    endTime varchar(10),
+    daysOfWeek varchar(255),
+    foreign key (scheduleID) references tblCustomSchedules(scheduleID)
 );
 
 /*Completed Courses Table*/

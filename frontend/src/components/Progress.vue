@@ -70,7 +70,7 @@
                                         <input type="text" class="form-control" v-model="courseSearch" placeholder="Enter Course Name">
                                     </div>
                                     <div class="scroll"> 
-                                        <div v-for="(course, index) in major.courses" :key="index">
+                                        <div v-for="(course, index) in filteredCourses" :key="index">
                                             <div class="course-container">
                                                 <input type="checkbox" v-model="course.completed" @change="course.changed = true" :disabled="isCourseSaved(course)" />
                                                 <v-expansion-panels>
@@ -296,6 +296,7 @@
                 currentCredits: 0,
                 currentGPA: 0,
                 courseGrade: [],
+                courseSearch: '',
 
                 unitsCompleted: 0,
                 user: {
@@ -562,6 +563,12 @@
             isOnDeansList() {
                 return this.currentGPA >= 3.75 && this.currentCredits >= 12 ? 'Yes' : 'No';
             },
+
+            filteredCourses() {
+                return this.majors.find(major => major.name === this.user.major).courses.filter(course =>
+                course.name.toLowerCase().includes(this.courseSearch.toLowerCase())
+                );
+            }
         },
     };
 </script>

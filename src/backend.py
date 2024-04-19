@@ -326,6 +326,169 @@ def user_schedule_stored_procedure(cursor, email):
         return None
     
 
+#create a custom schedule
+@app.route('/createCustomSchedule', methods=['POST'])
+@jwt_required()
+def create_custom_schedule():
+    try:
+        current_user_email = get_jwt_identity()['email']
+        user = User.get_user_by_email(current_user_email)
+        if not user or not user.studentID:
+            return jsonify({"message": "User not found or not a student"}), 400
+
+        data = request.get_json()
+        title = data['title']
+        option = data['option']
+
+        # Insert the new custom schedule into the database
+        connection = connectToDB()
+        cursor = connection.cursor()
+        cursor.execute("INSERT INTO tblCustomSchedules (studentID, title, scheduleOption) VALUES (%s, %s, %s)",
+                       (user.studentID, title, option))
+        connection.commit()
+
+        # Retrieve the newly created custom schedule from the database
+        schedule_id = cursor.lastrowid
+        cursor.execute("SELECT * FROM tblCustomSchedules WHERE scheduleID = %s", (schedule_id,))
+        schedule_data = cursor.fetchone()
+
+        # Create a dictionary representing the custom schedule
+        custom_schedule = {
+            'scheduleID': schedule_data[0],
+            'title': schedule_data[2],
+            'option': schedule_data[3]
+        }
+
+        return jsonify({"schedule": custom_schedule}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error creating custom schedule"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+#add event to custom schedule
+@app.route('/createCustomEvent', methods=['POST'])
+@jwt_required()
+def create_custom_event():
+    try:
+        current_user_email = get_jwt_identity()['email']
+        user = User.get_user_by_email(current_user_email)
+        if not user or not user.studentID:
+            return jsonify({"message": "User not found or not a student"}), 400
+
+        data = request.get_json()
+        description = data['description']
+        color = data['color']
+        start_time = data['start']
+        end_time = data['end']
+        days_of_week = ','.join(data['daysOfWeek'])
+        schedule_id = data['scheduleID']
+
+        connection = connectToDB()
+        cursor = connection.cursor()
+        cursor.execute("""
+            INSERT INTO tblCustomEvents (scheduleID, description, color, startTime, endTime, daysOfWeek)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (schedule_id, description, color, start_time, end_time, days_of_week))
+        connection.commit()
+
+        return jsonify({"message": "Custom event created successfully"}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error creating custom event"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+#retrieve user created schedules
+@app.route('/getCustomSchedules', methods=['GET'])
+@jwt_required()
+def get_custom_schedules():
+    try:
+        current_user_email = get_jwt_identity()['email']
+        user = User.get_user_by_email(current_user_email)
+        if not user or not user.studentID:
+            return jsonify({"message": "User not found or not a student"}), 400
+
+        connection = connectToDB()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            SELECT cs.scheduleID, cs.title, cs.scheduleOption, ce.eventID, ce.description, ce.color, ce.startTime, ce.endTime, ce.daysOfWeek
+            FROM cs425.tblCustomSchedules cs
+            LEFT JOIN cs425.tblCustomEvents ce ON cs.scheduleID = ce.scheduleID
+            WHERE cs.studentID = %s
+        """, (user.studentID,))
+
+        results = cursor.fetchall()
+        custom_schedules = {}
+
+        for row in results:
+            schedule_id = row[0]
+            if schedule_id not in custom_schedules:
+                custom_schedules[schedule_id] = {
+                    "scheduleID": schedule_id,
+                    "title": row[1],
+                    "option": row[2],
+                    "events": []
+                }
+
+            if row[3]:  # If eventID is not None
+                days_of_week = row[8].split(',') if row[8] else []
+                custom_schedules[schedule_id]["events"].append({
+                    "eventID": row[3],
+                    "description": row[4],
+                    "color": row[5],
+                    "start": row[6],
+                    "end": row[7],
+                    "daysOfWeek": days_of_week
+                })
+
+        return jsonify({"customSchedules": list(custom_schedules.values())}), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error retrieving custom schedules"}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
+
+
+#delete custom created schedules
+@app.route('/deleteCustomSchedule/<int:schedule_id>', methods=['DELETE'])
+@jwt_required()
+def delete_custom_schedule(schedule_id):
+    try:
+        current_user_email = get_jwt_identity()['email']
+        user = User.get_user_by_email(current_user_email)
+        if not user or not user.studentID:
+            return jsonify({"message": "User not found or not a student"}), 400
+
+        connection = connectToDB()
+        cursor = connection.cursor()
+
+        # Delete the associated events first
+        cursor.execute("DELETE FROM tblCustomEvents WHERE scheduleID = %s", (schedule_id,))
+
+        # Delete the custom schedule
+        cursor.execute("DELETE FROM tblCustomSchedules WHERE scheduleID = %s AND studentID = %s", (schedule_id, user.studentID))
+        connection.commit()
+
+        if cursor.rowcount > 0:
+            return jsonify({"message": "Custom schedule deleted successfully"}), 200
+        else:
+            return jsonify({"message": "Custom schedule not found or not authorized"}), 404
+
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error deleting custom schedule"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+
 #get user enrolled courses
 @app.route('/getEnrolledCourses', methods=['GET'])
 @jwt_required()
