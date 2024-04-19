@@ -31,7 +31,7 @@
                         <div class="col d-flex flex-column">
                             <h1>                            
                                 <select v-model="selectedScheduleTitle" @change="handleScheduleChange">
-                                    <option v-for="schedule in userSchedules" :key="schedule.option" :value="schedule.title">{{ schedule.title }}</option>
+                                    <option v-for="schedule in userSchedules" :key="schedule.title" :value="schedule.title">{{ schedule.title }}</option>
                                 </select>
 
                                 <v-dialog v-model="dialog" max-width="500" style="font-family: Poppins;">
@@ -53,7 +53,7 @@
                                         <v-card-actions>
                                             <v-spacer></v-spacer>
                                             <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
-                                            <v-btn color="primary" text="Add" variant="tonal" @click="newSchedule()"></v-btn>
+                                            <v-btn color="primary" text="Add" variant="tonal" @click="createCustomSchedule">ADD</v-btn>
                                         </v-card-actions>
                                     </v-card>
                                 </v-dialog>
@@ -171,7 +171,7 @@
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
                                     <v-btn text="Close" variant="plain" @click="dialog_weekdaysevent = false"></v-btn>
-                                    <v-btn color="primary" text="Add" variant="tonal" @click="createWeeklyEvent()"></v-btn>
+                                    <v-btn color="primary" text="Add" variant="tonal" @click="createCustomEvent()"></v-btn>
                                 </v-card-actions>
                             </v-card>
                         </v-dialog>
@@ -404,6 +404,8 @@
             
             const adapter = useDate()
             this.fetchEvents({ start: adapter.startOfDay(adapter.startOfMonth(new Date())), end: adapter.endOfDay(adapter.endOfMonth(new Date())) })
+
+            this.fetchCustomSchedules();
             },
 
         methods: {
@@ -526,27 +528,26 @@
 
 
             //Any method under this are for the schedule
-            newSchedule(){
-                const schedule = {
-                    title: this.scheduleTitle,
-                    option: this.newScheduleOption,
-                    weeklyEvents: [],
-                };
 
-                this.userSchedules.push(schedule);
-                this.dialog = false;
+            async deleteSchedule() {
+                const selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
 
-                this.scheduleTitle ='';
-            },
+                if (selectedSchedule && selectedSchedule.scheduleID) {
+                    try {
+                        await axios.delete(`http://127.0.0.1:5000/deleteCustomSchedule/${selectedSchedule.scheduleID}`, {
+                            headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                    });
+                        // Remove the deleted schedule from the userSchedules array
+                        const scheduleIndex = this.userSchedules.findIndex(schedule => schedule.title === this.selectedScheduleTitle);
+                        this.userSchedules.splice(scheduleIndex, 1);
 
-            deleteSchedule(){
-                const scheduleIndex = this.userSchedules.findIndex(schedule =>
-                    schedule.title === this.selectedScheduleTitle);
-
-                this.userSchedules.splice(scheduleIndex, 1);
-                this.dialog_delete_schedule = false;
-                this.selectedScheduleTitle = 'Class Schedule';
-                this.scheduleOption = 'Class Schedule';
+                        this.dialog_delete_schedule = false;
+                        this.selectedScheduleTitle = 'Class Schedule';
+                        this.scheduleOption = 'Class Schedule';
+                    } catch (error) {
+                        console.error('Error deleting custom schedule:', error);
+                    }
+                }
             },
 
             createWeeklyEvent(){
@@ -594,10 +595,10 @@
             generateWeeklyBlocks(day) {
                 const blocks = [];
                 const selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
-                if (selectedSchedule && selectedSchedule.weeklyEvents) {
+                if (selectedSchedule && selectedSchedule.events) {
                     // Proceed only if the selected schedule is found and it has weekly events
-                    selectedSchedule.weeklyEvents.forEach(event => {
-                        if (event.daysOfWeek && event.daysOfWeek[day]) {
+                    selectedSchedule.events.forEach(event => {
+                        if (event.daysOfWeek && event.daysOfWeek.includes(day)) {
                                 const startHour = parseInt(event.start.split(':')[0]); //hours
                                 const startMinute = parseInt(event.start.split(':')[1]); //minutes
                                 const endHour = parseInt(event.end.split(':')[0]); //hours
@@ -656,7 +657,7 @@
 
 
                                 blocks.push({
-                                    id: event.event + day,
+                                    id: event.eventID + day,
                                     style: {
                                         'background-color': event.color,
                                         'border-radius': '8px',
@@ -704,6 +705,88 @@
 
             fetchEvents (newEvent) {
                 this.events.push();
+            },
+
+            async createCustomSchedule() {
+                try {
+                    const response = await axios.post('http://127.0.0.1:5000/createCustomSchedule', {
+                        title: this.scheduleTitle,
+                        option: this.newScheduleOption,
+                    }, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                    });
+                    if (response.status === 200) {
+                        const newSchedule = response.data.schedule;
+                        this.userSchedules.push(newSchedule);
+                        this.dialog = false;
+                        this.scheduleTitle = '';
+                    }
+                } catch (error) {
+                    console.error('Error creating custom schedule:', error);
+                }
+            },
+
+            async createCustomEvent() {
+                const selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
+
+                const selectedDays = Object.keys(this.daysOfWeek).filter(day => this.daysOfWeek[day]);
+
+                const newEvent = {
+                    description: this.weeklyEventDesc,
+                    color: this.eventColor,
+                    start: this.weeklyEventStart,
+                    end: this.weeklyEventEnd,
+                    daysOfWeek: selectedDays,
+                    scheduleID: selectedSchedule.scheduleID, // Include the scheduleID
+                };
+
+                try {
+                    await axios.post('http://127.0.0.1:5000/createCustomEvent', newEvent, {
+                        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                    });
+                    this.weeklyEventDesc = '';
+                    this.eventColor = '';
+                    this.weeklyEventStart = '';
+                    this.weeklyEventEnd = '';
+                    this.daysOfWeek = {
+                        Sunday: false,
+                        Monday: false,
+                        Tuesday: false,
+                        Wednesday: false,
+                        Thursday: false,
+                        Friday: false,
+                        Saturday: false,
+                    };
+                    this.dialog_event = false;
+                    this.dialog_weekdaysevent = false;
+                    this.fetchCustomSchedules();
+                } catch (error) {
+                    console.error('Error creating custom event:', error);
+                }
+            },
+
+            async fetchCustomSchedules() {
+                try {
+                    const response = await axios.get('http://127.0.0.1:5000/getCustomSchedules', {
+                        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                    });
+                    if (response.data && response.data.customSchedules) {
+                        const updatedSchedules = [
+                            {
+                                option: 'Class Schedule',
+                                title: 'Class Schedule',
+                                events: []
+                            },
+                            ...response.data.customSchedules.map(schedule => ({
+                                ...schedule,
+                                events: schedule.events || [],
+                            }))
+                        ];
+                        this.userSchedules = updatedSchedules;
+                    }
+                } catch (error) {
+                    console.error('Error fetching custom schedules:', error);
+                }
             },
 
         },
