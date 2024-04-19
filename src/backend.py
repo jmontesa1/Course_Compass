@@ -488,6 +488,35 @@ def delete_custom_schedule(schedule_id):
         cursor.close()
         connection.close()
 
+@app.route('/deleteCustomEvent/<int:event_id>', methods=['DELETE'])
+@jwt_required()
+def delete_custom_event(event_id):
+    try:
+        current_user_email = get_jwt_identity()['email']
+        user = User.get_user_by_email(current_user_email)
+        if not user or not user.studentID:
+            return jsonify({"message": "User not found or not a student"}), 400
+
+        connection = connectToDB()
+        cursor = connection.cursor()
+
+        # Delete the custom event
+        cursor.execute("DELETE FROM tblCustomEvents WHERE eventID = %s", (event_id,))
+        connection.commit()
+
+        if cursor.rowcount > 0:
+            return jsonify({"message": "Custom event deleted successfully"}), 200
+        else:
+            return jsonify({"message": "Custom event not found"}), 404
+
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error deleting custom event"}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
+
 
 #get user enrolled courses
 @app.route('/getEnrolledCourses', methods=['GET'])

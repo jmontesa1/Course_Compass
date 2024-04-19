@@ -179,6 +179,42 @@
                     </div>
                 </div>
 
+                <!-- delete event from schedule pop up -->
+                <v-dialog v-model="dialog_event_popup" max-width="500" style="font-family: Poppins;">
+                    <v-card>
+                        <v-card-title>Event Details</v-card-title>
+                        <v-card-text>
+                        <v-row dense>
+                            <v-col>
+                            <p><strong>Description:</strong> {{ selectedEvent.description }}</p>
+                            <p><strong>Start Time:</strong> {{ selectedEvent.start }}</p>
+                            <p><strong>End Time:</strong> {{ selectedEvent.end }}</p>
+                            <p><strong>Days:</strong> {{ selectedEvent.daysOfWeek.join(', ') }}</p>
+                            </v-col>
+                        </v-row>
+                        </v-card-text>
+                        <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn text="Close" variant="plain" @click="dialog_event_popup = false"></v-btn>
+                        <v-btn color="red" text="Delete" variant="tonal" @click="dialog_delete_event = true"></v-btn>
+                        </v-card-actions>
+                    </v-card>
+                    </v-dialog>
+
+                    <!-- confirnm deletion pop up-->
+                    <v-dialog v-model="dialog_delete_event" max-width="500" style="font-family: Poppins;">
+                    <v-card>
+                        <v-card-title>Confirm Delete</v-card-title>
+                        <v-card-text>
+                        <p>Are you sure you want to delete the event "{{ selectedEvent.description }}"?</p>
+                        </v-card-text>
+                        <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn text="Cancel" variant="plain" @click="dialog_delete_event = false"></v-btn>
+                        <v-btn color="red" text="Delete" variant="tonal" @click="confirmDeleteEvent"></v-btn>
+                        </v-card-actions>
+                    </v-card>
+                    </v-dialog>
 
                 <!--DISPLAYS OF WEEKDAY SCHEDULE OPTION-->
                 <div id="schedule-page" ref="schedulePage" >
@@ -223,7 +259,7 @@
                                                 </div>
                                             </div>
                                             <div v-if="scheduleOption === 'Weekdays'">
-                                                <div v-for="eventBlock in generateWeeklyBlocks(day)" :key="eventBlock.id" :style="eventBlock.style">
+                                                <div v-for="eventBlock in generateWeeklyBlocks(day)" :key="eventBlock.id" :style="eventBlock.style" @click="openEventPopup(eventBlock.events[0])">
                                                     <div class="class-info">
                                                         {{ eventBlock.events[0].description }}
                                                         <br>
@@ -347,6 +383,9 @@
                 tab: 'class-schedule',
                 classSchedule: true,
                 calendar: false,
+                selectedEvent: null,
+                dialog_event_popup: false,
+                dialog_delete_event: false,
 
                 user: {
                     firstname: '',
@@ -416,6 +455,11 @@
                 this.tab = 'class-schedule';
                 this.calendar = false;
                 this.classSchedule = true;
+            },
+
+            openEventPopup(event) {
+                this.selectedEvent = event;
+                this.dialog_event_popup = true;
             },
 
             chooseCalendar(){
@@ -530,11 +574,11 @@
             //Any method under this are for the schedule
 
             async deleteSchedule() {
-                const selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
+                const scheduleToDelete = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
 
-                if (selectedSchedule && selectedSchedule.scheduleID) {
+                if (scheduleToDelete && scheduleToDelete.scheduleID) {
                     try {
-                        await axios.delete(`http://127.0.0.1:5000/deleteCustomSchedule/${selectedSchedule.scheduleID}`, {
+                        await axios.delete(`http://127.0.0.1:5000/deleteCustomSchedule/${scheduleToDelete.scheduleID}`, {
                             headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
                     });
                         // Remove the deleted schedule from the userSchedules array
@@ -592,6 +636,16 @@
                 this.dialog_weekdaysevent = false;                
             },
 
+            async confirmDeleteEvent() {
+                await axios.delete(`http://127.0.0.1:5000/deleteCustomEvent/${this.selectedEvent.eventID}`, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                });
+
+                this.fetchCustomSchedules();
+                this.dialog_delete_event = false;
+                this.dialog_event_popup = false;
+            },
+            
             generateWeeklyBlocks(day) {
                 const blocks = [];
                 const selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
