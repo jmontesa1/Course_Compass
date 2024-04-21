@@ -75,7 +75,7 @@
                                         <v-card-actions>
                                             <v-spacer></v-spacer>
                                             <v-btn text="Close" variant="plain" @click="dialog_delete_schedule = false"></v-btn>
-                                            <v-btn color="red" text="Delete" variant="tonal" @click="deleteSchedule()"></v-btn>
+                                            <v-btn color="#da4d4d" text="Delete" variant="tonal" @click="deleteSchedule()"></v-btn>
                                         </v-card-actions>
                                     </v-card>
                                 </v-dialog>
@@ -190,7 +190,7 @@
                         <v-card-actions>
                         <v-spacer></v-spacer>
                         <v-btn text="Close" variant="plain" @click="dialog_event_popup = false"></v-btn>
-                        <v-btn color="red" text="Delete" variant="tonal" @click="dialog_delete_event = true"></v-btn>
+                        <v-btn color="#da4d4d" text="Delete" variant="tonal" @click="dialog_delete_event = true"></v-btn>
                         </v-card-actions>
                     </v-card>
                     </v-dialog>
@@ -205,7 +205,7 @@
                         <v-card-actions>
                         <v-spacer></v-spacer>
                         <v-btn text="Cancel" variant="plain" @click="dialog_delete_event = false"></v-btn>
-                        <v-btn color="red" text="Delete" variant="tonal" @click="confirmDeleteEvent"></v-btn>
+                        <v-btn color="#da4d4d" text="Delete" variant="tonal" @click="confirmDeleteEvent"></v-btn>
                         </v-card-actions>
                     </v-card>
                     </v-dialog>
@@ -359,7 +359,7 @@
                                                                 <v-card-actions>
                                                                     <v-spacer></v-spacer>
                                                                     <v-btn text="Close" variant="plain" @click="dialog_events_remove[index] = false"></v-btn>
-                                                                    <v-btn color="red" text="Delete" variant="tonal" @click="removeCalendarEvent(index)"></v-btn>
+                                                                    <v-btn color="#da4d4d" text="Delete" variant="tonal" @click="removeCalendarEvent(index)"></v-btn>
                                                                 </v-card-actions>
                                                             </v-card>
                                                         </v-dialog> 
@@ -436,8 +436,8 @@
         data:() => ({
             
                 tab: 'class-schedule',
-                classSchedule: false,
-                calendar: true,
+                classSchedule: true,
+                calendar: false,
                 selectedEvent: null,
                 dialog_event_popup: false,
                 dialog_delete_event: false,

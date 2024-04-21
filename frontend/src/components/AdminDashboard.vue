@@ -521,9 +521,9 @@
             return {
                 confirmationDialog: false,
                 tab: 'dashboard',
-                dashboard: false,
+                dashboard: true,
                 instructors: false,
-                analytics: true,
+                analytics: false,
                 user: {
                     firstname: 'John',
                     lastname: '',

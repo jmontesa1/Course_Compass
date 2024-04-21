@@ -625,6 +625,7 @@
         font-family: coolvetica;
         position: relative;
         margin-top: 16px;
+        margin-left: 10px;
         font-size: 32px;
         left:1%;
     }

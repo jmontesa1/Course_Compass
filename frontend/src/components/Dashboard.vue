@@ -7,7 +7,7 @@
     <div class="top-container">
         <v-row v-if="user && user.firstname">
             <h1 class="welcome-text">
-                &nbsp;Welcome, {{ user.firstname }}
+                Welcome, {{ user.firstname }}
             </h1>
         </v-row>
     </div>
@@ -203,10 +203,7 @@
                     console.error("Error fetching dashboard data", error);
                 });
             },
-            
-            goToDashboard() {
-                this.$router.push('/dashboard')
-            },
+        
 
             async fetchEnrolledCourses() {
                 try {
@@ -380,6 +377,7 @@
         font-family: coolvetica;
         position: relative;
         margin-top: 16px;
+        margin-left: 10px;
         font-size: 32px;
         left:1%;
     }
