@@ -89,7 +89,7 @@
                         <v-expansion-panel-text>
                             <v-row  no-gutters v-for="(notification, index) in instructorNotifications" :key="index">
                                 <v-col cols="11">
-                                    <p class="row-text"><strong>{{instructorNotifications[index].date}}</strong> {{instructorNotifications[index].source}} - {{instructorNotifications[index].description}}</p>
+                                    <p><strong>{{instructorNotifications[index].date}}</strong> {{instructorNotifications[index].source}} - {{instructorNotifications[index].description}}</p>
                                     <br><p>Sent to: {{instructorNotifications[index].courses}}</p>
                                 </v-col>
                                 <v-col cols="1">
