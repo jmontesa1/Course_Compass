@@ -79,6 +79,7 @@
                                         </v-card-actions>
                                     </v-card>
                                 </v-dialog>
+
                             </h1>
                         </div>
 
@@ -108,14 +109,7 @@
                                     </v-row>
                                     <v-row dense>
                                         <v-col auto>
-                                            <v-select v-model="eventColor" :items="scheduleColors" label="Color" required>
-                                                <template v-slot:item="{ item }">
-                                                    <div>
-                                                        <div class="color-square"></div>
-                                                        {{ item.name }}
-                                                    </div>
-                                                </template>
-                                            </v-select>
+                                            <v-select v-model="eventColor" :items="this.scheduleColors" label="Color" required></v-select>
                                         </v-col>
                                         <v-col auto>
                                                 <v-text-field v-model="weeklyEventStart" placeholder="00:00 AM" hint="8:00 AM - 7:00 PM" label="Start Time"></v-text-field>
@@ -133,7 +127,7 @@
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
                                     <v-btn text="Close" variant="plain" @click="dialog_event = false"></v-btn>
-                                    <v-btn color="primary" text="Add" variant="tonal" @click="createWeeklyEvent()"></v-btn>
+                                    <v-btn color="primary" text="Add" variant="tonal" @click="createCustomEvent()"></v-btn>
                                 </v-card-actions>
                             </v-card>
                         </v-dialog>
@@ -305,7 +299,7 @@
                                                 || time === '8' && day === 'Wednesday' || time === '8' && day === 'Thursday'
                                                 || time === '8' && day === 'Friday' || time === '8' && day === 'Saturday'">
                                             <div v-if="scheduleOption === 'Weekdays and Weekends'">
-                                                <div v-for="eventBlock in generateWeeklyBlocks(day)" :key="eventBlock.id" :style="eventBlock.style">
+                                                <div v-for="eventBlock in generateWeeklyBlocks(day)" :key="eventBlock.id" :style="eventBlock.style" @click="openEventPopup(eventBlock.events[0])">
                                                     <div class="class-info">
                                                         {{ eventBlock.events[0].description }}
                                                         <br>
@@ -324,6 +318,67 @@
             </div>
 
             <div class="right-side2" v-if="calendar">
+                <v-dialog v-model="dialog_events" max-width="800" style="font-family: Poppins;">
+                    <template v-slot:activator="{ props: activatorProps }">
+                        <v-btn class="add-event2" v-bind="activatorProps">Events</v-btn>
+                    </template>
+                    <!--Pop up -->
+                    <v-card title="Manage Events">
+                        <v-card-text>
+                            <v-row dense>
+                                <v-col cols = "12">
+                                    <v-expansion-panels>
+                                        <v-expansion-panel>
+                                            <v-expansion-panel-title>
+                                                <v-row no-gutters>
+                                                    <v-col class="d-flex justify-start">
+                                                        <p>Your events: ({{events.length}})</p>
+                                                    </v-col>
+                                                </v-row>
+                                            </v-expansion-panel-title>
+                                            <v-expansion-panel-text>
+                                                <v-row no-gutters v-for="(event, index) in events" :key="index">
+                                                    <v-col cols="11">
+                                                        <p><strong>{{events[index].title}}</strong> (<em>{{events[index].date}}</em>) - {{events[index].description}}</p>
+                                                    </v-col>
+                                                    <v-col cols="1">
+                                                        <v-dialog v-model="dialog_events_remove[index]" max-width="600" style="font-family: Poppins;">
+                                                            <template v-slot:activator="{ props: activatorProps }">
+                                                                <v-btn v-bind="activatorProps" icon="$close" variant="plain">
+                                                                    <span class="material-symbols-outlined">
+                                                                        delete
+                                                                    </span>
+                                                                </v-btn>
+                                                            </template>
+                                                            <!--Pop up -->
+                                                            <v-card title="Are you sure you want to delete event:">
+                                                                <v-card-text>
+                                                                    <br>
+                                                                    <p><strong>{{events[index].title}}</strong> (<em>{{events[index].date}}</em>) - {{events[index].description}}</p>
+                                                                </v-card-text> 
+                                                                <v-card-actions>
+                                                                    <v-spacer></v-spacer>
+                                                                    <v-btn text="Close" variant="plain" @click="dialog_events_remove[index] = false"></v-btn>
+                                                                    <v-btn color="red" text="Delete" variant="tonal" @click="removeCalendarEvent(index)"></v-btn>
+                                                                </v-card-actions>
+                                                            </v-card>
+                                                        </v-dialog> 
+                                                    </v-col>
+                                                    <v-divider class="instructor-divider"></v-divider>
+                                                </v-row>
+                                            </v-expansion-panel-text>
+                                        </v-expansion-panel>
+                                    </v-expansion-panels>  
+                                </v-col>
+                            </v-row>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn text="Close" variant="plain" @click="dialog_events = false"></v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+
                 <v-dialog v-model="dialog" max-width="1000" style="font-family: Poppins;">
                     <template v-slot:activator="{ props: activatorProps }">
                         <v-btn class="add-event" v-bind="activatorProps">Add an event</v-btn>
@@ -381,8 +436,8 @@
         data:() => ({
             
                 tab: 'class-schedule',
-                classSchedule: true,
-                calendar: false,
+                classSchedule: false,
+                calendar: true,
                 selectedEvent: null,
                 dialog_event_popup: false,
                 dialog_delete_event: false,
@@ -394,6 +449,8 @@
                 },
 
                 dialog: false,
+                dialog_events: false,
+                dialog_events_remove: [],
                 dialog_event: false,
                 dialog_weekdaysevent: false,
                 dialog_delete_schedule: false,
@@ -542,6 +599,7 @@
                                 break;
                             }
                         }
+                        
                         const startHour = parseInt(course.start.split(':')[0]);
                         const startMinute = parseInt(course.start.split(':')[1]);
                         const endHour = parseInt(course.end.split(':')[0]);
@@ -597,11 +655,12 @@
             createWeeklyEvent(){
                 const selectedDays = Object.keys(this.daysOfWeek).filter(day => this.daysOfWeek[day]);
                 this.newWeeklyEvent(selectedDays);
+                console.log("selected days", selectedDays);
             },
 
             newWeeklyEvent(selectedDays){
                 const selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
-                
+                console.log("selected schedule", selectedSchedule);
                 const newEvent = {
                     description: this.weeklyEventDesc,
                     color: this.eventColor,
@@ -653,18 +712,31 @@
                     // Proceed only if the selected schedule is found and it has weekly events
                     selectedSchedule.events.forEach(event => {
                         if (event.daysOfWeek && event.daysOfWeek.includes(day)) {
-                                const startHour = parseInt(event.start.split(':')[0]); //hours
-                                const startMinute = parseInt(event.start.split(':')[1]); //minutes
-                                const endHour = parseInt(event.end.split(':')[0]); //hours
-                                const endMinute = parseInt(event.end.split(':')[1]); //minutes
-                                let blockHeight;
+                            const startTimeParts = event.start.split(':');
+                            const endTimeParts = event.end.split(':');
 
-                                if (startHour === 12 && endHour != 12){
-                                    blockHeight = (((12-endHour) - startHour) * -56 + (endMinute - startMinute ));
-                                }
-                                else{
-                                    blockHeight = ((endHour - startHour) * 56 + (endMinute - startMinute - 3));
-                                }
+                            const startHour = parseInt(startTimeParts[0]);
+                            const startMinute = parseInt(startTimeParts[1].slice(0, 2));
+                            const startAmPm = startTimeParts[1].slice(-2);
+
+                            const endHour = parseInt(endTimeParts[0]);
+                            const endMinute = parseInt(endTimeParts[1].slice(0, 2));
+                            const endAmPm = endTimeParts[1].slice(-2);
+
+                            let durationInMinutes;
+
+                            if (startAmPm === endAmPm) {
+                                durationInMinutes = (endHour - startHour) * 60 + (endMinute - startMinute);
+                            } else if (endHour === 12) {
+                                durationInMinutes = ((12 - startHour)) * 60 + (endMinute - startMinute);
+                            } else {
+                                durationInMinutes = ((12 - startHour) + endHour) * 60 + (endMinute - startMinute);
+                            }
+
+                            const durationHours = Math.floor(durationInMinutes / 60);
+                            const durationMinutes = durationInMinutes % 60;
+
+                            const blockHeight = ((durationHours * 56) + ((durationMinutes/60) + 1));
 
                                 let yTransformation;
 
@@ -735,6 +807,7 @@
             handleScheduleChange() {
                 this.selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
                 this.scheduleOption = this.selectedSchedule.option;
+                console.log("selected:", this.selectedSchedule);
             },
 
             //Any method under this are for the calendar
@@ -742,6 +815,12 @@
                 return event.color
             },
             newEvent(){
+                const reformatDate = new Date(this.eventDate).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                });
+
                 const newEvent = {
                     title: this.eventTitle,
                     description: this.eventDescription,
@@ -749,10 +828,12 @@
                     end: this.eventDate,
                     color: this.eventColor,
                     allDay: this.allDay,
+                    date: reformatDate,
                 };
                 this.events.push(newEvent);
-                this.fetchEvents(newEvent);
                 this.dialog = false;
+                this.eventDate = new Date();
+                this.eventColor = '';
                 this.eventTitle ='';
                 this.eventDescription ='';
             },
@@ -761,6 +842,12 @@
                 this.events.push();
             },
 
+            removeCalendarEvent(index){
+                this.events.splice(index, 1);
+                this.dialog_events_remove[index] = false;
+            },
+
+            //created by Jose
             async createCustomSchedule() {
                 try {
                     const response = await axios.post('http://127.0.0.1:5000/createCustomSchedule', {
@@ -978,26 +1065,41 @@
     }
 
     select {
-        width: 40%;
+        width: 320px;
         height: 45px;
         margin-bottom: 5px;
         box-sizing: border-box;
         border: 1px solid rgba(0, 0, 0, 0.089);
         background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%23000000"><path d="M1 5h14L8 12z"/></svg>');
-        background-position: right 10px center;
+        background-position: right 5px center;
         background-size: 15px;
         cursor: pointer;
         padding-left: 8px;
+        padding-right: 15px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
     }
 
     .add-event{
         position: absolute;
         right: 10px;
-        top: 165px;
+        margin-top: 25px;
         font-family: Poppins;
         color: white;
         background-color: black;
         box-shadow: none;
+    }
+
+    .add-event2{
+        position: absolute;
+        right: 180px;
+        margin-top: 25px;
+        font-family: Poppins;
+        color: rgb(0, 0, 0);
+        background-color: rgb(255, 255, 255);
+        box-shadow: none;
+        border: black 1px solid;
     }
 
     .add-weekly-event{
@@ -1031,6 +1133,6 @@
         display: inline-block;
         margin-right: 10px;
         vertical-align: middle;
-        background-color: rgb(255, 87, 51);
+        background-color: pink;
     }
 </style>
