@@ -1,7 +1,7 @@
 <template>
   <!-- Display the navbar and the router view on every page -->
   <NavBar :userType="userType" :isLoggedIn="isLoggedIn" @logout="handleLogout" />
-  <router-view @login-status-changed="updateLoginStatus" @show-toast="showToastMessage" @update-user-type="updateUserType"/>
+  <router-view :userType="userType" @login-status-changed="updateLoginStatus" @show-toast="showToastMessage" @update-user-type="updateUserType" />
   <Footer></Footer>
   <Toast :showToast="showToast" :toastMessage="toastMessage" :toastColor="toastColor" />
 </template>

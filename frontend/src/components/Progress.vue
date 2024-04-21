@@ -81,7 +81,7 @@
                                                         <v-expansion-panel-text>
                                                             <label>Credits: {{ course.credits }}</label>
                                                             <br>
-                                                            <v-row>
+                                                            <!--<v-row>
                                                                 <v-col cols="auto">
                                                                     <label style="position:relative;top:16px;">Grade:</label>
                                                                 </v-col>
@@ -96,7 +96,7 @@
                                                                         @change="course.changed = true"
                                                                     ></v-select>
                                                                 </v-col>
-                                                            </v-row>
+                                                            </v-row>-->
                                                             <div>
                                                                 <label style="position:relative;top:-19px;">Your Rating:</label>
                                                                 <v-rating
