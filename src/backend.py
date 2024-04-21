@@ -488,6 +488,7 @@ def delete_custom_schedule(schedule_id):
         cursor.close()
         connection.close()
 
+#delete event from custom schedule
 @app.route('/deleteCustomEvent/<int:event_id>', methods=['DELETE'])
 @jwt_required()
 def delete_custom_event(event_id):
@@ -747,11 +748,12 @@ def get_user_course_tags():
 def fetch_user_course_tags(email):
     try:
         with connectToDB() as connection:
-            with connection.cursor() as cursor:
+            with connection.cursor(dictionary=True) as cursor:
                 query = """
                 SELECT 
                     c.courseCode,
-                    GROUP_CONCAT(t.tagID) AS tags
+                    GROUP_CONCAT(t.tagID) AS tags,
+                    MAX(r.rating) AS rating
                 FROM 
                     tblStudents s
                 JOIN 
@@ -776,14 +778,18 @@ def fetch_user_course_tags(email):
                 for result in results:
                     course_code = result['courseCode']
                     tags = result['tags'].split(',') if result['tags'] else []
-                    tags_by_course[course_code] = tags
-                    
-                    # Log the tags for each course
-                    app.logger.info(f"Course: {course_code}, Tags: {tags}")
+                    rating = result['rating']
+                    tags_by_course[course_code] = {
+                        'tags': tags,
+                        'rating': rating
+                    }
+
+                    # Log the tags and rating for each course
+                    app.logger.info(f"Course: {course_code}, Tags: {tags}, Rating: {rating}")
 
                 return tags_by_course
     except Exception as e:
-        print(f"Error fetching user course tags: {str(e)}")
+        app.logger.error(f"Error fetching user course tags and ratings: {str(e)}")
         return None
 
 
@@ -1086,14 +1092,14 @@ def search_departments():
     format_param = request.args.get('format', None)
     location_param = request.args.get('location', None)
     term_param = request.args.get('term', None)
-    default_param = request.args.get('default', None)
+    rating_param = request.args.get('rating', None)
     
     connection = connectToDB()
     if connection:
         cursor = connection.cursor(dictionary=True)
         try:
             query = """
-            SELECT DISTINCT
+            SELECT
                 scheduleID,
                 courseName,
                 courseCode,
@@ -1108,69 +1114,66 @@ def search_departments():
                 days,
                 classCapacity,
                 enrollmentTotal,
-                availableSeats
+                availableSeats,
+                averageRating,
+                courseLevel,
+                frequentTags
             FROM (
                 SELECT *,
-                    ROW_NUMBER() OVER(PARTITION BY courseCode ORDER BY scheduleID) AS rn  -- Adjusted for unique course codes
+                    ROW_NUMBER() OVER (PARTITION BY courseCode, term ORDER BY scheduleID) AS rn
                 FROM vwCourseDetails
-            ) AS courses
-            WHERE rn = 1"""
+                WHERE 1=1
+            ) t
+            WHERE rn = 1
+            """
             
             params = []
             filters_applied = False
-            applied_filters = {}
             
             if 'query' in request.args and query_param:
-                applied_filters['query'] = query_param
                 query += " AND courseMajor LIKE %s"
                 params.append(f"{query_param}%")
                 filters_applied = True
             
             if 'level' in request.args and level_param:
-                applied_filters['query'] = query_param
                 level = level_param.rstrip('+')
                 numeric_level = int(level)
-                query += " AND numericCourseLevel >= %s"
+                query += " AND courseLevel = %s"
                 params.append(numeric_level)
                 filters_applied = True
             
             if 'startTime' in request.args and start_time_param:
-                applied_filters['query'] = query_param
                 start_time_param = unquote(request.args.get('startTime', ''))
                 start_time_range = start_time_param.split('-')
-                start_time_lower = datetime.strptime(start_time_range[0].strip(), '%I').time()
+                start_time_lower = datetime.strptime(start_time_range[0].strip() + start_time_range[1][-2:].strip(), '%I%p').time()
                 end_time_value = start_time_range[1].strip().split(' ')[0]  # Extract the end time value
-                start_time_upper = datetime.strptime(end_time_value, '%I').time()
-                query += " AND TIME_FORMAT(LEFT(meetingTime, LOCATE('-', meetingTime) - 1), '%H:%i') BETWEEN TIME_FORMAT(%s, '%H:%i') AND TIME_FORMAT(%s, '%H:%i')"
-                params.extend([start_time_lower, start_time_upper])
+                end_time_period = start_time_range[1][-2:].strip()  # Extract AM or PM
+                start_time_upper = datetime.strptime(end_time_value + end_time_period, '%I%p').time()
+                query += " AND (TIME_FORMAT(LEFT(meetingTime, LOCATE('-', meetingTime) - 1), '%h:%i %p') BETWEEN %s AND %s OR TIME_FORMAT(LEFT(meetingTime, LOCATE('-', meetingTime) - 1), '%H:%i') BETWEEN TIME_FORMAT(%s, '%H:%i') AND TIME_FORMAT(%s, '%H:%i'))"
+                params.extend([start_time_lower.strftime('%I:%M %p'), start_time_upper.strftime('%I:%M %p'), start_time_lower, start_time_upper])
                 filters_applied = True
             
             if 'format' in request.args and format_param:
-                applied_filters['query'] = query_param
                 query += " AND format = %s"
                 params.append(format_param)
                 filters_applied = True
             
             if 'location' in request.args and location_param:
-                applied_filters['query'] = query_param
                 query += " AND LEFT(Location, LOCATE(' ', Location) - 1) = %s"
                 params.append(location_param)
                 filters_applied = True
 
             if 'term' in request.args and term_param:
-                applied_filters['query'] = query_param
                 query += " AND term = %s"
                 params.append(term_param)
                 filters_applied = True
             
-            if not filters_applied:
-                query += " AND rn = 1"
+            if 'rating' in request.args and rating_param:
+                query += " AND averageRating >= %s"
+                params.append(float(rating_param))
+                filters_applied = True
             
-            query += """
-            ORDER BY
-                CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED),
-                SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
-            """
+            query += " ORDER BY courseLevel, courseCode;"
             
             print("Query Parameters:", params)
 
@@ -1191,7 +1194,9 @@ def search_departments():
                 'days': dept['days'],
                 'classCapacity': dept['classCapacity'],
                 'enrollmentTotal': dept['enrollmentTotal'],
-                'availableSeats': dept['availableSeats']
+                'availableSeats': dept['availableSeats'],
+                'averageRating': dept['averageRating'],
+                'frequentTags': dept['frequentTags'].split(', ')[:4] if dept['frequentTags'] else [],
             } for dept in result]
         finally:
             cursor.close()

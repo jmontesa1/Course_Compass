@@ -37,8 +37,8 @@
                     <!--Right Side of Popup Page, Shows User Thoughts-->
                     <div class="col-lg">
                         <p><strong>What Students Think:</strong></p>
-                        <p>{{ course.keywords && course.keywords.length > 0 ? course.keywords.join(', ') : 'Information not available' }}</p>
-                        <p><strong>Student Rating:</strong> {{ course.rating || '0' }}/5</p>
+                        <p>{{ course.frequentTags && course.frequentTags.length > 0 ? course.frequentTags.join(', ') : 'Information not available' }}</p>
+                        <p><strong>Student Rating:</strong> {{ course.averageRating || '0' }}/5</p>
                         <hr>
                         <p><strong>What Students Say:</strong></p>
                         <p>{{ course.keywords && course.keywords.length > 0 ? course.keywords.join(', ') : 'Information not available' }}</p>

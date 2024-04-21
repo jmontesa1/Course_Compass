@@ -140,6 +140,9 @@
             },
             departmentSearch() {
                 this.fetchDepartments();
+            },
+            courseSearch() {
+                this.fetchCourseCodes();
             }
         },
         data() {
@@ -218,21 +221,22 @@
                 console.error("Failed to load:", error);
                 });
             },
-            handleLevelSelection(selectedLevel) {
-                const isLevel = /^[\d]+00\+$/.test(selectedLevel);
-                if (isLevel) {
-                    this.fetchDepartments(selectedLevel);
-                }
-            },
+            /* handleLevelSelection(selectedLevel) {
+            const isLevel = /^\d+00$/.test(selectedLevel);
+            if (isLevel) {
+                this.fetchDepartments(selectedLevel);
+            }
+            }, */
             fetchDepartments() {
                 let baseUrl = 'http://127.0.0.1:5000/search-departments';
                 let queryParts = [];
 
-                const selectedLevel = this.selectedFilters.find(filter => /^\d+00\+$/.test(filter));
+                const selectedLevel = this.selectedFilters.find(filter => /^\d+00$/.test(filter));
                 const selectedStartTime = this.selectedFilters.find(filter => /^\d+-\d+\s(?:AM|PM)$/.test(filter));
                 const selectedFormat = this.selectedFilters.find(filter => /^(In Person|Online|Hybrid)$/.test(filter));
                 const selectedLocation = this.selectedFilters.find(filter => /^(?:SEM|WPEB|AB|MS|DMSC|PSAC|SLH)$/.test(filter));
                 const selectedTerm = this.selectedFilters.find(filter => /^(?:Fall|Winter|Spring|Summer)$/.test(filter));
+                const selectedRating = this.selectedFilters.find(filter => /^\d+\+\sStars$/.test(filter));
 
                 if (selectedLevel) {
                     queryParts.push(`level=${encodeURIComponent(selectedLevel)}`);
@@ -240,6 +244,11 @@
 
                 if (selectedStartTime) {
                     queryParts.push(`startTime=${encodeURIComponent(selectedStartTime)}`);
+                }
+
+                if (selectedRating) {
+                    const ratingValue = parseInt(selectedRating.split('+')[0]);
+                    queryParts.push(`rating=${encodeURIComponent(ratingValue)}`);
                 }
 
                 if (selectedFormat) {
@@ -277,11 +286,84 @@
                             days: department.days ? department.days.split(', ') : [],
                             classCapacity: department.classCapacity,
                             enrollmentTotal: department.enrollmentTotal,
-                            availableSeats: department.availableSeats
+                            availableSeats: department.availableSeats,
+                            averageRating: department.averageRating,
+                            frequentTags: department.frequentTags,
                         }));
                     })
                     .catch(error => {
                         console.error("Failed to load departments:", error);
+                        this.courseList = [];
+                    });
+            },
+
+
+            fetchCourseCodes() {
+                let baseUrl = 'http://127.0.0.1:5000/search-courses';
+                let queryParts = [];
+
+                const selectedLevel = this.selectedFilters.find(filter => /^\d+00$/.test(filter));
+                const selectedStartTime = this.selectedFilters.find(filter => /^\d+-\d+\s(?:AM|PM)$/.test(filter));
+                const selectedFormat = this.selectedFilters.find(filter => /^(In Person|Online|Hybrid)$/.test(filter));
+                const selectedLocation = this.selectedFilters.find(filter => /^(?:SEM|WPEB|AB|MS|DMSC|PSAC|SLH)$/.test(filter));
+                const selectedTerm = this.selectedFilters.find(filter => /^(?:Fall|Winter|Spring|Summer)$/.test(filter));
+                const selectedRating = this.selectedFilters.find(filter => /^\d+\+\sStars$/.test(filter));
+
+                if (selectedLevel) {
+                    queryParts.push(`level=${encodeURIComponent(selectedLevel)}`);
+                }
+
+                if (selectedStartTime) {
+                    queryParts.push(`startTime=${encodeURIComponent(selectedStartTime)}`);
+                }
+
+                if (selectedRating) {
+                    const ratingValue = parseInt(selectedRating.split('+')[0]);
+                    queryParts.push(`rating=${encodeURIComponent(ratingValue)}`);
+                }
+
+                if (selectedFormat) {
+                    queryParts.push(`format=${encodeURIComponent(selectedFormat)}`);
+                }
+
+                if (this.courseSearch.trim() !== '') {
+                    queryParts.push(`courseCode=${encodeURIComponent(this.courseSearch.trim())}`);
+                }
+
+                if (selectedLocation) {
+                    queryParts.push(`location=${encodeURIComponent(selectedLocation)}`);
+                }
+
+                if (selectedTerm) {
+                    const currentYear = new Date().getFullYear();
+                    queryParts.push(`term=${encodeURIComponent(`${currentYear} ${selectedTerm}`)}`);
+                }
+
+                let url = queryParts.length > 0 ? `${baseUrl}?${queryParts.join('&')}` : baseUrl;
+
+                axios.get(url, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
+                    .then(response => {
+                        this.courseList = response.data.map(course => ({
+                            scheduleID: course.scheduleID,
+                            name: course.courseName,
+                            code: course.courseCode,
+                            department: course.courseMajor,
+                            professor: course.professor,
+                            format: course.format,
+                            term: course.term,
+                            units: course.units,
+                            meetingTime: course.meetingTime,
+                            location: course.Location,
+                            days: course.days ? course.days.split(', ') : [],
+                            classCapacity: course.classCapacity,
+                            enrollmentTotal: course.enrollmentTotal,
+                            availableSeats: course.availableSeats,
+                            averageRating: course.averageRating,
+                            frequentTags: course.frequentTags,
+                        }));
+                    })
+                    .catch(error => {
+                        console.error("Failed to load courses:", error);
                         this.courseList = [];
                     });
             },
