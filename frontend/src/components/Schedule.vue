@@ -112,7 +112,37 @@
                                             <v-select v-model="eventColor" :items="this.scheduleColors" label="Color" required></v-select>
                                         </v-col>
                                         <v-col auto>
-                                                <v-text-field v-model="weeklyEventStart" placeholder="00:00 AM" hint="8:00 AM - 7:00 PM" label="Start Time"></v-text-field>
+                                                 <v-text-field
+                                                    v-model="weeklyEventStart"
+                                                    :active="menuStart"
+                                                    label="Open Time Picker"
+                                                    readonly
+                                                    >
+                                                    <v-menu
+                                                        v-model="menuStart"
+                                                        :close-on-content-click="false"
+                                                        activator="parent"
+                                                        transition="scale-transition"
+                                                    >
+                                                        <v-container style="background-color: white; font-family: Poppins;">
+                                                            <v-row>
+                                                                <v-text-field v-model="weeklyEventStart" placeholder="00:00 AM" hint="8:00 AM - 7:00 PM" label="Start Time"></v-text-field>
+                                                                <!--<v-col cols="4">
+                                                                    <h5>Hour</h5>
+                                                                    <v-number-input variant="solo-filled" hide-details hide-input inset ></v-number-input>
+                                                                </v-col>
+                                                                <v-col cols="4">
+                                                                    <h5>Minutes</h5>
+                                                                    <v-number-input variant="solo-filled" hide-details hide-input inset></v-number-input>
+                                                                </v-col>
+                                                                <v-col cols="4">
+                                                                    <h5>AM/PM</h5>
+                                                                    <v-number-input variant="solo-filled" hide-details hide-input inset></v-number-input>
+                                                                </v-col>-->
+                                                            </v-row>
+                                                        </v-container>
+                                                    </v-menu>
+                                                </v-text-field>
                                         </v-col>
                                         <v-col auto>
                                                 <v-text-field v-model="weeklyEventEnd" placeholder="00:00 PM" hint="End times must be in intervals of ten minutes" label="End Time"></v-text-field>
@@ -456,6 +486,7 @@
                 dialog_delete_schedule: false,
 
                 //Every data that involves schedule under this
+                menuStart: false,
                 scheduleTitle: '',
                 selectedScheduleTitle: 'Class Schedule',
                 newScheduleOption: 'Weekdays',

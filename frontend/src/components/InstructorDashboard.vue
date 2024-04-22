@@ -93,7 +93,7 @@
                                     <br><p>Sent to: {{instructorNotifications[index].courses}}</p>
                                 </v-col>
                                 <v-col cols="1">
-                                    <v-dialog v-model="removeNotificationDialog[index]" max-width="800" style="font-family: Poppins;">
+                                    <v-dialog v-model="deleteNotificationDialog[index]" max-width="800" style="font-family: Poppins;">
                                         <template v-slot:activator="{ props: activatorProps }">
                                             <v-btn v-bind="activatorProps" icon="$close" variant="plain">
                                                 <span class="material-symbols-outlined">
@@ -102,7 +102,7 @@
                                             </v-btn>
                                         </template>
                                         <!--Pop up -->
-                                        <v-card title="Are you sure you want to remove announcement:">
+                                        <v-card title="Are you sure you want to delete announcement:">
                                             <v-card-text>
                                                 <br>
                                                 <p><strong>{{instructorNotifications[index].date}}</strong> {{instructorNotifications[index].source}} - {{instructorNotifications[index].description}}</p>
@@ -110,8 +110,8 @@
                                             </v-card-text> 
                                             <v-card-actions>
                                                 <v-spacer></v-spacer>
-                                                <v-btn text="No" variant="plain" @click="removeNotificationDialog[index] = false"></v-btn>
-                                                <v-btn color="primary" text="Yes" variant="tonal" @click="removeNotification(index)"></v-btn>
+                                                <v-btn text="Cancel" variant="plain" @click="deleteNotificationDialog[index] = false"></v-btn>
+                                                <v-btn color="red" text="Delete" variant="tonal" @click="deleteNotification(index)"></v-btn>
                                             </v-card-actions>
                                         </v-card>
                                     </v-dialog> 
@@ -129,7 +129,7 @@
                 <v-col cols="2" class="d-flex justify-end align-center">
                     <v-dialog v-model="notificationDialog" max-width="1000" style="font-family: Poppins;">
                         <template v-slot:activator="{ props: activatorProps }">
-                            <v-btn  v-bind="activatorProps" class="announcement-btn" variant="outlined" @click="handleLogout">
+                            <v-btn  v-bind="activatorProps" class="announcement-btn" variant="outlined">
                                 <p>Send announcement</p>
                             </v-btn>
                         </template>
@@ -317,7 +317,7 @@
                 officeHoursConfirmDialog: false,
                 dialog: [],
                 notificationDialog: false,
-                removeNotificationDialog: [],
+                deleteNotificationDialog: [],
 
                 schedule: [],
 
@@ -327,8 +327,8 @@
                 notificationDate: new Date(),
                 notificationDeadline: false,
                 notificationDescription: '',
-
                 instructorNotifications:[],
+
                 notifications: [
                     {date: '5/15/2024', source: 'UNR', message: 'Instruction Ends'},
                     {date: '4/25/2024', source: 'Professor Mike', message: 'Hello Students, hw 1 is due in the next few weeks, and there is an exam tomorrow about coffee.'},
@@ -482,17 +482,17 @@
                 this.notificationDialog = false;
             },
 
-            removeNotification(index){
-                const removedNotification = this.instructorNotifications[index];
+            deleteNotification(index){
+                const deletedNotification = this.instructorNotifications[index];
                 this.instructorNotifications.splice(index, 1);
                 
                 //find notification under deadlines
                 const deadlineNotification = this.notifications.findIndex(notification =>
-                    notification.date === removedNotification.date &&
-                    notification.message === removedNotification.description);
+                    notification.date === deletedNotification.date &&
+                    notification.message === deletedNotification.description);
 
                 this.notifications.splice(deadlineNotification, 1);
-                this.removeNotificationDialog[index] = false;
+                this.deleteNotificationDialog[index] = false;
             },
         },
         
