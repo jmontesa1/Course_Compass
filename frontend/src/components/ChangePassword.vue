@@ -12,14 +12,14 @@
                     pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}"
                     title="Passwords contain at least one lowercase and one uppercase letter, one number, one special character, and are at least 8 or more characters."
                     required>
-                <img class="eye-icon" :src="eyeIcon" alt="Password Visibility Eye" @click="toggleVisibility">
+                <img class="eye-icon" :src="eyeIcon('passwordInput')" alt="Password Visibility Eye" @click="toggleVisibility('passwordInput')">
             </div>
             <div class="password-container">
                 <input ref="passwordConfirmInput" type="password" v-model="passwordConfirm" id="passwordConfirmInput"
                     placeholder="Confirm Password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}"
                     title="Passwords contain at least one lowercase and one uppercase letter, one number, one special character, and are at least 8 or more characters."
                     required>
-                <img class="eye-icon" :src="eyeIcon" alt="Password Visibility Eye" @click="toggleVisibility">
+                <img class="eye-icon" :src="eyeIcon('passwordConfirmInput')" alt="Password Visibility Eye" @click="toggleVisibility('passwordConfirmInput')">
             </div>
             <br>
             <div class="button-container">
@@ -38,27 +38,41 @@ export default {
             password: '',
             passwordConfirm: '',
             passwordVis: false,
+            confirmPassVis: false,
         };
     },
-    computed: {
-        eyeIcon() {
-            return this.passwordVis ? require('../assets/eyeclose.png') : require('../assets/eye.png');
-        }
-    },
     methods: {
-        toggleVisibility() {
-            this.passwordVis = !this.passwordVis;
-            this.$refs.passwordInput.type = this.passwordVis ? 'text' : 'password';
-            this.$refs.passwordConfirmInput.type = this.passwordVis ? 'text' : 'password';
+        toggleVisibility(refName) {
+            const inputField = this.$refs[refName];
+            if (inputField) {
+                if (refName === 'passwordInput') {
+                this.passwordVis = !this.passwordVis;
+                inputField.type = this.passwordVis ? 'text' : 'password';
+                } else if (refName === 'confirmPasswordInput') {
+                this.confirmPassVis = !this.confirmPassVis;
+                inputField.type = this.confirmPassVis ? 'text' : 'password';
+                }
+            }
         },
+
+        eyeIcon(refName) {
+            return refName === 'passwordInput'
+                ? this.passwordVis
+                ? require('../assets/eyeclose.png')
+                : require('../assets/eye.png')
+                : this.confirmPassVis
+                ? require('../assets/eyeclose.png')
+                : require('../assets/eye.png');
+        },
+
         changePassword() {
             if (this.password !== this.passwordConfirm) {
-                alert("Passwords do not match.");
+                this.$emit("show-toast", { message: "Passwords do not match."});
                 return;
             }
             const passwordPattern = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}/;
             if (!passwordPattern.test(this.password)) {
-                alert("Password does not meet requirements."); // may have to remove, check frontend 
+                this.$emit("show-toast", { message: "Password does not the requirements."}); // may have to remove, check frontend 
                 return;
             }
             axios.post('http://127.0.0.1:5000/changepassword', {
@@ -67,14 +81,14 @@ export default {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
             })
                 .then(response => {
-                    alert("Password successfully changed.");
+                    this.$emit("show-toast", { message: "Password successfully changed.", color: '#51da6e' });
                     this.$router.push('/myaccount');
                     this.password = '';
                     this.passwordConfirm = '';
                 })
                 .catch(error => {
                     console.error("Failed to change password:", error);
-                    alert("New password cannot match old password.");
+                    this.$emit("show-toast", { message: "New password can not match old password."});
                 });
         }
     }

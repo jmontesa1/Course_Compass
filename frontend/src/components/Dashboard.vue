@@ -434,6 +434,7 @@
                     return isSelectedSource && isFutureDate;
                 });
 
+                this.dialogNotifications = false;
                 console.log('Filtered Notifications', filteredNotifications);                
             },
         },

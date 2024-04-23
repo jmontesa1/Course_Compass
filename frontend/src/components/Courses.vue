@@ -4,7 +4,7 @@
 <!-- Courses will have a popup menu that gives details about it -->
 
 <template> 
-    <div v-if="userType === 'Student'">
+    <div v-if="userType === 'Student' || userType === 'Admin'">
         <div class="top-row">
             <div class="row">
                 <div class="col-sm-2 d-flex flex-column">
@@ -80,9 +80,23 @@
 
             <div class="col-md-2 flex-column">
                 <div class="enrolled">
-                    <p>Cart:</p>
-                    <v-chip class="form-control" v-for="course in schedule" :key="course.id" color="darkgrey" closable @click:close="removeFromSchedule(course)">
+                    <v-select
+                        :items="instructors"
+                        v-model="selectedInstructor"
+                        variant="underlined"
+                        density="compact"
+                        label="Select an Instructor"
+                        v-if="userType === 'Admin'"
+                        style="margin-top: 10px; color: black; font-family: Poppins;"
+                    ></v-select>
+                    <p style="font-size: 16px">Cart:</p>
+                    <v-chip class="form-control" v-for="course in schedule" :key="course.id" color="darkgrey">
                             <div class="chip-text">{{ course.name }}</div>
+                            <v-btn size="extra-small" @click="removeFromSchedule(course)" variant="plain" style="position: relative;">
+                                <span class="material-symbols-outlined">
+                                    close
+                                </span>
+                            </v-btn>
                     </v-chip>
                     <v-divider></v-divider>
 
@@ -93,7 +107,13 @@
                             </div>
                         </template>
                         <!--Pop up -->
-                        <v-card title="Are you sure you want to enroll in:">
+                        <v-card>
+                            <v-card-title v-if="userType === 'Student'">
+                                Are you sure you want to enroll in:
+                            </v-card-title>
+                            <v-card-title v-if="userType === 'Admin'">
+                                Are you sure you want to enroll <strong>{{selectedInstructor}}</strong> in:
+                            </v-card-title>
                             <v-card-text>
                                 <v-row dense>
                                     <v-col>
@@ -104,7 +124,7 @@
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn text="No" variant="plain" @click="dialog = false"></v-btn>
-                                <v-btn color="primary" text="Yes" variant="tonal" @click="enrollCourses()"></v-btn>
+                                <v-btn color="primary" text="Yes" variant="tonal" @click="enrollCourses(selectedInstructor)"></v-btn>
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
@@ -132,7 +152,8 @@
 
             <v-col>
                 <div class="course-page" v-if="this.tab===null">
-                    <h3 class="course-heading">Please select a course from the menu.</h3>
+                    <h3 class="course-heading" v-if="this.instructorSchedule.length > 0">Please select a course from the menu.</h3>
+                    <h4 class="course-heading" v-if="this.instructorSchedule.length === 0">Please wait for an administrator to enroll you into your taught courses.</h4>
                 </div>
 
                 <div class="course-page" v-if="this.coursePage[this.tab] === true">
@@ -431,6 +452,11 @@
                 courseGradeAverage: 0,
                 tallyS: 0,
                 tallyU: 0,
+
+
+                //Admin variables
+                instructors: ['Vinh Le', 'Devrin Lee', 'Sara Davis', 'David Feil-Seifer'],
+                selectedInstructor: null,
             };
         },
 
@@ -669,29 +695,50 @@
                 }
             },
 
-            async enrollCourses() {
-                try {
-                    const scheduleIDs = this.schedule.map(course => course.scheduleID);
+            async enrollCourses(instructor) {
+                if(this.userType === 'Student'){
+                    try {
+                        const scheduleIDs = this.schedule.map(course => course.scheduleID);
 
-                    const response = await axios.post('http://127.0.0.1:5000/enrollCourses', {
-                        studentID: localStorage.getItem('studentID'),
-                        scheduleIDs: scheduleIDs
-                    }, {
-                        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
-                    });
+                        const response = await axios.post('http://127.0.0.1:5000/enrollCourses', {
+                            studentID: localStorage.getItem('studentID'),
+                            scheduleIDs: scheduleIDs
+                        }, {
+                            headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                        });
 
-                    if (response.status === 200) {
-                        this.$emit("show-toast", { message: "Courses added to schedule!", color: '#51da6e' });
-                        this.schedule = [];
+                        if (response.status === 200) {
+                            this.$emit("show-toast", { message: "Courses added to schedule!", color: '#51da6e' });
+                            this.schedule = [];
+                        }
+                    } catch (error) {
+                        console.error("Failed to add courses to schedule.", error);
+                        let errorMessage = "Failed to add course to schedule."; //default message
+                        if (error.response && error.response.data && error.response.data.message) {
+                            errorMessage = error.response.data.message; //use  server's error message
+                        }
+                        this.$emit("show-toast", { message: errorMessage, color: '#da5151' });
                     }
-                } catch (error) {
-                    console.error("Failed to add courses to schedule.", error);
-                    let errorMessage = "Failed to add course to schedule."; //default message
-                    if (error.response && error.response.data && error.response.data.message) {
-                        errorMessage = error.response.data.message; //use  server's error message
-                    }
-                    this.$emit("show-toast", { message: errorMessage, color: '#da5151' });
                 }
+                else if (this.userType === 'Admin'){
+                    //use instructor variable here i would assume?
+                    console.log('Instructor chosen', instructor);
+                    try {
+                        //i delted some stuff here
+                        if (response.status === 200) {
+                            this.$emit("show-toast", { message: "Courses added to schedule!", color: '#51da6e' });
+                            this.schedule = [];
+                        }
+                    } catch (error) {
+                        console.error("Failed to add courses to schedule.", error);
+                        let errorMessage = "Failed to add course to schedule."; //default message
+                        if (error.response && error.response.data && error.response.data.message) {
+                            errorMessage = error.response.data.message; //use  server's error message
+                        }
+                        this.$emit("show-toast", { message: errorMessage, color: '#da5151' });
+                    }
+                }
+
                 this.dialog = false;
             },
 
