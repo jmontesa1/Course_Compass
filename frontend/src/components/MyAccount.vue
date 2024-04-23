@@ -67,6 +67,7 @@
                         </v-dialog>
 
                         <btn class="account-button" @click="navigateToChangePassword">Change Password</btn>
+                        <btn class="account-button" @click="deleteAccount">Delete Account</btn>
                     </div>
                 </div>
 
@@ -166,6 +167,32 @@
             navigateToChangePassword() {
                 this.$router.push('/changepassword');
             },
+            deleteAccount() {
+                if (confirm("Are you sure you would like to delete your account? This cannot be undone.")) {
+                    axios.delete('http://127.0.0.1:5000/delete-account', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
+                    .then(response => {
+                        console.log("Account deleted.");
+                        axios.post('http://127.0.0.1:5000/logout', {}, { withCredentials: true })
+                            .then(response => {
+                                console.log(response.data.message);
+                                if (response.status === 200) {
+                                    setTimeout(() => {
+                                        this.$emit('logout');
+                                        this.$router.push('/');
+                                    }, 1000);
+                                } else {
+                                    console.error("Unexpected response during logout: ", response);
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Logout error: ", error);
+                            });
+                        })
+                        .catch(error => {
+                            console.error("Error deleting account", error);
+                        });
+                }
+            }
         }
     }
 </script>
@@ -184,7 +211,7 @@
         background-color: #e1e1e1;
         margin: 3% auto;
         padding: 20px;
-        width: 50%;
+        width: 70%;
         height: auto;
         border-radius: 8px;
         box-shadow: 0 0 px rgba(232, 0, 0, 0.1);

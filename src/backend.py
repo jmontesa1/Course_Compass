@@ -1,28 +1,37 @@
 # Created by Lucas Videtto
 # Backend functionality for Course Compass
 
-from flask import Flask, jsonify, request, session
+from flask import Flask, jsonify, request, session, render_template
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_cors import CORS
 from mysql.connector import connect, Error
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_bcrypt import Bcrypt
 import logging, json
 from urllib.parse import unquote
+from flask_mail import Mail, Message
 
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 app.secret_key = '123456789' # Change key to secure value for production environment
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = True
 CORS(app, supports_credentials=True)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'coursecompassunr@gmail.com'
+app.config['MAIL_PASSWORD'] = 'rlse btgk aelx uxlk'
+mail = Mail(app)
 
 
 # User class to store user information
 class User:
-    def __init__(self, userID=None, Fname=None, Lname=None, DOB=None, Email=None, majorName=None, majorID=None, studentID=None):
+    def __init__(self, userID=None, Fname=None, Lname=None, DOB=None, Email=None, majorName=None, majorID=None, studentID=None, role=None):
         self.userID = userID
         self.Fname = Fname
         self.Lname = Lname
@@ -31,6 +40,7 @@ class User:
         self.majorName = majorName
         self.majorID = majorID
         self.studentID = studentID
+        self.role = role
 
     @staticmethod
     def get_user_by_email(email):
@@ -38,7 +48,7 @@ class User:
         cursor = connection.cursor(dictionary=True)
         try:
             cursor.execute("""
-                SELECT u.userID, u.Fname, u.Lname, u.DOB, u.Email, s.majorID, m.majorName, s.studentID
+                SELECT u.userID, u.Fname, u.Lname, u.DOB, u.Email, u.role, s.majorID, m.majorName, s.studentID
                 FROM tblUser u
                 LEFT JOIN tblStudents s ON u.userID = s.userID
                 LEFT JOIN tblMajor m ON s.majorID = m.majorID
@@ -220,7 +230,12 @@ def signup():
             
             session['email'] = email
             access_token = create_access_token(identity={"email": email, "userID": new_user['userID']})
-            
+            confirm_url = f"http://example.com/confirm/{access_token}"
+            html = render_template('confirm_template.html', confirm_url=confirm_url)
+            msg = Message("Course Compass - Confirm Your Email", sender="coursecompassunr@gmail.com", recipients=[email])
+            msg.body = f"Please click on the link to confirm your Course Compass account: {confirm_url}"
+            msg.html = html
+            mail.send(msg)            
             print("SIGN UP SUCCESSFUL")
             return jsonify({"message": "Signup successful", "access_token": access_token}), 200
         except Error as err:
@@ -1342,6 +1357,27 @@ def fetch_todays_notification():
         return cursor.fetchone(), None
     except Error as err:
         return None, str(err)
+    finally:
+        cursor.close()
+        connection.close()
+        
+        
+@app.route('/delete-account', methods=['DELETE'])
+@jwt_required()
+def delete_account():
+    identity = get_jwt_identity()
+    user_id = identity.get('userID')
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("DELETE FROM tblUser WHERE userID = %s", (user_id,))
+        connection.commit()
+        print("ACCOUNT DELETED")
+        return jsonify({"message:": "Account deleted"}), 200
+    except Error as err:
+        print(err)
+        connection.rollback()
+        return jsonify({"message": "Error during account deletion"}), 500
     finally:
         cursor.close()
         connection.close()
