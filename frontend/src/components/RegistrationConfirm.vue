@@ -11,7 +11,7 @@
         <h1 class="text-center" style="font-family: Coolvetica;">Thank you for registering!<br>There is one more step to finish your sign up.</h1>
         <p class="text-center">
             <br>
-            We have sent a confirmation email to <strong>{{ this.email }}</strong>!
+            We have sent a confirmation letter to your email!
             <br>
             <br>
             Please check your email inbox for a confirmation email to complete your sign up. 
@@ -23,15 +23,16 @@
                 <v-dialog v-model="dialog" max-width="600" style="font-family: Poppins;">
                     <template v-slot:activator="{ props: activatorProps }">
                         <div class="resend-container">
-                            <btn v-bind="activatorProps" class="resend-button">Resend Email</btn>
+                            <btn v-bind="activatorProps" class="resend-button" @click="resendEmail">Resend Email</btn>
                         </div>
                     </template>
+                    <!-- Confirmation dialog for resend email -->
                     <!--Pop up -->
                     <v-card title="Confirmation email resent!">
                         <v-card-text>
                             <v-row dense>
                                 <v-col>
-                                    <p>A confirmation email has been resent to {{ this.email }}.</p>
+                                    <p>A confirmation email has been resent to your email. Please check your inbox.</p>
                                 </v-col>
                             </v-row>
                         </v-card-text> 
@@ -47,12 +48,25 @@
 </template>
 
 <script>
+    import axios from 'axios';
+
     export default {
         data() {
             return{
                 dialog: false,
-                email: 'test@gmail.com',
+                email: '', // Populate with user email
             };
+        },
+        methods: {
+            resendEmail() {
+                axios.post('http://127.0.0.1:5000/resend_confirmation_email', { email: this.email })
+                    .then(response => {
+                        this.dialog=true;
+                    })
+                    .catch(error => {
+                        console.error("Error resending email", error);
+                    });
+            },
         },
     };
 </script>

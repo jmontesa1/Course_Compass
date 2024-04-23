@@ -251,6 +251,32 @@ def signup():
     return jsonify({"message": "Invalid request"}), 400
 
 
+@app.route('/resend_confirmation_email', methods=['POST'])
+def resend_confirmation_email():
+    email = request.json.get('email')
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT userID FROM tblUser WHERE Email = %s", (email,))
+        user = cursor.fetchone()
+        if user:
+            access_token = create_access_token(identity={"email": email, "userID": user['userID']})
+            confirm_url = f"http://example.com/confirm/{access_token}"
+            html = render_template('confirm_template.html', confirm_url=confirm_url)
+            msg = Message("Course Compass - Confirm Your Email", sender="coursecompassunr@gmail.com", recipients=[email])
+            msg.body = f"Please click on the link to confirm your Course Compass account: {confirm_url}"
+            msg.html = html
+            mail.send(msg)
+            return jsonify({"message": "Confirmation email resent"}), 200
+        else:
+            return jsonify({"message": "Email address not found"}), 404
+    except Exception as exc:
+        print(exc)
+        return jsonify({"message": "Error while resending confirmation email"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
 # Fetch user information
 @app.route('/getUserInfo', methods=['GET'])
 def getUserInfo():
