@@ -57,7 +57,82 @@
             <v-col cols="3">
                 <br>
                 <v-container class="deadlines-container">
-                    <p>Deadlines:</p>
+                    <v-row style="padding-bottom: 15px;">
+                        <p style="margin-top: 3px;">Deadlines:</p>
+                        <v-spacer></v-spacer>
+                        <v-dialog v-model="dialogNotifications" max-width="420" style="font-family: Poppins;">
+                            <template v-slot:activator="{ props: activatorProps }">
+                                <v-btn size="extra-small" v-bind="activatorProps" variant="plain" style="position: relative;">
+                                    <span class="material-symbols-outlined" v-if="notificationsActive === false">
+                                        notifications_off
+                                    </span>
+                                    <span class="material-symbols-outlined" v-if="notificationsActive === true">
+                                        notifications_active
+                                    </span>
+                                </v-btn>
+                            </template>
+                            <!--Pop up -->
+                            <v-card title="Notification Center">
+                                <v-card-text>
+                                    <v-row>
+                                        <v-col cols="auto">
+                                            <v-switch
+                                                v-model="notificationsActive"
+                                                color="primary"
+                                                label="Turn on email notifications"
+                                                style="margin-top: -10px; margin-bottom: -35px; color: black;"
+                                            ></v-switch>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row v-if="notificationsActive === true">
+                                        <v-col cols="auto">
+                                            <p>Remind me <strong style="color: red">{{notificationDaysBefore}}</strong> days before a deadline.<br><span style="font-size: 12px; color: gray;">(Sent to <em>{{user.email}}</em>)</span></p>
+                                        </v-col>
+                                        <v-col cols="1">
+                                            <v-btn :disabled="notificationDaysBefore === 1" size="extra-small" v-bind="activatorProps" variant="plain" style="position: relative;" @click="notificationDaysBefore--">
+                                                <span class="material-symbols-outlined">
+                                                    remove
+                                                </span>
+                                            </v-btn>
+                                        </v-col>
+                                        <v-col cols="1">
+                                            <v-btn :disabled="notificationDaysBefore === 7" size="extra-small" v-bind="activatorProps" variant="plain" style="position: relative;" @click="notificationDaysBefore++">
+                                                <span class="material-symbols-outlined">
+                                                    add
+                                                </span>
+                                            </v-btn>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row v-if="notificationsActive === true">
+                                        <v-col cols="auto">
+                                            <p>Select your notification sources:</p>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row v-if="notificationsActive === true" style="margin-top: -10px; margin-bottom: -55px;">
+                                        <v-col cols="6">
+                                            <v-checkbox v-model="selectedNotificationSources" label="UNR" value="UNR"></v-checkbox>
+                                        </v-col>
+                                        <v-col cols="6">
+                                            <v-checkbox v-model="selectedNotificationSources" label="Instructors" value="Instructor"></v-checkbox>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row v-if="notificationsActive === true" style="margin-top: -20px; margin-bottom: -55px;">
+                                        <v-col cols="6">
+                                            <v-checkbox v-model="selectedNotificationSources" label="Admins" value="Admin"></v-checkbox>
+                                        </v-col>
+                                        <v-col cols="6">
+                                            <v-checkbox v-model="selectedNotificationSources" label="User Deadlines" :value="user.firstname + ' ' + user.lastname"></v-checkbox>
+                                        </v-col>
+                                    </v-row>
+                                </v-card-text> 
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn text="Close" variant="plain" @click="dialogNotifications = false"></v-btn>
+                                    <v-btn color="primary" text="Save" variant="tonal" @click="turnOnEmailNotifications()"></v-btn>
+                                </v-card-actions>
+                            </v-card>
+                        </v-dialog> 
+                    </v-row>
                     <v-expansion-panels>
                         <v-expansion-panel class="deadline-title" v-for="(notification, index) in upcomingNotifications" :key="index" :title="`${notification.date} - ${notification.source}`" :class="{'upcoming': index === 0}">
                             <v-expansion-panel-text>
@@ -216,6 +291,7 @@
                     major: '',
                     term: 'Spring 2024',
                     avatar: require('@/assets/profile-picture.jpg'),
+                    email: '',
                 },
 
                 //deadlines
@@ -223,6 +299,12 @@
                 dialogDeleteDeadline: [],
                 deadlineDescription: '',
                 deadlineDate: new Date(),
+
+                //notifications on/off
+                notificationsActive: false,
+                dialogNotifications: false,
+                notificationDaysBefore: 1,
+                selectedNotificationSources: [],
 
                 schedule: [],
 
@@ -258,6 +340,7 @@
                     this.user.lastname = response.data.Lname;
                     this.user.major = response.data.majorName;
                     this.user.dob = response.data.DOB;
+                    this.user.email = response.data.Email;
                     console.log('Dashboard loaded successfully', response.data);
                 })
                 .catch(error => {
@@ -337,6 +420,21 @@
 
                 this.notifications.splice(deadlineIndex, 1);
                 this.dialogDeleteDeadline[index] = false;
+            },
+
+            turnOnEmailNotifications(){
+                console.log('Sources selected', this.selectedNotificationSources);
+                const currentDate = new Date();
+
+                const filteredNotifications = this.notifications.filter(notification => {
+                    const notificationDate = new Date(notification.date);
+                    const isSelectedSource = this.selectedNotificationSources.includes(notification.source);
+                    const isFutureDate = notificationDate > currentDate;
+                    
+                    return isSelectedSource && isFutureDate;
+                });
+
+                console.log('Filtered Notifications', filteredNotifications);                
             },
         },
         
@@ -517,6 +615,7 @@
     .deadlines-container{
         max-height: 500px;
         overflow-y: auto;
+        overflow-x: hidden;
     }
 
     .deadline-title {

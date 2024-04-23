@@ -16,6 +16,7 @@
             <br>
             Please check your email inbox for a confirmation email to complete your sign up. 
             Once complete you will be able to log in to your account. If it is not there, please check your <strong>spam folder</strong>.
+            <br><em>Instructors will also need to wait for admin approval on their account.</em>
             <br>
             <br>
             <em>Still can't find it?</em>

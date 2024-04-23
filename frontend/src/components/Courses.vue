@@ -3,7 +3,7 @@
 <!-- This page prompts the user to select courses based on filters they choose -->
 <!-- Courses will have a popup menu that gives details about it -->
 
-<template>   
+<template> 
     <div v-if="userType === 'Student'">
         <div class="top-row">
             <div class="row">
@@ -336,6 +336,7 @@
             departmentSearch() {
                 this.fetchDepartments();
             },
+            
             courseSearch() {
                 this.fetchCourseCodes();
             }
@@ -468,6 +469,11 @@
                     params.term = `${currentYear} ${this.selectedFilters.find(filter => /^(?:Fall|Winter|Spring|Summer)$/.test(filter))}`;
                 }
                 return params;
+            },
+
+            retrieveCourseStudents(){
+                const retrieveStudents = this.courseStudents[this.tab].students;
+                return retrieveStudents;
             },
         },
 
@@ -808,13 +814,6 @@
                 this.tallyU = uCount;
                 this.sparklineKey++;
                 this.gradeAnalytics = tallyGrades;
-            },
-        },
-
-        computed:{
-            retrieveCourseStudents(){
-                const retrieveStudents = this.courseStudents[this.tab].students;
-                return retrieveStudents;
             },
         },
 
