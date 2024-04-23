@@ -122,12 +122,12 @@ import About from './About.vue';
         text3: 'Use visualizations and progress trackers to stay motivated and achieve your academic goals.',
         text4: 'Use Course Compass\'s calculators to track your GPA and plan your final grades.',
         text5: 'View analytics of courses and your progress.', image: require('@/assets/unrfriends.png') },
-        { label: 'Planner', header:'Stay Up To Date', value: 'Planner', 
-        text: 'Keep yourself organized and up-to-date with Course Compass\'s planner feature.',
+        { label: 'Plan', header:'Stay Up To Date', value: 'Plan', 
+        text: 'Keep yourself organized and up-to-date with Course Compass.',
         text2: 'Set reminders for assignments, exams, and other important deadlines.',
         text3: 'Course Compass ensures you receive timely notifications, preventing you from missing important academic milestones.',
         text4: 'Gain a quick overview of your upcoming deadlines with Course Compass\'s different representations.',
-        text5: 'Customize your planner to align with your goals and stay on top of your academic and personal commitments.', image: require('@/assets/unrcampus.png') },
+        text5: 'Customize your deadlines to align with your goals and stay on top of your academic and personal commitments.', image: require('@/assets/unrcampus.png') },
     ];
 </script>
 
@@ -277,7 +277,7 @@ import About from './About.vue';
     button {
         font-family: coolvetica, sans-serif;
         font-size: 25px;
-        background-color: #364db3;
+        background-color: #002E62;
         color: #ffffff;
         padding: 5px 15px;
         border: none;

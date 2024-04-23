@@ -326,6 +326,199 @@ def user_schedule_stored_procedure(cursor, email):
         return None
     
 
+#create a custom schedule
+@app.route('/createCustomSchedule', methods=['POST'])
+@jwt_required()
+def create_custom_schedule():
+    try:
+        current_user_email = get_jwt_identity()['email']
+        user = User.get_user_by_email(current_user_email)
+        if not user or not user.studentID:
+            return jsonify({"message": "User not found or not a student"}), 400
+
+        data = request.get_json()
+        title = data['title']
+        option = data['option']
+
+        # Insert the new custom schedule into the database
+        connection = connectToDB()
+        cursor = connection.cursor()
+        cursor.execute("INSERT INTO tblCustomSchedules (studentID, title, scheduleOption) VALUES (%s, %s, %s)",
+                       (user.studentID, title, option))
+        connection.commit()
+
+        # Retrieve the newly created custom schedule from the database
+        schedule_id = cursor.lastrowid
+        cursor.execute("SELECT * FROM tblCustomSchedules WHERE scheduleID = %s", (schedule_id,))
+        schedule_data = cursor.fetchone()
+
+        # Create a dictionary representing the custom schedule
+        custom_schedule = {
+            'scheduleID': schedule_data[0],
+            'title': schedule_data[2],
+            'option': schedule_data[3]
+        }
+
+        return jsonify({"schedule": custom_schedule}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error creating custom schedule"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+#add event to custom schedule
+@app.route('/createCustomEvent', methods=['POST'])
+@jwt_required()
+def create_custom_event():
+    try:
+        current_user_email = get_jwt_identity()['email']
+        user = User.get_user_by_email(current_user_email)
+        if not user or not user.studentID:
+            return jsonify({"message": "User not found or not a student"}), 400
+
+        data = request.get_json()
+        description = data['description']
+        color = data['color']
+        start_time = data['start']
+        end_time = data['end']
+        days_of_week = ','.join(data['daysOfWeek'])
+        schedule_id = data['scheduleID']
+
+        connection = connectToDB()
+        cursor = connection.cursor()
+        cursor.execute("""
+            INSERT INTO tblCustomEvents (scheduleID, description, color, startTime, endTime, daysOfWeek)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (schedule_id, description, color, start_time, end_time, days_of_week))
+        connection.commit()
+
+        return jsonify({"message": "Custom event created successfully"}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error creating custom event"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+#retrieve user created schedules
+@app.route('/getCustomSchedules', methods=['GET'])
+@jwt_required()
+def get_custom_schedules():
+    try:
+        current_user_email = get_jwt_identity()['email']
+        user = User.get_user_by_email(current_user_email)
+        if not user or not user.studentID:
+            return jsonify({"message": "User not found or not a student"}), 400
+
+        connection = connectToDB()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            SELECT cs.scheduleID, cs.title, cs.scheduleOption, ce.eventID, ce.description, ce.color, ce.startTime, ce.endTime, ce.daysOfWeek
+            FROM cs425.tblCustomSchedules cs
+            LEFT JOIN cs425.tblCustomEvents ce ON cs.scheduleID = ce.scheduleID
+            WHERE cs.studentID = %s
+        """, (user.studentID,))
+
+        results = cursor.fetchall()
+        custom_schedules = {}
+
+        for row in results:
+            schedule_id = row[0]
+            if schedule_id not in custom_schedules:
+                custom_schedules[schedule_id] = {
+                    "scheduleID": schedule_id,
+                    "title": row[1],
+                    "option": row[2],
+                    "events": []
+                }
+
+            if row[3]:  # If eventID is not None
+                days_of_week = row[8].split(',') if row[8] else []
+                custom_schedules[schedule_id]["events"].append({
+                    "eventID": row[3],
+                    "description": row[4],
+                    "color": row[5],
+                    "start": row[6],
+                    "end": row[7],
+                    "daysOfWeek": days_of_week
+                })
+
+        return jsonify({"customSchedules": list(custom_schedules.values())}), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error retrieving custom schedules"}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
+
+
+#delete custom created schedules
+@app.route('/deleteCustomSchedule/<int:schedule_id>', methods=['DELETE'])
+@jwt_required()
+def delete_custom_schedule(schedule_id):
+    try:
+        current_user_email = get_jwt_identity()['email']
+        user = User.get_user_by_email(current_user_email)
+        if not user or not user.studentID:
+            return jsonify({"message": "User not found or not a student"}), 400
+
+        connection = connectToDB()
+        cursor = connection.cursor()
+
+        # Delete the associated events first
+        cursor.execute("DELETE FROM tblCustomEvents WHERE scheduleID = %s", (schedule_id,))
+
+        # Delete the custom schedule
+        cursor.execute("DELETE FROM tblCustomSchedules WHERE scheduleID = %s AND studentID = %s", (schedule_id, user.studentID))
+        connection.commit()
+
+        if cursor.rowcount > 0:
+            return jsonify({"message": "Custom schedule deleted successfully"}), 200
+        else:
+            return jsonify({"message": "Custom schedule not found or not authorized"}), 404
+
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error deleting custom schedule"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+#delete event from custom schedule
+@app.route('/deleteCustomEvent/<int:event_id>', methods=['DELETE'])
+@jwt_required()
+def delete_custom_event(event_id):
+    try:
+        current_user_email = get_jwt_identity()['email']
+        user = User.get_user_by_email(current_user_email)
+        if not user or not user.studentID:
+            return jsonify({"message": "User not found or not a student"}), 400
+
+        connection = connectToDB()
+        cursor = connection.cursor()
+
+        # Delete the custom event
+        cursor.execute("DELETE FROM tblCustomEvents WHERE eventID = %s", (event_id,))
+        connection.commit()
+
+        if cursor.rowcount > 0:
+            return jsonify({"message": "Custom event deleted successfully"}), 200
+        else:
+            return jsonify({"message": "Custom event not found"}), 404
+
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error deleting custom event"}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
+
+
 #get user enrolled courses
 @app.route('/getEnrolledCourses', methods=['GET'])
 @jwt_required()
@@ -555,11 +748,12 @@ def get_user_course_tags():
 def fetch_user_course_tags(email):
     try:
         with connectToDB() as connection:
-            with connection.cursor() as cursor:
+            with connection.cursor(dictionary=True) as cursor:
                 query = """
                 SELECT 
                     c.courseCode,
-                    GROUP_CONCAT(t.tagID) AS tags
+                    GROUP_CONCAT(t.tagID) AS tags,
+                    MAX(r.rating) AS rating
                 FROM 
                     tblStudents s
                 JOIN 
@@ -584,14 +778,18 @@ def fetch_user_course_tags(email):
                 for result in results:
                     course_code = result['courseCode']
                     tags = result['tags'].split(',') if result['tags'] else []
-                    tags_by_course[course_code] = tags
-                    
-                    # Log the tags for each course
-                    app.logger.info(f"Course: {course_code}, Tags: {tags}")
+                    rating = result['rating']
+                    tags_by_course[course_code] = {
+                        'tags': tags,
+                        'rating': rating
+                    }
+
+                    # Log the tags and rating for each course
+                    app.logger.info(f"Course: {course_code}, Tags: {tags}, Rating: {rating}")
 
                 return tags_by_course
     except Exception as e:
-        print(f"Error fetching user course tags: {str(e)}")
+        app.logger.error(f"Error fetching user course tags and ratings: {str(e)}")
         return None
 
 
@@ -919,14 +1117,14 @@ def search_departments():
     format_param = request.args.get('format', None)
     location_param = request.args.get('location', None)
     term_param = request.args.get('term', None)
-    default_param = request.args.get('default', None)
+    rating_param = request.args.get('rating', None)
     
     connection = connectToDB()
     if connection:
         cursor = connection.cursor(dictionary=True)
         try:
             query = """
-            SELECT DISTINCT
+            SELECT
                 scheduleID,
                 courseName,
                 courseCode,
@@ -941,69 +1139,66 @@ def search_departments():
                 days,
                 classCapacity,
                 enrollmentTotal,
-                availableSeats
+                availableSeats,
+                averageRating,
+                courseLevel,
+                frequentTags
             FROM (
                 SELECT *,
-                    ROW_NUMBER() OVER(PARTITION BY courseCode ORDER BY scheduleID) AS rn  -- Adjusted for unique course codes
+                    ROW_NUMBER() OVER (PARTITION BY courseCode, term ORDER BY scheduleID) AS rn
                 FROM vwCourseDetails
-            ) AS courses
-            WHERE rn = 1"""
+                WHERE 1=1
+            ) t
+            WHERE rn = 1
+            """
             
             params = []
             filters_applied = False
-            applied_filters = {}
             
             if 'query' in request.args and query_param:
-                applied_filters['query'] = query_param
                 query += " AND courseMajor LIKE %s"
                 params.append(f"{query_param}%")
                 filters_applied = True
             
             if 'level' in request.args and level_param:
-                applied_filters['query'] = query_param
                 level = level_param.rstrip('+')
                 numeric_level = int(level)
-                query += " AND numericCourseLevel >= %s"
+                query += " AND courseLevel = %s"
                 params.append(numeric_level)
                 filters_applied = True
             
             if 'startTime' in request.args and start_time_param:
-                applied_filters['query'] = query_param
                 start_time_param = unquote(request.args.get('startTime', ''))
                 start_time_range = start_time_param.split('-')
-                start_time_lower = datetime.strptime(start_time_range[0].strip(), '%I').time()
+                start_time_lower = datetime.strptime(start_time_range[0].strip() + start_time_range[1][-2:].strip(), '%I%p').time()
                 end_time_value = start_time_range[1].strip().split(' ')[0]  # Extract the end time value
-                start_time_upper = datetime.strptime(end_time_value, '%I').time()
-                query += " AND TIME_FORMAT(LEFT(meetingTime, LOCATE('-', meetingTime) - 1), '%H:%i') BETWEEN TIME_FORMAT(%s, '%H:%i') AND TIME_FORMAT(%s, '%H:%i')"
-                params.extend([start_time_lower, start_time_upper])
+                end_time_period = start_time_range[1][-2:].strip()  # Extract AM or PM
+                start_time_upper = datetime.strptime(end_time_value + end_time_period, '%I%p').time()
+                query += " AND (TIME_FORMAT(LEFT(meetingTime, LOCATE('-', meetingTime) - 1), '%h:%i %p') BETWEEN %s AND %s OR TIME_FORMAT(LEFT(meetingTime, LOCATE('-', meetingTime) - 1), '%H:%i') BETWEEN TIME_FORMAT(%s, '%H:%i') AND TIME_FORMAT(%s, '%H:%i'))"
+                params.extend([start_time_lower.strftime('%I:%M %p'), start_time_upper.strftime('%I:%M %p'), start_time_lower, start_time_upper])
                 filters_applied = True
             
             if 'format' in request.args and format_param:
-                applied_filters['query'] = query_param
                 query += " AND format = %s"
                 params.append(format_param)
                 filters_applied = True
             
             if 'location' in request.args and location_param:
-                applied_filters['query'] = query_param
                 query += " AND LEFT(Location, LOCATE(' ', Location) - 1) = %s"
                 params.append(location_param)
                 filters_applied = True
 
             if 'term' in request.args and term_param:
-                applied_filters['query'] = query_param
                 query += " AND term = %s"
                 params.append(term_param)
                 filters_applied = True
             
-            if not filters_applied:
-                query += " AND rn = 1"
+            if 'rating' in request.args and rating_param:
+                query += " AND averageRating >= %s"
+                params.append(float(rating_param))
+                filters_applied = True
             
-            query += """
-            ORDER BY
-                CAST(SUBSTRING(courseCode, LOCATE(' ', courseCode) + 1) AS UNSIGNED),
-                SUBSTRING(courseCode, 1, LOCATE(' ', courseCode) - 1);
-            """
+            query += " ORDER BY courseLevel, courseCode;"
             
             print("Query Parameters:", params)
 
@@ -1024,7 +1219,9 @@ def search_departments():
                 'days': dept['days'],
                 'classCapacity': dept['classCapacity'],
                 'enrollmentTotal': dept['enrollmentTotal'],
-                'availableSeats': dept['availableSeats']
+                'availableSeats': dept['availableSeats'],
+                'averageRating': dept['averageRating'],
+                'frequentTags': dept['frequentTags'].split(', ')[:4] if dept['frequentTags'] else [],
             } for dept in result]
         finally:
             cursor.close()

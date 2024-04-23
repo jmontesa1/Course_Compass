@@ -425,19 +425,19 @@
                                             <p style="font-family: Poppins; margin-left: 6px;">Mon</p>
                                         </v-col>
                                         <v-col cols="1.5">
-                                            <p style="font-family: Poppins;margin-left: 12px;">Tue</p>
+                                            <p style="font-family: Poppins;margin-left: 10px;">Tue</p>
                                         </v-col>
                                         <v-col cols="1.5">
-                                            <p style="font-family: Poppins;margin-left: 12px;">Wed</p>
+                                            <p style="font-family: Poppins;margin-left: 15px;">Wed</p>
                                         </v-col>
                                         <v-col cols="1.5">
-                                            <p style="font-family: Poppins;margin-left: 11px;">Thurs</p>
+                                            <p style="font-family: Poppins;margin-left: 16px;">Thurs</p>
                                         </v-col>
                                         <v-col cols="1.5">
-                                            <p style="font-family: Poppins;margin-left: 22px;">Fri</p>
+                                            <p style="font-family: Poppins;margin-left: 35px;">Fri</p>
                                         </v-col>
-                                        <v-col cols="1">
-                                            <p style="font-family: Poppins;margin-left: 15px;">Sat</p>
+                                        <v-col cols="1.5">
+                                            <p style="font-family: Poppins;margin-left: 33px;">Sat</p>
                                         </v-col>
                                     </v-row>
                                     <v-row>
@@ -478,22 +478,22 @@
                                     <v-divider></v-divider>
                                     <v-row>
                                         <v-col cols="1.5">
-                                            <p style="font-family: Poppins; margin-left: 77px;">Courses</p>
+                                            <p style="font-family: Poppins; margin-left: 60px;">Courses</p>
                                         </v-col>
                                         <v-col cols="1.5">
-                                            <p style="font-family: Poppins; margin-left: 67px;">Majors</p>
+                                            <p style="font-family: Poppins; margin-left: 50px;">Majors</p>
                                         </v-col>
                                         <v-col cols="1.5">
-                                            <p style="font-family: Poppins;margin-left: 16px;">Student Reviews</p>
+                                            <p style="font-family: Poppins;margin-left: 0px;">Student Reviews</p>
                                         </v-col>
                                         <v-col cols="1.5">
-                                            <p style="font-family: Poppins;margin-left: 4px;">User Schedules</p>
+                                            <p style="font-family: Poppins;margin-left: -8px;">User Schedules</p>
                                         </v-col>
                                         <v-col cols="1.5">
-                                            <p style="font-family: Poppins;margin-left: -18px;">Announcements</p>
+                                            <p style="font-family: Poppins;margin-left: -33px;">Announcements</p>
                                         </v-col>
                                         <v-col cols="1.5">
-                                            <p style="font-family: Poppins;margin-left: 4px;">TBA</p>
+                                            <p style="font-family: Poppins;margin-left: 0px;">TBA</p>
                                         </v-col>
                                         <v-col cols="1">
                                             <p style="font-family: Poppins;margin-left: -16px;">TBA</p>
@@ -521,9 +521,9 @@
             return {
                 confirmationDialog: false,
                 tab: 'dashboard',
-                dashboard: false,
+                dashboard: true,
                 instructors: false,
-                analytics: true,
+                analytics: false,
                 user: {
                     firstname: 'John',
                     lastname: '',

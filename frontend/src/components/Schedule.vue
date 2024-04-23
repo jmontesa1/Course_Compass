@@ -31,7 +31,7 @@
                         <div class="col d-flex flex-column">
                             <h1>                            
                                 <select v-model="selectedScheduleTitle" @change="handleScheduleChange">
-                                    <option v-for="schedule in userSchedules" :key="schedule.option" :value="schedule.title">{{ schedule.title }}</option>
+                                    <option v-for="schedule in userSchedules" :key="schedule.title" :value="schedule.title">{{ schedule.title }}</option>
                                 </select>
 
                                 <v-dialog v-model="dialog" max-width="500" style="font-family: Poppins;">
@@ -53,7 +53,7 @@
                                         <v-card-actions>
                                             <v-spacer></v-spacer>
                                             <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
-                                            <v-btn color="primary" text="Add" variant="tonal" @click="newSchedule()"></v-btn>
+                                            <v-btn color="primary" text="Add" variant="tonal" @click="createCustomSchedule">ADD</v-btn>
                                         </v-card-actions>
                                     </v-card>
                                 </v-dialog>
@@ -75,10 +75,11 @@
                                         <v-card-actions>
                                             <v-spacer></v-spacer>
                                             <v-btn text="Close" variant="plain" @click="dialog_delete_schedule = false"></v-btn>
-                                            <v-btn color="red" text="Delete" variant="tonal" @click="deleteSchedule()"></v-btn>
+                                            <v-btn color="#da4d4d" text="Delete" variant="tonal" @click="deleteSchedule()"></v-btn>
                                         </v-card-actions>
                                     </v-card>
                                 </v-dialog>
+
                             </h1>
                         </div>
 
@@ -108,17 +109,40 @@
                                     </v-row>
                                     <v-row dense>
                                         <v-col auto>
-                                            <v-select v-model="eventColor" :items="scheduleColors" label="Color" required>
-                                                <template v-slot:item="{ item }">
-                                                    <div>
-                                                        <div class="color-square"></div>
-                                                        {{ item.name }}
-                                                    </div>
-                                                </template>
-                                            </v-select>
+                                            <v-select v-model="eventColor" :items="this.scheduleColors" label="Color" required></v-select>
                                         </v-col>
                                         <v-col auto>
-                                                <v-text-field v-model="weeklyEventStart" placeholder="00:00 AM" hint="8:00 AM - 7:00 PM" label="Start Time"></v-text-field>
+                                                 <v-text-field
+                                                    v-model="weeklyEventStart"
+                                                    :active="menuStart"
+                                                    label="Open Time Picker"
+                                                    readonly
+                                                    >
+                                                    <v-menu
+                                                        v-model="menuStart"
+                                                        :close-on-content-click="false"
+                                                        activator="parent"
+                                                        transition="scale-transition"
+                                                    >
+                                                        <v-container style="background-color: white; font-family: Poppins;">
+                                                            <v-row>
+                                                                <v-text-field v-model="weeklyEventStart" placeholder="00:00 AM" hint="8:00 AM - 7:00 PM" label="Start Time"></v-text-field>
+                                                                <!--<v-col cols="4">
+                                                                    <h5>Hour</h5>
+                                                                    <v-number-input variant="solo-filled" hide-details hide-input inset ></v-number-input>
+                                                                </v-col>
+                                                                <v-col cols="4">
+                                                                    <h5>Minutes</h5>
+                                                                    <v-number-input variant="solo-filled" hide-details hide-input inset></v-number-input>
+                                                                </v-col>
+                                                                <v-col cols="4">
+                                                                    <h5>AM/PM</h5>
+                                                                    <v-number-input variant="solo-filled" hide-details hide-input inset></v-number-input>
+                                                                </v-col>-->
+                                                            </v-row>
+                                                        </v-container>
+                                                    </v-menu>
+                                                </v-text-field>
                                         </v-col>
                                         <v-col auto>
                                                 <v-text-field v-model="weeklyEventEnd" placeholder="00:00 PM" hint="End times must be in intervals of ten minutes" label="End Time"></v-text-field>
@@ -133,7 +157,7 @@
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
                                     <v-btn text="Close" variant="plain" @click="dialog_event = false"></v-btn>
-                                    <v-btn color="primary" text="Add" variant="tonal" @click="createWeeklyEvent()"></v-btn>
+                                    <v-btn color="primary" text="Add" variant="tonal" @click="createCustomEvent()"></v-btn>
                                 </v-card-actions>
                             </v-card>
                         </v-dialog>
@@ -171,7 +195,7 @@
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
                                     <v-btn text="Close" variant="plain" @click="dialog_weekdaysevent = false"></v-btn>
-                                    <v-btn color="primary" text="Add" variant="tonal" @click="createWeeklyEvent()"></v-btn>
+                                    <v-btn color="primary" text="Add" variant="tonal" @click="createCustomEvent()"></v-btn>
                                 </v-card-actions>
                             </v-card>
                         </v-dialog>
@@ -179,6 +203,42 @@
                     </div>
                 </div>
 
+                <!-- delete event from schedule pop up -->
+                <v-dialog v-model="dialog_event_popup" max-width="500" style="font-family: Poppins;">
+                    <v-card>
+                        <v-card-title>Event Details</v-card-title>
+                        <v-card-text>
+                        <v-row dense>
+                            <v-col>
+                            <p><strong>Description:</strong> {{ selectedEvent.description }}</p>
+                            <p><strong>Start Time:</strong> {{ selectedEvent.start }}</p>
+                            <p><strong>End Time:</strong> {{ selectedEvent.end }}</p>
+                            <p><strong>Days:</strong> {{ selectedEvent.daysOfWeek.join(', ') }}</p>
+                            </v-col>
+                        </v-row>
+                        </v-card-text>
+                        <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn text="Close" variant="plain" @click="dialog_event_popup = false"></v-btn>
+                        <v-btn color="#da4d4d" text="Delete" variant="tonal" @click="dialog_delete_event = true"></v-btn>
+                        </v-card-actions>
+                    </v-card>
+                    </v-dialog>
+
+                    <!-- confirnm deletion pop up-->
+                    <v-dialog v-model="dialog_delete_event" max-width="500" style="font-family: Poppins;">
+                    <v-card>
+                        <v-card-title>Confirm Delete</v-card-title>
+                        <v-card-text>
+                        <p>Are you sure you want to delete the event "{{ selectedEvent.description }}"?</p>
+                        </v-card-text>
+                        <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn text="Cancel" variant="plain" @click="dialog_delete_event = false"></v-btn>
+                        <v-btn color="#da4d4d" text="Delete" variant="tonal" @click="confirmDeleteEvent"></v-btn>
+                        </v-card-actions>
+                    </v-card>
+                    </v-dialog>
 
                 <!--DISPLAYS OF WEEKDAY SCHEDULE OPTION-->
                 <div id="schedule-page" ref="schedulePage" >
@@ -223,7 +283,7 @@
                                                 </div>
                                             </div>
                                             <div v-if="scheduleOption === 'Weekdays'">
-                                                <div v-for="eventBlock in generateWeeklyBlocks(day)" :key="eventBlock.id" :style="eventBlock.style">
+                                                <div v-for="eventBlock in generateWeeklyBlocks(day)" :key="eventBlock.id" :style="eventBlock.style" @click="openEventPopup(eventBlock.events[0])">
                                                     <div class="class-info">
                                                         {{ eventBlock.events[0].description }}
                                                         <br>
@@ -269,7 +329,7 @@
                                                 || time === '8' && day === 'Wednesday' || time === '8' && day === 'Thursday'
                                                 || time === '8' && day === 'Friday' || time === '8' && day === 'Saturday'">
                                             <div v-if="scheduleOption === 'Weekdays and Weekends'">
-                                                <div v-for="eventBlock in generateWeeklyBlocks(day)" :key="eventBlock.id" :style="eventBlock.style">
+                                                <div v-for="eventBlock in generateWeeklyBlocks(day)" :key="eventBlock.id" :style="eventBlock.style" @click="openEventPopup(eventBlock.events[0])">
                                                     <div class="class-info">
                                                         {{ eventBlock.events[0].description }}
                                                         <br>
@@ -288,6 +348,67 @@
             </div>
 
             <div class="right-side2" v-if="calendar">
+                <v-dialog v-model="dialog_events" max-width="800" style="font-family: Poppins;">
+                    <template v-slot:activator="{ props: activatorProps }">
+                        <v-btn class="add-event2" v-bind="activatorProps">Events</v-btn>
+                    </template>
+                    <!--Pop up -->
+                    <v-card title="Manage Events">
+                        <v-card-text>
+                            <v-row dense>
+                                <v-col cols = "12">
+                                    <v-expansion-panels>
+                                        <v-expansion-panel>
+                                            <v-expansion-panel-title>
+                                                <v-row no-gutters>
+                                                    <v-col class="d-flex justify-start">
+                                                        <p>Your events: ({{events.length}})</p>
+                                                    </v-col>
+                                                </v-row>
+                                            </v-expansion-panel-title>
+                                            <v-expansion-panel-text>
+                                                <v-row no-gutters v-for="(event, index) in events" :key="index">
+                                                    <v-col cols="11">
+                                                        <p><strong>{{events[index].title}}</strong> (<em>{{events[index].date}}</em>) - {{events[index].description}}</p>
+                                                    </v-col>
+                                                    <v-col cols="1">
+                                                        <v-dialog v-model="dialog_events_remove[index]" max-width="600" style="font-family: Poppins;">
+                                                            <template v-slot:activator="{ props: activatorProps }">
+                                                                <v-btn v-bind="activatorProps" icon="$close" variant="plain">
+                                                                    <span class="material-symbols-outlined">
+                                                                        delete
+                                                                    </span>
+                                                                </v-btn>
+                                                            </template>
+                                                            <!--Pop up -->
+                                                            <v-card title="Are you sure you want to delete event:">
+                                                                <v-card-text>
+                                                                    <br>
+                                                                    <p><strong>{{events[index].title}}</strong> (<em>{{events[index].date}}</em>) - {{events[index].description}}</p>
+                                                                </v-card-text> 
+                                                                <v-card-actions>
+                                                                    <v-spacer></v-spacer>
+                                                                    <v-btn text="Close" variant="plain" @click="dialog_events_remove[index] = false"></v-btn>
+                                                                    <v-btn color="#da4d4d" text="Delete" variant="tonal" @click="removeCalendarEvent(index)"></v-btn>
+                                                                </v-card-actions>
+                                                            </v-card>
+                                                        </v-dialog> 
+                                                    </v-col>
+                                                    <v-divider class="instructor-divider"></v-divider>
+                                                </v-row>
+                                            </v-expansion-panel-text>
+                                        </v-expansion-panel>
+                                    </v-expansion-panels>  
+                                </v-col>
+                            </v-row>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn text="Close" variant="plain" @click="dialog_events = false"></v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+
                 <v-dialog v-model="dialog" max-width="1000" style="font-family: Poppins;">
                     <template v-slot:activator="{ props: activatorProps }">
                         <v-btn class="add-event" v-bind="activatorProps">Add an event</v-btn>
@@ -347,6 +468,9 @@
                 tab: 'class-schedule',
                 classSchedule: true,
                 calendar: false,
+                selectedEvent: null,
+                dialog_event_popup: false,
+                dialog_delete_event: false,
 
                 user: {
                     firstname: '',
@@ -355,11 +479,14 @@
                 },
 
                 dialog: false,
+                dialog_events: false,
+                dialog_events_remove: [],
                 dialog_event: false,
                 dialog_weekdaysevent: false,
                 dialog_delete_schedule: false,
 
                 //Every data that involves schedule under this
+                menuStart: false,
                 scheduleTitle: '',
                 selectedScheduleTitle: 'Class Schedule',
                 newScheduleOption: 'Weekdays',
@@ -404,6 +531,8 @@
             
             const adapter = useDate()
             this.fetchEvents({ start: adapter.startOfDay(adapter.startOfMonth(new Date())), end: adapter.endOfDay(adapter.endOfMonth(new Date())) })
+
+            this.fetchCustomSchedules();
             },
 
         methods: {
@@ -414,6 +543,11 @@
                 this.tab = 'class-schedule';
                 this.calendar = false;
                 this.classSchedule = true;
+            },
+
+            openEventPopup(event) {
+                this.selectedEvent = event;
+                this.dialog_event_popup = true;
             },
 
             chooseCalendar(){
@@ -496,6 +630,7 @@
                                 break;
                             }
                         }
+                        
                         const startHour = parseInt(course.start.split(':')[0]);
                         const startMinute = parseInt(course.start.split(':')[1]);
                         const endHour = parseInt(course.end.split(':')[0]);
@@ -526,37 +661,37 @@
 
 
             //Any method under this are for the schedule
-            newSchedule(){
-                const schedule = {
-                    title: this.scheduleTitle,
-                    option: this.newScheduleOption,
-                    weeklyEvents: [],
-                };
 
-                this.userSchedules.push(schedule);
-                this.dialog = false;
+            async deleteSchedule() {
+                const scheduleToDelete = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
 
-                this.scheduleTitle ='';
-            },
+                if (scheduleToDelete && scheduleToDelete.scheduleID) {
+                    try {
+                        await axios.delete(`http://127.0.0.1:5000/deleteCustomSchedule/${scheduleToDelete.scheduleID}`, {
+                            headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                    });
+                        // Remove the deleted schedule from the userSchedules array
+                        const scheduleIndex = this.userSchedules.findIndex(schedule => schedule.title === this.selectedScheduleTitle);
+                        this.userSchedules.splice(scheduleIndex, 1);
 
-            deleteSchedule(){
-                const scheduleIndex = this.userSchedules.findIndex(schedule =>
-                    schedule.title === this.selectedScheduleTitle);
-
-                this.userSchedules.splice(scheduleIndex, 1);
-                this.dialog_delete_schedule = false;
-                this.selectedScheduleTitle = 'Class Schedule';
-                this.scheduleOption = 'Class Schedule';
+                        this.dialog_delete_schedule = false;
+                        this.selectedScheduleTitle = 'Class Schedule';
+                        this.scheduleOption = 'Class Schedule';
+                    } catch (error) {
+                        console.error('Error deleting custom schedule:', error);
+                    }
+                }
             },
 
             createWeeklyEvent(){
                 const selectedDays = Object.keys(this.daysOfWeek).filter(day => this.daysOfWeek[day]);
                 this.newWeeklyEvent(selectedDays);
+                console.log("selected days", selectedDays);
             },
 
             newWeeklyEvent(selectedDays){
                 const selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
-                
+                console.log("selected schedule", selectedSchedule);
                 const newEvent = {
                     description: this.weeklyEventDesc,
                     color: this.eventColor,
@@ -591,25 +726,48 @@
                 this.dialog_weekdaysevent = false;                
             },
 
+            async confirmDeleteEvent() {
+                await axios.delete(`http://127.0.0.1:5000/deleteCustomEvent/${this.selectedEvent.eventID}`, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                });
+
+                this.fetchCustomSchedules();
+                this.dialog_delete_event = false;
+                this.dialog_event_popup = false;
+            },
+            
             generateWeeklyBlocks(day) {
                 const blocks = [];
                 const selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
-                if (selectedSchedule && selectedSchedule.weeklyEvents) {
+                if (selectedSchedule && selectedSchedule.events) {
                     // Proceed only if the selected schedule is found and it has weekly events
-                    selectedSchedule.weeklyEvents.forEach(event => {
-                        if (event.daysOfWeek && event.daysOfWeek[day]) {
-                                const startHour = parseInt(event.start.split(':')[0]); //hours
-                                const startMinute = parseInt(event.start.split(':')[1]); //minutes
-                                const endHour = parseInt(event.end.split(':')[0]); //hours
-                                const endMinute = parseInt(event.end.split(':')[1]); //minutes
-                                let blockHeight;
+                    selectedSchedule.events.forEach(event => {
+                        if (event.daysOfWeek && event.daysOfWeek.includes(day)) {
+                            const startTimeParts = event.start.split(':');
+                            const endTimeParts = event.end.split(':');
 
-                                if (startHour === 12 && endHour != 12){
-                                    blockHeight = (((12-endHour) - startHour) * -56 + (endMinute - startMinute ));
-                                }
-                                else{
-                                    blockHeight = ((endHour - startHour) * 56 + (endMinute - startMinute - 3));
-                                }
+                            const startHour = parseInt(startTimeParts[0]);
+                            const startMinute = parseInt(startTimeParts[1].slice(0, 2));
+                            const startAmPm = startTimeParts[1].slice(-2);
+
+                            const endHour = parseInt(endTimeParts[0]);
+                            const endMinute = parseInt(endTimeParts[1].slice(0, 2));
+                            const endAmPm = endTimeParts[1].slice(-2);
+
+                            let durationInMinutes;
+
+                            if (startAmPm === endAmPm) {
+                                durationInMinutes = (endHour - startHour) * 60 + (endMinute - startMinute);
+                            } else if (endHour === 12) {
+                                durationInMinutes = ((12 - startHour)) * 60 + (endMinute - startMinute);
+                            } else {
+                                durationInMinutes = ((12 - startHour) + endHour) * 60 + (endMinute - startMinute);
+                            }
+
+                            const durationHours = Math.floor(durationInMinutes / 60);
+                            const durationMinutes = durationInMinutes % 60;
+
+                            const blockHeight = ((durationHours * 56) + ((durationMinutes/60) + 1));
 
                                 let yTransformation;
 
@@ -656,7 +814,7 @@
 
 
                                 blocks.push({
-                                    id: event.event + day,
+                                    id: event.eventID + day,
                                     style: {
                                         'background-color': event.color,
                                         'border-radius': '8px',
@@ -680,6 +838,7 @@
             handleScheduleChange() {
                 this.selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
                 this.scheduleOption = this.selectedSchedule.option;
+                console.log("selected:", this.selectedSchedule);
             },
 
             //Any method under this are for the calendar
@@ -687,6 +846,12 @@
                 return event.color
             },
             newEvent(){
+                const reformatDate = new Date(this.eventDate).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                });
+
                 const newEvent = {
                     title: this.eventTitle,
                     description: this.eventDescription,
@@ -694,16 +859,106 @@
                     end: this.eventDate,
                     color: this.eventColor,
                     allDay: this.allDay,
+                    date: reformatDate,
                 };
                 this.events.push(newEvent);
-                this.fetchEvents(newEvent);
                 this.dialog = false;
+                this.eventDate = new Date();
+                this.eventColor = '';
                 this.eventTitle ='';
                 this.eventDescription ='';
             },
 
             fetchEvents (newEvent) {
                 this.events.push();
+            },
+
+            removeCalendarEvent(index){
+                this.events.splice(index, 1);
+                this.dialog_events_remove[index] = false;
+            },
+
+            //created by Jose
+            async createCustomSchedule() {
+                try {
+                    const response = await axios.post('http://127.0.0.1:5000/createCustomSchedule', {
+                        title: this.scheduleTitle,
+                        option: this.newScheduleOption,
+                    }, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                    });
+                    if (response.status === 200) {
+                        const newSchedule = response.data.schedule;
+                        this.userSchedules.push(newSchedule);
+                        this.dialog = false;
+                        this.scheduleTitle = '';
+                    }
+                } catch (error) {
+                    console.error('Error creating custom schedule:', error);
+                }
+            },
+
+            async createCustomEvent() {
+                const selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
+
+                const selectedDays = Object.keys(this.daysOfWeek).filter(day => this.daysOfWeek[day]);
+
+                const newEvent = {
+                    description: this.weeklyEventDesc,
+                    color: this.eventColor,
+                    start: this.weeklyEventStart,
+                    end: this.weeklyEventEnd,
+                    daysOfWeek: selectedDays,
+                    scheduleID: selectedSchedule.scheduleID, // Include the scheduleID
+                };
+
+                try {
+                    await axios.post('http://127.0.0.1:5000/createCustomEvent', newEvent, {
+                        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                    });
+                    this.weeklyEventDesc = '';
+                    this.eventColor = '';
+                    this.weeklyEventStart = '';
+                    this.weeklyEventEnd = '';
+                    this.daysOfWeek = {
+                        Sunday: false,
+                        Monday: false,
+                        Tuesday: false,
+                        Wednesday: false,
+                        Thursday: false,
+                        Friday: false,
+                        Saturday: false,
+                    };
+                    this.dialog_event = false;
+                    this.dialog_weekdaysevent = false;
+                    this.fetchCustomSchedules();
+                } catch (error) {
+                    console.error('Error creating custom event:', error);
+                }
+            },
+
+            async fetchCustomSchedules() {
+                try {
+                    const response = await axios.get('http://127.0.0.1:5000/getCustomSchedules', {
+                        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                    });
+                    if (response.data && response.data.customSchedules) {
+                        const updatedSchedules = [
+                            {
+                                option: 'Class Schedule',
+                                title: 'Class Schedule',
+                                events: []
+                            },
+                            ...response.data.customSchedules.map(schedule => ({
+                                ...schedule,
+                                events: schedule.events || [],
+                            }))
+                        ];
+                        this.userSchedules = updatedSchedules;
+                    }
+                } catch (error) {
+                    console.error('Error fetching custom schedules:', error);
+                }
             },
 
         },
@@ -841,26 +1096,41 @@
     }
 
     select {
-        width: 40%;
+        width: 320px;
         height: 45px;
         margin-bottom: 5px;
         box-sizing: border-box;
         border: 1px solid rgba(0, 0, 0, 0.089);
         background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%23000000"><path d="M1 5h14L8 12z"/></svg>');
-        background-position: right 10px center;
+        background-position: right 5px center;
         background-size: 15px;
         cursor: pointer;
         padding-left: 8px;
+        padding-right: 15px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
     }
 
     .add-event{
         position: absolute;
         right: 10px;
-        top: 165px;
+        margin-top: 25px;
         font-family: Poppins;
         color: white;
         background-color: black;
         box-shadow: none;
+    }
+
+    .add-event2{
+        position: absolute;
+        right: 180px;
+        margin-top: 25px;
+        font-family: Poppins;
+        color: rgb(0, 0, 0);
+        background-color: rgb(255, 255, 255);
+        box-shadow: none;
+        border: black 1px solid;
     }
 
     .add-weekly-event{
@@ -894,6 +1164,6 @@
         display: inline-block;
         margin-right: 10px;
         vertical-align: middle;
-        background-color: rgb(255, 87, 51);
+        background-color: pink;
     }
 </style>

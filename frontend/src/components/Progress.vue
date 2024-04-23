@@ -70,7 +70,7 @@
                                         <input type="text" class="form-control" v-model="courseSearch" placeholder="Enter Course Name">
                                     </div>
                                     <div class="scroll"> 
-                                        <div v-for="(course, index) in major.courses" :key="index">
+                                        <div v-for="(course, index) in filteredCourses" :key="index">
                                             <div class="course-container">
                                                 <input type="checkbox" v-model="course.completed" @change="course.changed = true" :disabled="isCourseSaved(course)" />
                                                 <v-expansion-panels>
@@ -81,7 +81,7 @@
                                                         <v-expansion-panel-text>
                                                             <label>Credits: {{ course.credits }}</label>
                                                             <br>
-                                                            <v-row>
+                                                            <!--<v-row>
                                                                 <v-col cols="auto">
                                                                     <label style="position:relative;top:16px;">Grade:</label>
                                                                 </v-col>
@@ -96,16 +96,17 @@
                                                                         @change="course.changed = true"
                                                                     ></v-select>
                                                                 </v-col>
-                                                            </v-row>
+                                                            </v-row>-->
                                                             <div>
                                                                 <label style="position:relative;top:-19px;">Your Rating:</label>
-                                                                    <v-rating
+                                                                <v-rating
                                                                     v-model="course.studentRating"
                                                                     :length="5"
                                                                     color="yellow darken-3"
                                                                     background-color="grey lighten-1"
                                                                     empty-icon="$ratingEmpty"
                                                                     hover
+                                                                    :readonly="course.studentRating > 0"
                                                                     @input="course.changed = true"
                                                                     ></v-rating>
                                                                 <br>
@@ -296,6 +297,8 @@
                 currentCredits: 0,
                 currentGPA: 0,
                 courseGrade: [],
+                courseSearch: '',
+                userCourseTags: {},
 
                 unitsCompleted: 0,
                 user: {
@@ -435,7 +438,7 @@
                             review: course.review || '',
                             saved: course.isCompleted === 1,
                             tags: course.tags || [], //empty array of tags
-                            studentRating: course.studentRating || 0,
+                            studentRating: course.rating || 0, // Use the rating value from the backend
                         }));
 
                         majorToUpdate.units = response.data.totalCreditsReq;
@@ -444,6 +447,33 @@
                 } catch (error) {
                     console.error("Error fetching user courses", error.message);
                 }
+            },
+
+            async fetchUserCourseTags() {
+            try {
+                const response = await axios.get('http://127.0.0.1:5000/getUserCourseTags', {
+                headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
+                });
+                this.userCourseTags = {};
+
+                // Restructure the userCourseTags object
+                for (const courseCode in response.data.tags_by_course) {
+                this.userCourseTags[courseCode] = response.data.tags_by_course[courseCode].tags;
+                }
+
+                // Update the courses with the retrieved ratings
+                this.majors.forEach(major => {
+                major.courses.forEach(course => {
+                    const courseCode = course.name.split(':')[0].trim();
+                    const courseData = response.data.tags_by_course[courseCode];
+                    if (courseData) {
+                    course.studentRating = courseData.rating;
+                    }
+                });
+                });
+            } catch (error) {
+                console.error('Error fetching user course tags:', error);
+            }
             },
 
             async fetchCareerProgress() {
@@ -513,7 +543,16 @@
             },
 
             isTagSelected(course, tag) {
-                return course.tags && course.tags.some(t => t.id === tag.id);
+                const courseCode = course.name.split(':')[0].trim();
+                const preSelectedTags = this.userCourseTags[courseCode] || [];
+
+                if (preSelectedTags.length > 0) {
+                    // If the course has pre-selected tags, use the history tags logic
+                    return preSelectedTags.includes(tag.id.toString());
+                } else {
+                    // If the course doesn't have pre-selected tags, use the new tag selection logic
+                    return course.tags && course.tags.some(t => t.id === tag.id);
+                }
             },
         },
     
@@ -522,6 +561,7 @@
             this.fetchUserCourses();
             this.fetchTags();
             this.fetchCareerProgress();
+            this.fetchUserCourseTags();
         },
 
         computed: {
@@ -562,6 +602,12 @@
             isOnDeansList() {
                 return this.currentGPA >= 3.75 && this.currentCredits >= 12 ? 'Yes' : 'No';
             },
+
+            filteredCourses() {
+                return this.majors.find(major => major.name === this.user.major).courses.filter(course =>
+                course.name.toLowerCase().includes(this.courseSearch.toLowerCase())
+                );
+            }
         },
     };
 </script>

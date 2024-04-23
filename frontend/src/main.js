@@ -10,11 +10,13 @@ import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import '@mdi/font/css/materialdesignicons.css'
 import { VCalendar } from 'vuetify/labs/VCalendar'
 import { VSparkline } from 'vuetify/labs/VSparkline'
+import { VNumberInput } from 'vuetify/labs/VNumberInput'
 
 const vuetify = createVuetify({
     components:{
       VCalendar,
       VSparkline,
+      VNumberInput,
       ...components,
     },
     

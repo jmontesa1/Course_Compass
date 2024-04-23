@@ -7,7 +7,7 @@
     <div class="top-container">
         <v-row v-if="user && user.firstname">
             <h1 class="welcome-text">
-                &nbsp;Welcome, {{ user.firstname }}
+                Welcome, {{ user.firstname }}
             </h1>
         </v-row>
     </div>
@@ -59,11 +59,65 @@
                 <v-container class="deadlines-container">
                     <p>Deadlines:</p>
                     <v-expansion-panels>
-                        <v-expansion-panel class="deadline-title" v-for="(notification, index) in upcomingNotifications" :key="index" :title="`${notification.date} - ${notification.source}`" :text="notification.message" :class="{'upcoming': index === 0}">
+                        <v-expansion-panel class="deadline-title" v-for="(notification, index) in upcomingNotifications" :key="index" :title="`${notification.date} - ${notification.source}`" :class="{'upcoming': index === 0}">
+                            <v-expansion-panel-text>
+                                {{notification.message}}
+                                <br>
+                                <div v-if="notification.source === this.user.firstname + ' ' + this.user.lastname">
+                                    <v-dialog v-model="dialogDeleteDeadline[index]" max-width="400" style="font-family: Poppins;">
+                                        <template v-slot:activator="{ props: activatorProps }">
+                                            <v-btn v-bind="activatorProps" class="announcement-btn" variant="tonal" @click="handleLogout">
+                                                <p>Delete Deadline</p>
+                                            </v-btn>
+                                        </template>
+                                        <!--Pop up -->
+                                        <v-card title="Delete Deadline">
+                                            <v-card-text>
+                                                <v-row dense>
+                                                    <p>Are you sure you want to delete deadline <strong>{{notification.message}}</strong>?</p>
+                                                </v-row>
+                                            </v-card-text> 
+                                            <v-card-actions>
+                                                <v-spacer></v-spacer>
+                                                <v-btn text="Cancel" variant="plain" @click="dialogDeleteDeadline[index] = false"></v-btn>
+                                                <v-btn color="red" text="Delete" variant="tonal" @click="deleteDeadline(notification, index)"></v-btn>
+                                            </v-card-actions>
+                                        </v-card>
+                                    </v-dialog>   
+                                </div>
+                            </v-expansion-panel-text>
                         </v-expansion-panel>
                     </v-expansion-panels>
-
                 </v-container>
+                    <v-dialog v-model="dialogDeadline" max-width="1000" style="font-family: Poppins;">
+                        <template v-slot:activator="{ props: activatorProps }">
+                            <v-btn v-bind="activatorProps" class="announcement-btn" variant="outlined" @click="handleLogout">
+                                <p>Create Deadline</p>
+                            </v-btn>
+                        </template>
+                        <!--Pop up -->
+                        <v-card title="Create Deadline">
+                            <v-card-text>
+                                <v-row dense>
+                                    <v-col cols = "12" md="6">  
+                                        <br>
+                                        <p>Enter deadline information:</p>
+                                        <br>
+                                        <v-textarea v-model="deadlineDescription" label="Deadline Description" single-line rows="7"></v-textarea>
+                                        <br>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-date-picker v-model="deadlineDate" width="100%"></v-date-picker>
+                                    </v-col>
+                                </v-row>
+                            </v-card-text> 
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn text="Cancel" variant="plain" @click="dialogDeadline = false"></v-btn>
+                                <v-btn color="success" text="Create" variant="tonal" @click="createDeadline()"></v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
             </v-col>
         </v-row>
 
@@ -153,6 +207,7 @@
                 unenrollScheduleID: null,
                 showUnenrollDialog: false,
                 dialog: [],
+
                 currentDate: null,
                 user: {
                     firstname: '',
@@ -162,6 +217,12 @@
                     term: 'Spring 2024',
                     avatar: require('@/assets/profile-picture.jpg'),
                 },
+
+                //deadlines
+                dialogDeadline: false,
+                dialogDeleteDeadline: [],
+                deadlineDescription: '',
+                deadlineDate: new Date(),
 
                 schedule: [],
 
@@ -203,10 +264,7 @@
                     console.error("Error fetching dashboard data", error);
                 });
             },
-            
-            goToDashboard() {
-                this.$router.push('/dashboard')
-            },
+        
 
             async fetchEnrolledCourses() {
                 try {
@@ -246,6 +304,39 @@
                 this.unenrollScheduleID = scheduleID;
                 this.showUnenrollDialog = true;
                 this.dialog[index] = false;
+            },
+
+            createDeadline(){
+                //Month/Date/Year
+                const reformatDate = new Date(this.deadlineDate).toLocaleDateString('en-US', {
+                    month: 'numeric',
+                    day: 'numeric',
+                    year: 'numeric',
+                });
+
+                const deadline = {
+                    date: reformatDate,
+                    source: this.user.firstname + ' ' + this.user.lastname,
+                    message: this.deadlineDescription,
+                };
+
+                this.notifications.push(deadline);
+
+                this.deadlineDate = new Date();
+                this.deadlineDescription ='';
+                this.dialogDeadline = false;
+            },
+
+            deleteDeadline(notification, index){
+                const toDelete = notification;
+                console.log('test', toDelete);
+                //find deadline in array
+                const deadlineIndex = this.notifications.findIndex(notification =>
+                    notification.date === toDelete.date &&
+                    notification.message === toDelete.message);
+
+                this.notifications.splice(deadlineIndex, 1);
+                this.dialogDeleteDeadline[index] = false;
             },
         },
         
@@ -380,6 +471,7 @@
         font-family: coolvetica;
         position: relative;
         margin-top: 16px;
+        margin-left: 10px;
         font-size: 32px;
         left:1%;
     }
@@ -456,5 +548,15 @@
         justify-content: center;
         width: 96%;
         margin: 0 auto;
+    }
+
+    .announcement-btn{
+        margin-top: 15px;
+        width: 100%;
+    }
+
+    .v-date-picker{
+        margin-top: -29px;
+        margin-bottom: -38px;
     }
 </style>
