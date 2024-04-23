@@ -45,7 +45,7 @@ class User:
                 WHERE u.Email = %s
             """, (email,))
             user_data = cursor.fetchone()
-            print("Fetched user data:", user_data)
+            print("FETCHED USER DATA FROM GETUSERBYEMAIL", user_data)
             if user_data:
                 user = User(**user_data)
                 return user
@@ -870,7 +870,7 @@ def myAccount():
     print(f"Extracted email: {current_user_email}")
     user = User.get_user_by_email(current_user_email)
     if user:
-        print("STILL LOGGED IN MY ACCOUNT")
+        print("MY ACCOUNT USER SUCCESS")
         return jsonify(user.conv_to_json()), 200
     else:
         return jsonify({"message": "User not found"}), 404
@@ -882,6 +882,10 @@ def editProfile():
     identity = get_jwt_identity()
     current_user_email = identity['email']
     print(f"Extracted email: {current_user_email}")
+    user_information = User.get_user_by_email(current_user_email)
+    student_id = user_information.studentID
+    user_id = user_information.userID
+    major_id = user_information.majorID
     data = request.get_json()
     if not current_user_email:
         print("AUTH REQUIRED")
@@ -897,20 +901,41 @@ def editProfile():
         updates = []
         params = []
         if 'firstname' in data:
-            updates.append("Fname = %s")
+            updates.append("u.Fname = %s")
             params.append(data['firstname'])
         if 'lastname' in data:
-            updates.append("Lname = %s")
+            updates.append("u.Lname = %s")
             params.append(data['lastname'])
         if 'major' in data:
-            updates.append("majorName = %s")
-            params.append(data['major'])
+            cursor.execute("SELECT majorID, majorName FROM tblMajor WHERE majorName = %s", (data['major'],))
+            maj_result = cursor.fetchone()
+            majorID = maj_result['majorID']
+            majorName = maj_result['majorName']
+            print("Fetch result:", maj_result)
+            if maj_result:
+                updates.append("s.majorName = %s")
+                params.append(majorName)
+            # updates.append("majorName = %s")
+            # params.append(data['major'])
         
         if updates:
-            query = f"UPDATE tblUser SET {', '.join(updates)} WHERE Email = %s"
+            
+            joined_updates = ', '.join(updates)
+            query = f"""
+            UPDATE tblStudents s
+            JOIN tblUser u ON s.userID = u.userID
+            SET {joined_updates}
+            WHERE u.Email = %s
+            """
             params.append(current_user_email)
+            print("Executing query:", query)  
+            print("With params:", params)    
             cursor.execute(query, params)
             connection.commit()
+            # query = f"UPDATE tblUser SET {', '.join(updates)} WHERE Email = %s"
+            # params.append(current_user_email)
+            # cursor.execute(query, params)
+            # connection.commit()
 
         return jsonify({"message": "Profile updated successfully"}), 200
     except Error as err:

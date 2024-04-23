@@ -53,9 +53,9 @@
         open:['Filters'],
         //The different filters that the user can use to filter classes
           menuItems: [
-              { label: 'Level', children: [{ label: '0-99' }, { label: '100-199' }, { label: '200-299' },
-                                          { label: '300-399' }, { label: '400-499' }, { label: '500-599' }, { label: '600-699' },
-                                          { label: '700-799' }] },
+              { label: 'Level', children: [{ label: '< 100' }, { label: '100' }, { label: '200' },
+                                          { label: '300' }, { label: '400' }, { label: '500' }, { label: '600' },
+                                          { label: '700' }] },
               { label: 'Start Time', children: [{ label: '8-9 AM' }, { label: '10-11 AM' }, { label: '12-1 PM' },
                                               { label: '1-2 PM' }, { label: '3-4 PM' }, { label: '5-6 PM' }, { label: '7-8 PM' }]},
               { label: 'Rating', children: [{ label: '0+ Stars' }, { label: '1+ Stars' },{ label: '2+ Stars' },{ label: '3+ Stars' },

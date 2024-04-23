@@ -50,7 +50,11 @@
                                     <v-form>
                                         <v-text-field v-model="editData.firstName" label="First Name"></v-text-field>
                                         <v-text-field v-model="editData.lastName" label="Last Name"></v-text-field>
-                                        <v-select v-model="editData.major" :items="majorOptions" label="Major"></v-select>
+                                        <!--<v-select v-model="editData.major" :items="majorOptions" label="Major"></v-select> -->
+                                        <v-select v-model="editData.major_name" id="major" required>
+                                            <option value="" disabled>Select your major</option>
+                                            <option v-for="major in majors" :key="major" :value="major">{{ major }}</option>
+                                        </v-select>
                                     </v-form>
                                 </v-card-text>
                                 <v-card-actions>
@@ -96,10 +100,10 @@
                 editData: {
                     firstName: '',
                     lastName: '',
-                    major: '',
+                    major_name: '',
                 },
                 dialog: false,
-                majorOptions: [],
+                majors: [],
                 error: null,
                 loading: false,
             };
@@ -109,12 +113,21 @@
                 if (newVal) {
                     this.editData.firstName = this.user.firstname;
                     this.editData.lastName = this.user.lastname;
-                    this.editData.major = this.major;
+                    this.editData.major_name = this.user.major;
                 }
-            }
+            },
         },
         created() {
             this.fetchUserInfo();
+        },
+        mounted() {
+            axios.get('http://127.0.0.1:5000/majors')
+                .then(response => {
+                    this.majors = response.data.majors;
+                })
+                .catch(error => {
+                    console.error("Failed to fetch majors:", error);
+                });
         },
         methods: {
             fetchUserInfo() {
@@ -138,12 +151,12 @@
                 const updatedInfo = {
                     firstname: this.editData.firstName,
                     lastname: this.editData.lastName,
-                    major: this.editData.major,
+                    major: this.editData.major_name,
                 };
                 axios.post('http://127.0.0.1:5000/editprofile', updatedInfo, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                 .then(response => {
-                    this.fetchUserInfo();  // Refresh the displayed user data
-                    this.dialog = false;   // Close the dialog
+                    this.fetchUserInfo(); 
+                    this.dialog = false;  
                     console.log('Profile updated successfully');
                 })
                 .catch(error => {
@@ -171,7 +184,7 @@
         background-color: #e1e1e1;
         margin: 3% auto;
         padding: 20px;
-        width: 80%;
+        width: 50%;
         height: auto;
         border-radius: 8px;
         box-shadow: 0 0 px rgba(232, 0, 0, 0.1);
