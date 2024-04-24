@@ -111,41 +111,11 @@
                                         <v-col auto>
                                             <v-select v-model="eventColor" :items="this.scheduleColors" label="Color" required></v-select>
                                         </v-col>
-                                        <v-col auto>
-                                                 <v-text-field
-                                                    v-model="weeklyEventStart"
-                                                    :active="menuStart"
-                                                    label="Open Time Picker"
-                                                    readonly
-                                                    >
-                                                    <v-menu
-                                                        v-model="menuStart"
-                                                        :close-on-content-click="false"
-                                                        activator="parent"
-                                                        transition="scale-transition"
-                                                    >
-                                                        <v-container style="background-color: white; font-family: Poppins;">
-                                                            <v-row>
-                                                                <v-text-field v-model="weeklyEventStart" placeholder="00:00 AM" hint="8:00 AM - 7:00 PM" label="Start Time"></v-text-field>
-                                                                <!--<v-col cols="4">
-                                                                    <h5>Hour</h5>
-                                                                    <v-number-input variant="solo-filled" hide-details hide-input inset ></v-number-input>
-                                                                </v-col>
-                                                                <v-col cols="4">
-                                                                    <h5>Minutes</h5>
-                                                                    <v-number-input variant="solo-filled" hide-details hide-input inset></v-number-input>
-                                                                </v-col>
-                                                                <v-col cols="4">
-                                                                    <h5>AM/PM</h5>
-                                                                    <v-number-input variant="solo-filled" hide-details hide-input inset></v-number-input>
-                                                                </v-col>-->
-                                                            </v-row>
-                                                        </v-container>
-                                                    </v-menu>
-                                                </v-text-field>
+                                        <v-col auto>        
+                                            <v-text-field v-model="weeklyEventStart" placeholder="00:00 AM" hint="8:00 AM - 7:00 PM" label="Start Time" type="time" :rules="[timeValidation]"></v-text-field>
                                         </v-col>
                                         <v-col auto>
-                                                <v-text-field v-model="weeklyEventEnd" placeholder="00:00 PM" hint="End times must be in intervals of ten minutes" label="End Time"></v-text-field>
+                                                <v-text-field v-model="weeklyEventEnd" placeholder="00:00 PM" hint="Maximum End Time: 7:59 PM" label="End Time" type="time" :rules="[timeValidation]"></v-text-field>
                                         </v-col>
                                     </v-row>
                                     <v-row dense>
@@ -157,7 +127,7 @@
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
                                     <v-btn text="Close" variant="plain" @click="dialog_event = false"></v-btn>
-                                    <v-btn color="primary" text="Add" variant="tonal" @click="createCustomEvent()"></v-btn>
+                                    <v-btn color="primary" text="Add" variant="tonal" @click="createCustomEvent()" :disabled="!timeValid"></v-btn>
                                 </v-card-actions>
                             </v-card>
                         </v-dialog>
@@ -179,11 +149,11 @@
                                         <v-col auto>
                                             <v-select v-model="eventColor" :items="this.scheduleColors" label="Color" required></v-select>
                                         </v-col>
-                                        <v-col auto>
-                                                <v-text-field v-model="weeklyEventStart" placeholder="00:00 AM" hint="8:00 AM - 7:00 PM" label="Start Time"></v-text-field>
+                                        <v-col auto>        
+                                            <v-text-field v-model="weeklyEventStart" placeholder="00:00 AM" hint="8:00 AM - 7:00 PM" label="Start Time" type="time" :rules="[timeValidation]"></v-text-field>
                                         </v-col>
                                         <v-col auto>
-                                                <v-text-field v-model="weeklyEventEnd" placeholder="00:00 AM" hint="End times must be in intervals of ten minutes" label="End Time"></v-text-field>
+                                                <v-text-field v-model="weeklyEventEnd" placeholder="00:00 PM" hint="Maximum End Time: 7:59 PM" label="End Time" type="time" :rules="[timeValidation]"></v-text-field>
                                         </v-col>
                                     </v-row>
                                     <v-row dense>
@@ -195,7 +165,7 @@
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
                                     <v-btn text="Close" variant="plain" @click="dialog_weekdaysevent = false"></v-btn>
-                                    <v-btn color="primary" text="Add" variant="tonal" @click="createCustomEvent()"></v-btn>
+                                    <v-btn color="primary" text="Add" variant="tonal" @click="createCustomEvent()" :disabled="!timeValid"></v-btn>
                                 </v-card-actions>
                             </v-card>
                         </v-dialog>
@@ -511,6 +481,7 @@
                     Friday: false,
                     Saturday: false
                 },
+                timeValid: false,
 
                 //Every data that involves calendar under this
                 today: ref(new Date()),
@@ -525,6 +496,33 @@
 
                 }),
 
+        computed: {
+            timeValidation() {
+                return () => {
+                const minTime = "08:00";
+                const maxTime = "19:00";
+                const maxTimeEnd = "19:59";
+                const startTime = this.weeklyEventStart;
+                const endTime = this.weeklyEventEnd;
+                
+                const withinRange = startTime >= minTime && startTime <= maxTime && endTime <= maxTimeEnd;
+
+                const validOrder = startTime < endTime;
+
+                this.timeValid = withinRange && validOrder;
+                
+                if (!withinRange) {
+                    return "Start time must be between 08:00 AM and 7:00 PM, and end before 7:59 PM";
+                }
+
+                if (!validOrder) {
+                    return "Start time must be before end time";
+                }
+
+                return this.timeValid || "Invalid times";
+                };
+            },
+        },
         mounted() {
             this.fetchUserInfo();
             this.fetchUserSchedule();
@@ -636,9 +634,47 @@
                         const endHour = parseInt(course.end.split(':')[0]);
                         const endMinute = parseInt(course.end.split(':')[1]);
 
-                        const blockHeight = ((endHour - startHour) * 60 + (endMinute - startMinute - 3));
+                        const blockHeight = ((endHour - startHour) * 56.3 + (endMinute - startMinute));
 
-                        const yTransformation = (startHour - 8) * 56.06 + (startMinute / 60) * 56.06;
+                        let yTransformation;
+
+                        if(startHour === 8){
+                            yTransformation = 2;
+                        }
+                        else if(startHour === 9){
+                            yTransformation = 58;
+                        }
+                        else if(startHour === 10){
+                            yTransformation = 113;
+                        }
+                        else if(startHour === 11){
+                            yTransformation = 169;
+                        }
+                        else if(startHour === 12){
+                            yTransformation = 224;
+                        }
+                        else if(startHour === 13){
+                            yTransformation = 280;
+                        }
+                        else if(startHour === 14){
+                            yTransformation = 335;
+                        }
+                        else if(startHour === 15){
+                            yTransformation = 391;
+                        }
+                        else if(startHour === 16){
+                            yTransformation = 446;
+                        }
+                        else if(startHour === 17){
+                            yTransformation = 502;
+                        }
+                        else if(startHour === 18){
+                            yTransformation = 558;
+                        }
+                        else if(startHour === 19){
+                            yTransformation = 613;
+                        }
+                        yTransformation += 0.9 * startMinute;
 
                         blocks.push({
                             id: course.course + day,
@@ -651,6 +687,7 @@
                                 'position': 'absolute',
                                 'top': `0`,
                                 'z-index': '1',
+                                'border': '1px solid black',
                             },
                             classes: [course],
                         });
@@ -743,95 +780,94 @@
                     // Proceed only if the selected schedule is found and it has weekly events
                     selectedSchedule.events.forEach(event => {
                         if (event.daysOfWeek && event.daysOfWeek.includes(day)) {
-                            const startTimeParts = event.start.split(':');
+                            //event.start === 8:00 AM
+                            const startTimeParts = event.start.split(':'); //[hours, minutes, am/pm]
                             const endTimeParts = event.end.split(':');
 
-                            const startHour = parseInt(startTimeParts[0]);
+                            let startHour = parseInt(startTimeParts[0]);
                             const startMinute = parseInt(startTimeParts[1].slice(0, 2));
                             const startAmPm = startTimeParts[1].slice(-2);
 
-                            const endHour = parseInt(endTimeParts[0]);
+                            let endHour = parseInt(endTimeParts[0]);
                             const endMinute = parseInt(endTimeParts[1].slice(0, 2));
                             const endAmPm = endTimeParts[1].slice(-2);
-
-                            let durationInMinutes;
-
-                            if (startAmPm === endAmPm) {
-                                durationInMinutes = (endHour - startHour) * 60 + (endMinute - startMinute);
-                            } else if (endHour === 12) {
-                                durationInMinutes = ((12 - startHour)) * 60 + (endMinute - startMinute);
-                            } else {
-                                durationInMinutes = ((12 - startHour) + endHour) * 60 + (endMinute - startMinute);
+                            
+                            if(startAmPm === 'PM' && startHour < 12){
+                                startHour += 12; //convert to 24 hour format
                             }
 
-                            const durationHours = Math.floor(durationInMinutes / 60);
-                            const durationMinutes = durationInMinutes % 60;
-
-                            const blockHeight = ((durationHours * 56) + ((durationMinutes/60) + 1));
-
-                                let yTransformation;
-
-                                if(startHour === 8){
-                                    yTransformation = 2;
-                                }
-                                else if(startHour === 9){
-                                    yTransformation = 58;
-                                }
-                                else if(startHour === 10){
-                                    yTransformation = 113;
-                                }
-                                else if(startHour === 11){
-                                    yTransformation = 169;
-                                }
-                                else if(startHour === 12){
-                                    yTransformation = 224;
-                                }
-                                else if(startHour === 1){
-                                    yTransformation = 280;
-                                }
-                                else if(startHour === 2){
-                                    yTransformation = 335;
-                                }
-                                else if(startHour === 3){
-                                    yTransformation = 391;
-                                }
-                                else if(startHour === 4){
-                                    yTransformation = 446;
-                                }
-                                else if(startHour === 5){
-                                    yTransformation = 502;
-                                }
-                                else if(startHour === 6){
-                                    yTransformation = 558;
-                                }
-                                else if(startHour === 7){
-                                    yTransformation = 613;
-                                }
-                                
-                                if(startMinute === 30){
-                                        yTransformation += 27;
-                                    }
-
-
-                                blocks.push({
-                                    id: event.eventID + day,
-                                    style: {
-                                        'background-color': event.color,
-                                        'border-radius': '8px',
-                                        'height': `${blockHeight}px`,
-                                        'width': '100%',
-                                        'transform': `translateY(${yTransformation}px)`,
-                                        'position': 'absolute',
-                                        'top': `0`,
-                                        'z-index': '1',
-                                        'cursor': 'pointer',
-                                    },
-                                    events: [event]
-                                });
+                            if(endAmPm === 'PM' && endHour < 12){
+                                endHour += 12; //convert to 24 hour format
                             }
-                        });
-                    }
 
+                            let startMinutes = (startHour * 60) + startMinute;
+                            let endMinutes = (endHour * 60) + endMinute;
+
+                            let durationInMinutes = (endMinutes - startMinutes)/60;
+
+                            let blockHeight = durationInMinutes * 56.3;
+
+                            let yTransformation;
+
+                            if(startHour === 8){
+                                yTransformation = 2;
+                            }
+                            else if(startHour === 9){
+                                yTransformation = 58;
+                            }
+                            else if(startHour === 10){
+                                yTransformation = 113;
+                            }
+                            else if(startHour === 11){
+                                yTransformation = 169;
+                            }
+                            else if(startHour === 12){
+                                yTransformation = 224;
+                            }
+                            else if(startHour === 13){
+                                yTransformation = 280;
+                            }
+                            else if(startHour === 14){
+                                yTransformation = 335;
+                            }
+                            else if(startHour === 15){
+                                yTransformation = 391;
+                            }
+                            else if(startHour === 16){
+                                yTransformation = 446;
+                            }
+                            else if(startHour === 17){
+                                yTransformation = 502;
+                            }
+                            else if(startHour === 18){
+                                yTransformation = 558;
+                            }
+                            else if(startHour === 19){
+                                yTransformation = 613;
+                            }
+                            yTransformation += 0.9 * startMinute;
+                        
+
+
+                            blocks.push({
+                                id: event.eventID + day,
+                                style: {
+                                    'background-color': event.color,
+                                    'border-radius': '8px',
+                                    'height': `${blockHeight}px`,
+                                    'width': '100%',
+                                    'transform': `translateY(${yTransformation}px)`,
+                                    'position': 'absolute',
+                                    'top': `0`,
+                                    'z-index': '1',
+                                    'cursor': 'pointer',
+                                    'border': '1px solid black',
+                                },
+                                events: [event]
+                            });
+                        }
+                    });
+                }
                 return blocks;
             },
 
@@ -878,6 +914,15 @@
                 this.dialog_events_remove[index] = false;
             },
 
+            //format Time - John
+            formatTime(time){
+                const [hours, minutes] = time.split(':');
+                const formattedHours = parseInt(hours, 10) > 12 ? parseInt(hours, 10) - 12 : parseInt(hours, 10); //if hours is greater than 12, minus 12 to achieve PM
+                const ampm = parseInt(hours, 10) >= 12 ? 'PM' : 'AM'; //if hours is greater or equal to 12, choose PM, otherwise AM
+
+                return `${formattedHours}:${minutes} ${ampm}`; //ex: 2:44 AM            
+            },
+
             //created by Jose
             async createCustomSchedule() {
                 try {
@@ -902,12 +947,15 @@
                 const selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
 
                 const selectedDays = Object.keys(this.daysOfWeek).filter(day => this.daysOfWeek[day]);
-
+                const eventStartTime = this.formatTime(this.weeklyEventStart); //03:00 --> 3:00 AM
+                const eventEndTime = this.formatTime(this.weeklyEventEnd); //16:40 --> 4:40 PM
+                console.log('start', eventStartTime);
+                console.log('end', eventEndTime);
                 const newEvent = {
                     description: this.weeklyEventDesc,
                     color: this.eventColor,
-                    start: this.weeklyEventStart,
-                    end: this.weeklyEventEnd,
+                    start: eventStartTime,
+                    end: eventEndTime,
                     daysOfWeek: selectedDays,
                     scheduleID: selectedSchedule.scheduleID, // Include the scheduleID
                 };
