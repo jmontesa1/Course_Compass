@@ -577,7 +577,8 @@
                         this.courseList = response.data.map(department => ({
                             scheduleID: department.scheduleID,
                             name: department.courseName,
-                            code: department.courseCode,
+                            section: department.section,
+                            code: `${department.courseCode}.${department.section}`,
                             department: department.courseMajor,
                             professor: department.professor,
                             format: department.format,

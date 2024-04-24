@@ -755,6 +755,8 @@
         max-width: 30%;
         background-color: #51da6e;
         margin-left: auto;
+        margin-left: 0;
+        margin-top: 16px;
     }
 
     .tag-container {
