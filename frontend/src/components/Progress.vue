@@ -60,7 +60,7 @@
                                     <p><strong>Academic Standing:</strong> Good Standing</p>
                                     <p><strong>Credits Completed:</strong> {{ unitsCompleted }}/{{ major.units }}</p>
                                     <br>
-                                    <v-btn class="save-changes-btn" @click="confirmationDialog = true" size="small">Save Progress</v-btn>
+                                    <v-btn class="save-changes-btn" @click="confirmationDialog = true" size="small">Save</v-btn>
                                 </div>
                                 
                                 <div class="col-md-8 d-flex flex-column">
@@ -69,7 +69,11 @@
                                         <!--<span class="input-group-text" id="course-search">Search</span>-->
                                         <input type="text" class="form-control" v-model="courseSearch" placeholder="Enter Course Name">
                                     </div>
+
                                     <div class="scroll"> 
+                                    <div class="loading" v-if="filteredCourses.length === 0">
+                                        <v-progress-circular indeterminate :width="5"></v-progress-circular>
+                                    </div>
                                         <div v-for="(course, index) in filteredCourses" :key="index">
                                             <div class="course-container">
                                                 <input type="checkbox" v-model="course.completed" @change="course.changed = true" :disabled="isCourseSaved(course)" />
@@ -232,22 +236,22 @@
                             </v-row>
 
                             <v-row class="calculator-subheading">
-                                <v-col>Course</v-col>
-                                <v-col>Credits</v-col>
-                                <v-col>Grade</v-col>
+                                <v-col>Current Grade</v-col>
+                                <v-col>Target Grade</v-col>
+                                <v-col>Final Exam Weight</v-col>
                             </v-row>
 
                             <v-form ref="form">
                                 <v-row style="height:70px;">
                                     <v-col>
-                                        <v-text-field v-model="currentGrade" label="Your Current Grade">
+                                        <v-text-field v-model="currentGrade" label="Your Current Grade" suffix="%">
                                         </v-text-field>
                                     </v-col>
                                     <v-col>                
-                                        <v-text-field v-model="targetGrade" label="Target Grade"></v-text-field>
+                                        <v-text-field v-model="targetGrade" label="Target Grade" suffix="%"></v-text-field>
                                     </v-col>
                                     <v-col>
-                                        <v-text-field v-model="finalExamWeight" label="Final Exam Weight"></v-text-field>
+                                        <v-text-field v-model="finalExamWeight" label="Final Exam Weight" suffix="%"></v-text-field>
                                     </v-col>
                                 </v-row>
 
@@ -262,7 +266,9 @@
                             </v-form>
 
                             <v-row>
-                                <p class="gpa-text">To achieve your target grade, you need a {{ finalGradeCalculation }}% on the final exam.</p>
+                                <p class="gpa-text" v-if="finalGradeCalculation <= 100.00 && finalGradeCalculation >= 0.00">To achieve your target grade, you need a {{ finalGradeCalculation }}% on the final exam.</p>
+                                <p class="gpa-text" v-if="finalGradeCalculation > 100.00">To achieve your target grade, you need more than a 100% on the final exam. ({{ finalGradeCalculation }}%)</p>
+                                <p class="gpa-text" v-if="finalGradeCalculation < 0.00">To achieve your target grade, you less than a 0% on the final exam. ({{ finalGradeCalculation }}%) Good job!</p>
                             </v-row>
                         </v-container>
                         <br>
@@ -406,7 +412,7 @@
                 });
 
                 if (totalCredits > 0) {
-                    this.GPA = totalWeightedPoints / totalCredits;
+                    this.GPA = (totalWeightedPoints / totalCredits).toFixed(3);
                 } else {
                     this.GPA = 0;
                 }
@@ -642,7 +648,7 @@
     }
 
     .gpa-text{
-        margin-top: 9px;
+        margin-top: 20px;
         font-size: 22px;
     }
 
@@ -799,5 +805,12 @@
         font-family: 'Poppins', sans-serif;
         font-size: 14px;
         margin-bottom: 5px;
+    }
+
+    .loading{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 50vh;
     }
 </style>
