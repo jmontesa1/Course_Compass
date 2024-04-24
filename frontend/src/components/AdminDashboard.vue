@@ -868,7 +868,7 @@
 
     .v-expansion-panel{
         position: relative;
-        background-color: rgba(187, 187, 187, 0.242);
+        background-color: rgba(187, 187, 187, 0.082);
         font-family: Poppins;
         border-radius: 0px;
     }

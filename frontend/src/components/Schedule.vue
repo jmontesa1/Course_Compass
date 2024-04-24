@@ -29,6 +29,7 @@
                 <div class="header-container">
                     <div class="row justify-content-center">
                         <div class="col d-flex flex-column">
+
                             <h1>                            
                                 <select v-model="selectedScheduleTitle" @change="handleScheduleChange">
                                     <option v-for="schedule in userSchedules" :key="schedule.title" :value="schedule.title">{{ schedule.title }}</option>
@@ -79,7 +80,6 @@
                                         </v-card-actions>
                                     </v-card>
                                 </v-dialog>
-
                             </h1>
                         </div>
 
@@ -212,6 +212,9 @@
 
                 <!--DISPLAYS OF WEEKDAY SCHEDULE OPTION-->
                 <div id="schedule-page" ref="schedulePage" >
+                    <div class="loading" v-if="schedule.length === 0">
+                        <v-progress-circular indeterminate :width="5"></v-progress-circular>
+                    </div>
                     <div class="container-fluid mt-3" v-if="scheduleOption === 'Weekdays' || scheduleOption === 'Class Schedule'">
                         <div class="schedule-days">
                             <!-- This is the very top of the schedule, showing the days -->
@@ -1213,5 +1216,12 @@
         margin-right: 10px;
         vertical-align: middle;
         background-color: pink;
+    }
+
+    .loading{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
     }
 </style>

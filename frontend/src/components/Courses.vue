@@ -4,7 +4,7 @@
 <!-- Courses will have a popup menu that gives details about it -->
 
 <template> 
-    <div v-if="userType === 'Student' || userType === 'Admin'">
+    <div v-if="userType === 'Student' || userType === 'Instructor'">
         <div class="top-row">
             <div class="row">
                 <div class="col-sm-2 d-flex flex-column">
@@ -198,8 +198,11 @@
                                         <v-list lines="auto" style="font-family: Poppins;">
                                             <v-list-header>{{instructorSchedule[this.tab].course}}</v-list-header>
                                             <v-list-item v-for="(review,index) in courseStudents[this.tab].reviews" :key="index">
+                                                <template v-slot:title>
+                                                    {{courseStudents[this.tab].reviews[index].date}}
+                                                </template>
                                                 <template v-slot:subtitle>
-                                                    <strong>Anonymous</strong> &mdash; {{courseStudents[this.tab].reviews[index]}}
+                                                    <strong>Anonymous</strong> &mdash; {{courseStudents[this.tab].reviews[index].text}}
                                                 </template>
                                                 <v-divider></v-divider>
                                             </v-list-item>
@@ -399,13 +402,13 @@
                         { name: 'Elsa Flynn', isGraded: false, courseGrade: null },
                         { name: 'Kelsie Richards', isGraded: false, courseGrade: null }
                         ],
-                        reviews:[
-                            'The course material was outdated and not helpful.',
-                            'The lectures were confusing and poorly structured.',
-                            'Didn\'t find the course engaging or informative.',
-                            'The content was too basic and not worth the price.',
-                            'I expected more from the course but was disappointed.'
-                        ]
+                        reviews: [
+                            { text: 'The course material was outdated and not helpful.', date: 'Jan 12th, 2016' },
+                            { text: 'The lectures were confusing and poorly structured.', date: 'Feb 23rd, 2015' },
+                            { text: 'Didn\'t find the course engaging or informative.', date: 'Aug 7th, 2023' },
+                            { text: 'The content was too basic and not worth the price.', date: 'May 15th, 2018' },
+                            { text: 'I expected more from the course but was disappointed.', date: 'Apr 29th, 2024' }
+                        ],
                     },
 
                     {course: 'COURSE 2', students:[
@@ -421,12 +424,12 @@
                         { name: 'Kathleen Mayo', isGraded: false, courseGrade: null }
                         ],
                         reviews: [
-                            'Great course content, very informative!',
-                            'Enjoyed the interactive lessons and quizzes.',
-                            'Highly recommend for anyone new to the subject.',
-                            'Excellent instructors, clear explanations.',
-                            'Practical exercises were really helpful.'
-                        ]
+                            { text: 'Great course content, very informative!', date: 'Apr 9th, 2017' },
+                            { text: 'Enjoyed the interactive lessons and quizzes.', date: 'Jan 4th, 2022' },
+                            { text: 'Highly recommend for anyone new to the subject.', date: 'Jul 18th, 2019' },
+                            { text: 'Excellent instructors, clear explanations.', date: 'Oct 25th, 2016' },
+                            { text: 'Practical exercises were really helpful.', date: 'Mar 8th, 2020' }
+                        ],
                     },
                 ],
 
@@ -697,7 +700,7 @@
             },
 
             async enrollCourses(instructor) {
-                if(this.userType === 'Student'){
+                if(this.userType === 'Student' || this.userType ==='Instructor'){
                     try {
                         const scheduleIDs = this.schedule.map(course => course.scheduleID);
 

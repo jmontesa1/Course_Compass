@@ -8,20 +8,7 @@
     <div class="settings-container">
         <div class="loading-container" v-if="loading">
             <!-- loading anim -->
-            <div class="sk-circle">
-                <div class="sk-circle1 sk-child"></div>
-                <div class="sk-circle2 sk-child"></div>
-                <div class="sk-circle3 sk-child"></div>
-                <div class="sk-circle4 sk-child"></div>
-                <div class="sk-circle5 sk-child"></div>
-                <div class="sk-circle6 sk-child"></div>
-                <div class="sk-circle7 sk-child"></div>
-                <div class="sk-circle8 sk-child"></div>
-                <div class="sk-circle9 sk-child"></div>
-                <div class="sk-circle10 sk-child"></div>
-                <div class="sk-circle11 sk-child"></div>
-                <div class="sk-circle12 sk-child"></div>
-            </div>
+            <v-progress-circular indeterminate :width="5"></v-progress-circular>
         </div>
         <div class="container-fluid mt-3" v-else>
             <div class="row">
@@ -250,8 +237,8 @@
     button:hover {
         background-color: #555555;
     }
+
     .loading-container {
-        background-color: #e1e1e1;
         display: flex;
         align-items: center;
         justify-content: center;

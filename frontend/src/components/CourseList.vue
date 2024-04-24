@@ -6,8 +6,10 @@
 
 <template>
     <!-- Display the courses in a list -->
+    <div class="loading" v-if="courses.length === 0">
+        <v-progress-circular indeterminate :width="5"></v-progress-circular>
+    </div>
     <div class="course-list">
-
         <v-dialog v-model="dialog" max-width="1000">
             <template v-slot:activator="{ props: activatorProps }">
                 <div v-bind="activatorProps" v-for="(course, index) in courses" :key="index" class="course-item" @click="handleCourseClick(course)">
@@ -18,33 +20,7 @@
             <!--Pop up -->
             <CourseDetailsPopup :userType="userType" v-if="selectedCourse" :course="selectedCourse" @close="closePopup" @addToSchedule="addToSchedule" /> 
         </v-dialog>
-        
     </div>
-
-
-    <!-- This is a schedule array test, I would need to find a way to store this globally and so that it persists
-    <div class="schedule">
-    <h2>Schedule</h2>
-        <div v-for="(course, index) in schedule" :key="index" class="schedule-item">
-            {{ course.name }}
-        </div>
-    </div>-->
-
-    <!-- Duplicate Courses in Schedule Check
-    <div v-if="notification" class="full-screen-notification">
-        <div class="notification-content">
-            <span>{{ notification }}</span>
-            <button class ="close-btn" @click="clearNotification">
-                <img src="../assets/X.png" alt="Close Button">
-            </button>
-        </div> 
-        <Toast :showToast="showToast" :toastMessage="toastMessage" />
-    </div>-->
-
-    
-
-
-
 </template>
 
 <script>
@@ -181,5 +157,12 @@
     h2{
         font-family: 'coolvetica', coolvetica;
         color:#000000;
+    }
+
+    .loading{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
     }
 </style>
