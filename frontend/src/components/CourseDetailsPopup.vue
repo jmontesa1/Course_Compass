@@ -25,6 +25,7 @@
                         <p><strong>Format:</strong> {{ course.format || 'N/A' }}</p>
                         <p><strong>Term:</strong> {{ course.term || 'N/A' }}</p>
                         <p><strong>Units:</strong> {{ course.units || 'N/A' }}</p>
+                        <p><strong>Section:</strong> {{ course.section || 'N/A' }}</p>
                         <br>
                         <p><strong>Class Capacity:</strong> {{ course.classCapacity || 'N/A' }}</p>
                         <p><strong>Enrollment Total:</strong> {{ course.enrollmentTotal || 'N/A' }}</p>

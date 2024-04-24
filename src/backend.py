@@ -1167,6 +1167,7 @@ def search_departments():
             query = """
             SELECT
                 scheduleID,
+                Section,
                 courseName,
                 courseCode,
                 courseMajor,
@@ -1247,6 +1248,7 @@ def search_departments():
             result = cursor.fetchall()       
             departments = [{
                 'scheduleID': dept['scheduleID'],
+                'section': dept['Section'],
                 'professor': dept['professor'],
                 'courseName': dept['courseName'],
                 'courseCode': dept['courseCode'],
@@ -1299,19 +1301,48 @@ def enroll_courses():
 
             for schedule_id in schedule_ids:
                 cursor.execute("""
-                    SELECT availableSeats, courseCode
-                    FROM tblcourseSchedule
-                    WHERE scheduleID = %s
+                    SELECT cs.availableSeats, cs.courseCode, cs.startTime, cs.endTime, cs.meetingDays,cs.semesterID
+                    FROM tblcourseSchedule cs
+                    WHERE cs.scheduleID = %s
                     FOR UPDATE
                 """, (schedule_id,))
 
                 result = cursor.fetchone()
 
                 if result:
-                    availableSeats, course_code = result
+                    availableSeats, course_code, startTime, endTime, meetingDays, semesterID = result
 
                     if availableSeats <= 0:
                         raise Exception(f"Course {course_code} has no available seats")
+
+                    #check if the student is already enrolled in the course
+                    cursor.execute("""
+                        SELECT COUNT(*)
+                        FROM tblUserSchedule
+                        WHERE studentID = %s AND scheduleID = %s
+                    """, (user.studentID, schedule_id))
+                    already_enrolled = cursor.fetchone()[0]
+                    if already_enrolled:
+                        raise Exception(f"You are already enrolled in course {course_code}")
+                    
+                    #check for time conflicts within the same semester
+                    cursor.execute("""
+                        SELECT cs.courseCode
+                        FROM tblcourseSchedule cs
+                        JOIN tblUserSchedule us ON cs.scheduleID = us.scheduleID
+                        WHERE us.studentID = %s
+                        AND cs.semesterID = %s
+                        AND cs.meetingDays LIKE CONCAT('%%', %s, '%%')
+                        AND (
+                            (ADDTIME(cs.endTime, '00:15:00') > %s AND cs.endTime <= %s)
+                            OR (cs.startTime >= %s AND SUBTIME(cs.startTime, '00:15:00') < %s)      /*15 minute buffer between courses*/
+                            OR (cs.startTime <= %s AND cs.endTime >= %s)
+                        )
+                    """, (user.studentID, semesterID, meetingDays, startTime, startTime, endTime, endTime, startTime, endTime))
+                    conflicting_courses = cursor.fetchall()
+                    if conflicting_courses:
+                        conflicting_course_codes = [course[0] for course in conflicting_courses]
+                        raise Exception(f"There is a time conflict with course(s): {', '.join(conflicting_course_codes)}")
 
                     cursor.execute("""
                         INSERT INTO tblUserSchedule (studentID, scheduleID)
