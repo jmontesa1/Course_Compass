@@ -215,7 +215,7 @@
                     <div class="loading" v-if="schedule.length === 0">
                         <v-progress-circular indeterminate :width="5"></v-progress-circular>
                     </div>
-                    <div class="container-fluid mt-3" v-if="scheduleOption === 'Weekdays' || scheduleOption === 'Class Schedule'">
+                    <div class="container-fluid mt-3" v-if="scheduleOption === 'Weekdays' || scheduleOption === 'Class Schedule' && schedule.length > 0">
                         <div class="schedule-days">
                             <!-- This is the very top of the schedule, showing the days -->
                             <div class="row">
