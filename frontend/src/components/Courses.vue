@@ -62,7 +62,7 @@
             <div class="col-md-2 d-flex flex-column">
                 <FilterMenu v-model:selectedFilters="selectedFilters" @itemSelected="handleFilterSelected" :open="filterMenuOpen" ></FilterMenu>
 
-                <div class="form-check mb-3">
+                <div class="form-check mb-3" v-if="userType === 'Student'">
                     <label class="form-check-label" for="sortMajorRequirements">
                         <span class="ml-1">Show Courses from Major</span>
                     </label>
@@ -73,7 +73,7 @@
             <!--RIGHT SIDE OF PAGE-->
             <div class="col-md-8 d-flex flex-column">
                 <div class="course-list">
-                    <CourseList :courses="displayCourses" @addToSchedule="addToSchedule"></CourseList>
+                    <CourseList :userType="userType" :courses="displayCourses" @addToSchedule="addToSchedule"></CourseList>
                 </div>
                 <v-pagination :length="totalPages" v-model="currentPage" style="font-family: Poppins"></v-pagination>
             </div>

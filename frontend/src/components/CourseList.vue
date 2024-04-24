@@ -7,12 +7,18 @@
 <template>
     <!-- Display the courses in a list -->
     <div class="course-list">
-        <div v-for="(course, index) in courses" :key="index" class="course-item" @click="handleCourseClick(course)">
-        {{ course.code }}: {{ course.name }}
-        <span class="material-icons" style="color:black;">north_east</span>
 
-        </div>
-        <CourseDetailsPopup v-if="selectedCourse" :course="selectedCourse" @close="closePopup" @addToSchedule="addToSchedule" /> 
+        <v-dialog v-model="dialog" max-width="1000">
+            <template v-slot:activator="{ props: activatorProps }">
+                <div v-bind="activatorProps" v-for="(course, index) in courses" :key="index" class="course-item" @click="handleCourseClick(course)">
+                    {{ course.code }}: {{ course.name }}
+                    <span class="material-icons" style="color:black;">north_east</span>
+                </div>
+            </template>
+            <!--Pop up -->
+            <CourseDetailsPopup :userType="userType" v-if="selectedCourse" :course="selectedCourse" @close="closePopup" @addToSchedule="addToSchedule" /> 
+        </v-dialog>
+        
     </div>
 
 
@@ -48,12 +54,18 @@
         //the courses are passed in as a prop array
         props: {
             courses: Array,
+            userType:{
+                type: String,
+                required: '',
+            },
+
         },
         data() {
             return {
                 selectedCourse: null,
                 schedule: [],
                 notification: null,
+                dialog: false,
             };
         },
         methods: {
@@ -64,6 +76,7 @@
             closePopup() {
                 this.selectedCourse = null;
                 this.notification = null;
+                this.dialog = false;
             },
 
             addToSchedule(course) {
@@ -73,6 +86,7 @@
                     this.selectedCourse = null; // Close the popup after adding to the schedule
                     this.notification = null; // Clear any existing notifications
                 }
+                this.dialog = false;
             },
             
             showNotification(message, isError = false) {

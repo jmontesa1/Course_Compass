@@ -19,6 +19,7 @@
                         <p><strong>Department:</strong> {{ course.department || 'N/A' }}</p>
                         <p><strong>Name:</strong> {{ course.name || 'N/A' }}</p>
                         <p><strong>Code:</strong> {{ course.code || 'N/A' }}</p>
+                        <p><strong>Section:</strong> <!--{{ course.secion || 'N/A' }}--></p>
                         <p><strong>Professor:</strong> {{ course.professor || 'N/A' }}</p>
                         <br>
                         <p><strong>Format:</strong> {{ course.format || 'N/A' }}</p>
@@ -28,14 +29,78 @@
                         <p><strong>Class Capacity:</strong> {{ course.classCapacity || 'N/A' }}</p>
                         <p><strong>Enrollment Total:</strong> {{ course.enrollmentTotal || 'N/A' }}</p>
                         <p><strong>Available Seats:</strong> {{ course.availableSeats || 'N/A' }}</p>
+                        <br>
                         <p><strong>Meeting Details:</strong></p>
                         <p><strong>Location:</strong> {{ course.location || 'N/A' }}</p>
                         <p><strong>Days:</strong> {{ course.days && course.days.length > 0 ? course.days.join(' | ') : 'Information not available' }}</p>
                         <p><strong>Meeting Time:</strong> {{ course.meetingTime || 'N/A' }}</p>
                     </div>
+
+                    <div class="col-lg left-column" style="border-right: none;" v-if="editMode === true">
+                        <div class="edit-form">
+                            <p style="margin-right: 10px;"><strong>Department:</strong></p>
+                            <input type="text" class="form-control" v-model="newDepartment" style="height: 20px; margin-bottom: -1px;">
+                        </div>
+                        <div class="edit-form">
+                            <p style="margin-right: 10px;"><strong>Name:</strong></p>
+                            <input type="text" class="form-control" v-model="newName" style="height: 20px; margin-bottom: -1px;">
+                        </div>
+                        <div class="edit-form">
+                            <p style="margin-right: 10px;"><strong>Code:</strong></p>
+                            <input type="text" class="form-control" v-model="newCode" style="height: 20px; margin-bottom: -1px;">
+                        </div>
+                        <div class="edit-form">
+                            <p style="margin-right: 10px;"><strong>Section:</strong></p>
+                            <input type="text" class="form-control" v-model="newSection" style="height: 20px; margin-bottom: -1px;">
+                        </div>
+                        <div class="edit-form">
+                            <p style="margin-right: 10px;"><strong>Professor:</strong></p>
+                            <input type="text" class="form-control" v-model="newProfessor" style="height: 20px; margin-bottom: -1px;">
+                        </div>
+                        <br>
+                        <div class="edit-form">
+                            <p style="margin-right: 10px;"><strong>Format:</strong></p>
+                            <input type="text" class="form-control" v-model="newFormat" style="height: 20px; margin-bottom: -1px;">
+                        </div>
+                        <div class="edit-form">
+                            <p style="margin-right: 10px;"><strong>Term:</strong></p>
+                            <input type="text" class="form-control" v-model="newTerm" style="height: 20px; margin-bottom: -1px;">
+                        </div>
+                        <div class="edit-form">
+                            <p style="margin-right: 10px;"><strong>Units:</strong></p>
+                            <input type="text" class="form-control" v-model="newUnits" style="height: 20px; margin-bottom: -1px;">
+                        </div>
+                        <br>
+                        <div class="edit-form">
+                            <p style="display: inline-block; width: 200px;"><strong>Class Capacity:</strong></p>
+                            <input type="text" class="form-control" v-model="newCapacity" style="height: 20px; margin-bottom: -1px;">
+                        </div>
+                        <div class="edit-form">
+                            <p style="display: inline-block; width: 230px;"><strong>Enrollment Total:</strong></p>
+                            <input type="text" class="form-control" v-model="newEnrollmentTotal" style="height: 20px; margin-bottom: -1px;">
+                        </div>
+                        <div class="edit-form">
+                            <p style="display: inline-block; width: 200px;"><strong>Available Seats:</strong></p>
+                            <input type="text" class="form-control" v-model="newAvailablity" style="height: 20px; margin-bottom: -1px;">
+                        </div>
+                        <br>
+                        <p><strong>Meeting Details:</strong></p>
+                        <div class="edit-form">
+                            <p style="margin-right: 10px;"><strong>Location:</strong></p>
+                            <input type="text" class="form-control" v-model="newLocation" style="height: 20px; margin-bottom: -1px;">
+                        </div>
+                        <div class="edit-form">
+                            <p style="margin-right: 10px;"><strong>Days:</strong></p>
+                            <input type="text" class="form-control" v-model="newDays" style="height: 20px; margin-bottom: -1px;">
+                        </div>
+                        <div class="edit-form">
+                            <p style="display: inline-block; width: 200px;"><strong>Meeting Time:</strong></p>
+                            <input type="text" class="form-control" v-model="newMeetingTime" style="height: 20px; margin-bottom: -1px;">
+                        </div>
+                    </div>
                     
                     <!--Right Side of Popup Page, Shows User Thoughts-->
-                    <div class="col-lg">
+                    <div class="col-lg" v-if="editMode === false">
                         <p><strong>What Students Think:</strong></p>
                         <p>{{ course.frequentTags && course.frequentTags.length > 0 ? course.frequentTags.join(', ') : 'Information not available' }}</p>
                         <p><strong>Student Rating:</strong> {{ course.averageRating || '0' }}/5</p>
@@ -50,17 +115,56 @@
                 <p>Course information unavailable.</p>
             </div>
             <br>
-            <div class="button-container">
+            <div class="button-container" v-if="userType === 'Admin' && editMode === false">
+                    <button class="schedule-button2" @click="editMode = true">Edit Course Details</button>
+            </div>
+
+
+            <div class="button-container" v-if="editMode === false">
                     <button class="schedule-button" @click="addToSchedule">Add Course to Cart</button>
             </div>
+
+            <div class="button-container" v-if="editMode === true">
+                    <button class="schedule-button2" @click="editMode = false">Cancel</button>
+            </div>
+
+            <div class="button-container" v-if="editMode === true">
+                    <button class="schedule-button" @click="editCourseDetails">Save</button>
+            </div>
+
         </div>
     </div>
 </template>
 
 <script>
     export default {
+        data() {
+            return {
+                editMode: false,
+                newDepartment: '',
+                newName: '',
+                newCode: '',
+                newSection: '',
+                newProfessor: '',
+                newFormat: '',
+                newTerm: '',
+                newUnits: '',
+                newCapacity: '',
+                newEnrollmentTotal: '',
+                newAvailablity: '',
+                newLocation: '',
+                newDays: '',
+                newMeetingTime:'',
+            };
+        },
+
         props: {
             course: Object,
+
+            userType:{
+                type: String,
+                required: '',
+            },
         },
         methods: {
             closePopup() {
@@ -69,8 +173,28 @@
             addToSchedule() {
                 this.$emit('addToSchedule', this.course);
                 },
-            },
-        };
+
+            editCourseDetails(){
+                //backend stuff here
+
+                this.editMode = false;
+                this.newDepartment = '';
+                this.newName = '';
+                this.newCode = '';
+                this.newSection = '';
+                this.newProfessor = '';
+                this.newFormat = '';
+                this.newTerm = '';
+                this.newUnits = '';
+                this.newCapacity = '';
+                this.newEnrollmentTotal = '';
+                this.newAvailablity = '';
+                this.newLocation = '';
+                this.newDays = '';
+                this.newMeetingTime = '';
+            }
+        },
+    };
     </script>
 
 <style scoped>
@@ -108,7 +232,7 @@
     }
 
     h2{
-        font-family: 'coolvetica', coolvetica;
+        font-family: 'Poppins';
         font-size: 20px;
         text-align: center;
         color:#000000;
@@ -129,7 +253,7 @@
     }
 
     .schedule-button {
-        font-family: coolvetica;
+        font-family: Poppins;
         background-color: #000000;
         color: #ffffff;
         padding: 5px 25px;
@@ -141,8 +265,39 @@
         text-decoration: none;
     }
 
+    .schedule-button2 {
+        font-family: Poppins;
+        background-color: #ffffff;
+        color: #000000;
+        padding: 5px 25px;
+        font-size: 15px;
+        cursor: pointer;
+        display: inline-block;
+        transition: background-color 0.3s linear, color 0.3s linear;
+        text-decoration: none;
+        margin-bottom: 10px;
+        border: 1px solid black;
+        align-content: flex-start;
+    }
+
     .schedule-button:hover {
         background-color: #ffffff;
         color: #000000;
+    }
+
+    .schedule-button2:hover {
+        background-color: #000000;
+        color: #ffffff;
+    }
+
+    .form-control{
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+
+    .edit-form{
+        display: flex;
+        align-items: center;
     }
 </style>
