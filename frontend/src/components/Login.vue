@@ -120,11 +120,14 @@
 
 
     .login-container {
-        background-color: #e1e1e1;
+        /*background-color: #e1e1e1;
+        
+        */
         margin: 5% auto;
         padding: 20px;
         max-width: 600px;
         border-radius: 8px;
+        border: 1px solid black;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         align-content: center;
         text-align: center;

@@ -724,7 +724,7 @@
                     //use instructor variable here i would assume?
                     console.log('Instructor chosen', instructor);
                     try {
-                        //i delted some stuff here
+                        //i deleted some stuff here
                         if (response.status === 200) {
                             this.$emit("show-toast", { message: "Courses added to schedule!", color: '#51da6e' });
                             this.schedule = [];

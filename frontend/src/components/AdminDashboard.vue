@@ -54,9 +54,10 @@
                                             <v-card-text>
                                                 <v-row dense>
                                                     <v-col cols = "12" md="6">  
-                                                        <br>
+                                                        Source:
+                                                        <v-select :items="sources" v-model="selectedSource"></v-select>
+                                                        Description:
                                                         <v-textarea v-model="notificationDescription" label="Notification Description" single-line rows="8"></v-textarea>
-                                                        <br>
                                                         <v-checkbox v-model="notificationOverride" label="Override all notifications?" hint="This notification is urgent and will be shown over other notifications until after selected date."></v-checkbox>
                                                     </v-col>
                                                     <v-col cols="12" md="6">
@@ -89,10 +90,12 @@
                                             <v-card-text>
                                                 <v-row dense>
                                                     <v-col cols = "12">  
+                                                        Subject:
                                                         <v-text-field v-model="emailSubject" label="Email Subject" required></v-text-field>
+                                                        Recipients:
                                                         <v-select v-model="emailTo" :items="this.to" label="Send Email To:" required></v-select>
+                                                        Body:
                                                         <v-textarea v-model="emailContent" label="Email Description" single-line rows="8"></v-textarea>
-
                                                     </v-col>
                                                 </v-row>
                                             </v-card-text> 
@@ -144,7 +147,7 @@
                                                                                 </v-btn>
                                                                             </template>
                                                                             <!--Pop up -->
-                                                                            <v-card title="Are you sure you want to remove notification:">
+                                                                            <v-card title="Are you sure you want to remove:">
                                                                                 <v-card-text>
                                                                                     <br>
                                                                                     <p><strong>{{adminNotifications[index].date}}</strong> {{adminNotifications[index].source}} - {{adminNotifications[index].description}}</p>
@@ -255,7 +258,7 @@
                                                     </v-btn>
                                                 </template>
                                                 <!--Pop up -->
-                                                <v-card title="Are you sure you want to remove instructor:">
+                                                <v-card title="Are you sure you want to deny:">
                                                     <v-card-text>
                                                         <br>
                                                         <p>{{pendingInstructors[index].name}} - {{pendingInstructors[index].email}}</p>
@@ -279,7 +282,7 @@
                                                     </v-btn>
                                                 </template>
                                                 <!--Pop up -->
-                                                <v-card title="Are you sure you want to approve instructor:">
+                                                <v-card title="Are you sure you want to approve:">
                                                     <v-card-text>
                                                         <br>
                                                         <p>{{pendingInstructors[index].name}} - {{pendingInstructors[index].email}}</p>
@@ -311,31 +314,140 @@
                                 <v-expansion-panel-text>
                                     <v-row no-gutters v-for="(instructor, index) in approvedInstructors" :key="index">
                                         <v-col cols="11">
-                                            <p class="row-text">{{approvedInstructors[index].name}} - {{approvedInstructors[index].email}}</p>
+                                            <p class="row-text" :style="approvedInstructors[index].onHold ? { color: 'grey' } : {}">{{approvedInstructors[index].name}} - {{approvedInstructors[index].email}}
+                                                <span v-if="approvedInstructors[index].onHold === true"><em><br> On Administrative Hold</em> - {{approvedInstructors[index].holdReason}}</span></p>
                                         </v-col>
                                         <v-col cols="1">
-                                            <v-dialog v-model="removeDialog[index]" max-width="500" style="font-family: Poppins;">
+                                            <v-dialog v-model="instructorDialog[index]" max-width="700" style="font-family: Poppins;">
                                                 <template v-slot:activator="{ props: activatorProps }">
-                                                    <v-btn v-bind="activatorProps" icon="$close" variant="plain">
+                                                    <v-btn v-bind="activatorProps" variant="plain">
                                                         <span class="material-symbols-outlined">
-                                                        block
+                                                            more_horiz
                                                         </span>
                                                     </v-btn>
                                                 </template>
                                                 <!--Pop up -->
-                                                <v-card title="Are you sure you want to remove instructor:">
+                                                <v-card>
+                                                    <v-card-title>
+                                                        <strong>{{approvedInstructors[index].name}}</strong>
+                                                    </v-card-title>
                                                     <v-card-text>
+                                                        <p>Instructor Information:</p>
+                                                        <p>Name: {{approvedInstructors[index].name}}
+                                                        <br>Email: {{approvedInstructors[index].email}}
                                                         <br>
-                                                        <p>{{approvedInstructors[index].name}} - {{approvedInstructors[index].email}}</p>
+                                                        <br>
+                                                        <v-row>
+                                                            <v-col cols="auto">
+                                                                <v-switch
+                                                                    v-model="approvedInstructors[index].onHold"
+                                                                    color="primary"
+                                                                    label="On Hold"
+                                                                ></v-switch>
+                                                            </v-col>
+                                                            <v-col>
+                                                                <v-text-field 
+                                                                    v-model="approvedInstructors[index].holdReason"
+                                                                    v-if="approvedInstructors[index].onHold === true"
+                                                                    label="Reason for hold"
+                                                                    dense
+                                                                ></v-text-field>
+                                                            </v-col>
+                                                        </v-row>
+                                                        <br>Courses Taught:
+                                                        <br>
+                                                        
+                                                        </p>
                                                     </v-card-text> 
                                                     <v-card-actions>
+                                                        <v-dialog v-model="archiveDialog[index]" max-width="500" style="font-family: Poppins;">
+                                                            <template v-slot:activator="{ props: activatorProps }">
+                                                                <v-btn v-bind="activatorProps" text="Archive Instructor" variant="tonal" color="red"></v-btn>
+                                                            </template>
+                                                            <!--Pop up -->
+                                                            <v-card title="Are you sure you want to archive:">
+                                                                <v-card-text>
+                                                                    <br>
+                                                                    <p>{{approvedInstructors[index].name}} - {{approvedInstructors[index].email}}</p>
+                                                                </v-card-text> 
+                                                                <v-card-actions>
+                                                                    <v-spacer></v-spacer>
+                                                                    <v-btn text="No" variant="plain" @click="archiveDialog[index] = false"></v-btn>
+                                                                    <v-btn color="primary" text="Yes" variant="tonal" @click="archiveApprovedInstructor(index)"></v-btn>
+                                                                </v-card-actions>
+                                                            </v-card>
+                                                        </v-dialog> 
                                                         <v-spacer></v-spacer>
-                                                        <v-btn text="No" variant="plain" @click="removeDialog[index] = false"></v-btn>
-                                                        <v-btn color="primary" text="Yes" variant="tonal" @click="removeApprovedInstructor(index)"></v-btn>
+                                                        <v-btn text="Close" variant="plain" @click="instructorDialog[index] = false"></v-btn>
                                                     </v-card-actions>
                                                 </v-card>
                                             </v-dialog> 
 
+                                        </v-col>
+                                        <v-divider class="instructor-divider"></v-divider>
+                                    </v-row>
+                                </v-expansion-panel-text>
+                            </v-expansion-panel>
+
+                            <!--archived-->
+                            <v-expansion-panel>
+                                <v-expansion-panel-title>
+                                        <v-row no-gutters>
+                                            <v-col class="d-flex justify-start" cols="4">
+                                            Archived Instructors ({{archivedInstructors.length}})
+                                            </v-col>
+                                        </v-row>
+                                </v-expansion-panel-title>
+                                <v-expansion-panel-text>
+                                    <v-row no-gutters v-for="(instructor, index) in archivedInstructors" :key="index">
+                                        <v-col cols="10">
+                                            <p class="row-text">{{archivedInstructors[index].name}} - {{archivedInstructors[index].email}}</p>
+                                        </v-col>
+                                        <v-col cols="1">
+                                            <v-dialog v-model="removeDialog[index]" max-width="500" style="font-family: Poppins;">
+                                                <template v-slot:activator="{ props: activatorProps }">
+                                                    <v-btn v-bind="activatorProps" variant="plain">
+                                                        <span class="material-symbols-outlined">
+                                                            block
+                                                        </span>
+                                                    </v-btn>
+                                                </template>
+                                                <!--Pop up -->
+                                                <v-card title="Are you sure you want to remove:">
+                                                    <v-card-text>
+                                                        <br>
+                                                        <p>{{archivedInstructors[index].name}} - {{archivedInstructors[index].email}}</p>
+                                                    </v-card-text> 
+                                                    <v-card-actions>
+                                                        <v-spacer></v-spacer>
+                                                        <v-btn text="No" variant="plain" @click="removeDialog[index] = false"></v-btn>
+                                                        <v-btn color="primary" text="Yes" variant="tonal" @click="removeArchivedInstructor(index)"></v-btn>
+                                                    </v-card-actions>
+                                                </v-card>
+                                            </v-dialog> 
+                                        </v-col>
+                                        <v-col cols="1">
+                                            <v-dialog v-model="unarchiveDialog[index]" max-width="500" style="font-family: Poppins;">
+                                                <template v-slot:activator="{ props: activatorProps }">
+                                                    <v-btn v-bind="activatorProps" variant="plain">
+                                                        <span class="material-symbols-outlined">
+                                                            published_with_changes
+                                                        </span>
+                                                    </v-btn>
+                                                </template>
+                                                <!--Pop up -->
+                                                <v-card title="Are you sure you want to unarchive:">
+                                                    <v-card-text>
+                                                        <br>
+                                                        <p>{{archivedInstructors[index].name}} - {{approvedInstructors[index].email}}</p>
+                                                    </v-card-text> 
+                                                    <v-card-actions>
+                                                        <v-spacer></v-spacer>
+                                                        <v-btn text="No" variant="plain" @click="unarchiveDialog[index] = false"></v-btn>
+                                                        <v-btn color="primary" text="Yes" variant="tonal" @click="unarchiveInstructor(index)"></v-btn>
+                                                    </v-card-actions>
+                                                </v-card>
+                                            </v-dialog> 
                                         </v-col>
                                         <v-divider class="instructor-divider"></v-divider>
                                     </v-row>
@@ -531,10 +643,18 @@
                     major: '',
                 },
 
-                approvedInstructors: [],
+                approvedInstructors: [
+                    {name: 'Tony Yars', email: 'tyars@nevada.unr.edu', onHold: false, holdReason: ''},
+                    {name: 'Hank Stark', email: 'hstark@nevada.unr.edu', onHold: true, holdReason: 'University Adminsitrative Leave'},
+                ],
+
+                archivedInstructors: [
+                    {name: 'Tom Ross', email: 't.ross@nevada.unr.edu', onHold: false},
+                ],
+
                 pendingInstructors: [
-                    {name: 'Jeremy Potts', email: 'jeremypotts@nevada.unr.edu'},
-                    {name: 'Jimmy Fraschia', email: 'jimmy.fraschia@gmail'},
+                    {name: 'Jeremy Potts', email: 'jeremypotts@nevada.unr.edu', onHold: false, holdReason: ''},
+                    {name: 'Jimmy Fraschia', email: 'jimmy.fraschia@gmail', onHold: false, holdReason: ''},
                 ],
                 
                 notificationDialog: false,
@@ -544,9 +664,13 @@
                 removeNotificationDialog: [],
                 removeEmailDialog: [],
                 approveDialog: [],
+                instructorDialog: [],
+                archiveDialog: [],
+                unarchiveDialog: [],
                 
 
-                source: 'Admin',
+                sources: ['Admin', 'UNR'],
+                selectedSource: '',
                 notificationDescription: '',
                 notificationOverride: false,
                 notificationDate: new Date(),
@@ -621,9 +745,24 @@
                 this.removeDialog[index] = false;
             },
 
-            removeApprovedInstructor(index) {
-                this.approvedInstructors.splice(index, 1);
+            removeArchivedInstructor(index) {
+                this.archivedInstructors.splice(index, 1);
                 this.removeDialog[index] = false;
+            },
+
+            archiveApprovedInstructor(index) {
+                const toArchive = this.approvedInstructors[index];
+                this.approvedInstructors.splice(index, 1);
+                this.archivedInstructors.push(toArchive);
+                this.archiveDialog[index] = false;
+                this.instructorDialog[index] = false;
+            },
+
+            unarchiveInstructor(index) {
+                const toUnarchive = this.archivedInstructors[index];
+                this.archivedInstructors.splice(index, 1);
+                this.approvedInstructors.push(toUnarchive);
+                this.unarchiveDialog[index] = false;
             },
 
             approvePendingInstructor(index) {
@@ -642,13 +781,14 @@
 
                 const notification = {
                     date: reformatDate,
-                    source: this.source,
+                    source: this.selectedSource,
                     description: this.notificationDescription,
                     override: this.notificationOverride,
                 };
 
                 this.adminNotifications.push(notification);
 
+                this.selectedSource = '';
                 this.notificationDate = new Date();
                 this.notificationDescription ='';
                 this.notificationOverride = false;
@@ -749,9 +889,10 @@
 
     .panel-container{
         min-height: 500px;
-        margin-top: 10px;
+        margin-top: 16px;
+        width: 97%;
         margin-bottom: 10px;
-        border-radius: 5px;
+        border-radius: 4px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
         border: 1px solid black;
     }
