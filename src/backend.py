@@ -2,7 +2,7 @@
 # Backend functionality for Course Compass
 
 from flask import Flask, jsonify, request, session, render_template
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
 from flask_cors import CORS
 from mysql.connector import connect, Error
 from datetime import datetime, timedelta
@@ -10,6 +10,7 @@ from flask_bcrypt import Bcrypt
 import logging, json
 from urllib.parse import unquote
 from flask_mail import Mail, Message
+from functools import wraps
 
 
 app = Flask(__name__, template_folder='templates')
@@ -32,7 +33,7 @@ mail = Mail(app)
 # LV
 # User class to store user information
 class User:
-    def __init__(self, userID=None, Fname=None, Lname=None, DOB=None, Email=None, majorName=None, majorID=None, studentID=None, role=None):
+    def __init__(self, userID=None, Fname=None, Lname=None, DOB=None, Email=None, majorName=None, majorID=None, studentID=None, role=None, instructorID=None):
         self.userID = userID
         self.Fname = Fname
         self.Lname = Lname
@@ -42,6 +43,7 @@ class User:
         self.majorID = majorID
         self.studentID = studentID
         self.role = role
+        self.instructorID = instructorID
 
     @staticmethod
     def get_user_by_email(email):
@@ -49,10 +51,11 @@ class User:
         cursor = connection.cursor(dictionary=True)
         try:
             cursor.execute("""
-                SELECT u.userID, u.Fname, u.Lname, u.DOB, u.Email, u.role, s.majorID, m.majorName, s.studentID
+                SELECT u.userID, u.Fname, u.Lname, u.DOB, u.Email, u.role, s.majorID, m.majorName, s.studentID, i.instructorID
                 FROM tblUser u
                 LEFT JOIN tblStudents s ON u.userID = s.userID
                 LEFT JOIN tblMajor m ON s.majorID = m.majorID
+                LEFT JOIN tblInstructor i ON u.userID = i.userID
                 WHERE u.Email = %s
             """, (email,))
             user_data = cursor.fetchone()
@@ -119,6 +122,19 @@ class User:
             "courses": self.get_major_courses()
         }
     
+
+def role_required(allowed_roles):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            verify_jwt_in_request()
+            identity = get_jwt_identity()
+            if identity['role'] not in allowed_roles:
+                return jsonify({"message": "Unauthorized access"}), 403
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
         
 # LV
 # Login functionality for backend
@@ -617,49 +633,88 @@ def delete_custom_event(event_id):
 #get user enrolled courses
 @app.route('/getEnrolledCourses', methods=['GET'])
 @jwt_required()
+@role_required(['Student', 'Instructor'])
 def get_enrolled_courses():
     try:
         current_user_email = get_jwt_identity()['email']
         user = User.get_user_by_email(current_user_email)
-        if not user or not user.studentID:
-            return jsonify({"message": "User not found or not a student"}), 400
+        if not user:
+            return jsonify({"message": "User not found"}), 400
 
         connection = connectToDB()
         cursor = connection.cursor()
 
-        query = """
-        SELECT 
-            cs.scheduleID,
-            cs.courseCode AS course,
-            c.courseName,
-            cs.meetingDays AS days,
-            cs.meetingTimes AS time,
-            TIME_FORMAT(cs.startTime, '%l:%i %p') AS start,
-            TIME_FORMAT(cs.endTime, '%l:%i %p') AS end,
-            cs.Location AS location,
-            cs.Instructor AS instructor,
-            cs.Section,
-            c.Credits,
-            IFNULL(i.officeHours, 'N/A') AS officeHours,
-            IFNULL(i.officeLocation, 'N/A') AS officeLocation
-        FROM 
-            tblUserSchedule us
-        JOIN
-            tblcourseSchedule cs ON us.scheduleID = cs.scheduleID
-        JOIN 
-            tblCourses c ON cs.courseID = c.courseID
-        LEFT JOIN 
-            tblInstructor i ON cs.instructorID = i.instructorID
-        WHERE 
-            us.studentID = %s AND cs.semesterID = (
-            SELECT semesterID
-            FROM tblSemesters
-            WHERE startDate < CURDATE()
-            ORDER BY startDate ASC
-            LIMIT 1
-        );
-        """
-        cursor.execute(query, (user.studentID,))
+        if user.role == 'Student':
+            if not user.studentID:
+                return jsonify({"message": "User is not a student"}), 400
+            # Query for student enrolled courses
+            query = """
+            SELECT 
+                cs.scheduleID,
+                cs.courseCode AS course,
+                c.courseName,
+                cs.meetingDays AS days,
+                cs.meetingTimes AS time,
+                TIME_FORMAT(cs.startTime, '%l:%i %p') AS start,
+                TIME_FORMAT(cs.endTime, '%l:%i %p') AS end,
+                cs.Location AS location,
+                cs.Instructor AS instructor,
+                cs.Section,
+                c.Credits,
+                IFNULL(i.officeHours, 'N/A') AS officeHours,
+                IFNULL(i.officeLocation, 'N/A') AS officeLocation
+            FROM 
+                tblUserSchedule us
+            JOIN
+                tblcourseSchedule cs ON us.scheduleID = cs.scheduleID
+            JOIN 
+                tblCourses c ON cs.courseID = c.courseID
+            LEFT JOIN 
+                tblInstructor i ON cs.instructorID = i.instructorID
+            WHERE 
+                us.studentID = %s AND cs.semesterID = (
+                SELECT semesterID
+                FROM tblSemesters
+                WHERE startDate < CURDATE()
+                ORDER BY startDate ASC
+                LIMIT 1
+            );
+            """
+            cursor.execute(query, (user.studentID,))
+        elif user.role == 'Instructor':
+            # Query for instructor's taught courses
+            query = """
+            SELECT 
+                cs.scheduleID,
+                cs.courseCode AS course,
+                c.courseName,
+                cs.meetingDays AS days,
+                cs.meetingTimes AS time,
+                TIME_FORMAT(cs.startTime, '%l:%i %p') AS start,
+                TIME_FORMAT(cs.endTime, '%l:%i %p') AS end,
+                cs.Location AS location,
+                cs.Instructor AS instructor,
+                cs.Section,
+                c.Credits,
+                IFNULL(i.officeHours, 'N/A') AS officeHours,
+                IFNULL(i.officeLocation, 'N/A') AS officeLocation
+            FROM 
+                tblcourseSchedule cs
+            JOIN 
+                tblCourses c ON cs.courseID = c.courseID
+            LEFT JOIN 
+                tblInstructor i ON cs.instructorID = i.instructorID
+            WHERE 
+                cs.instructorID = %s AND cs.semesterID = (
+                    SELECT semesterID
+                    FROM tblSemesters
+                    WHERE startDate < CURDATE()
+                    ORDER BY startDate ASC
+                    LIMIT 1
+                );
+            """
+            cursor.execute(query, (user.instructorID,))
+
         result = cursor.fetchall()
         enrolled_courses = [
             {
