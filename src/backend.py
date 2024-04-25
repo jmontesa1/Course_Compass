@@ -76,7 +76,8 @@ class User:
             "Email": self.Email,
             "majorID": self.majorID,
             "majorName": self.majorName,
-            "studentID": self.studentID
+            "studentID": self.studentID,
+            "role": self.role
         }
         
     def get_major_courses(self):
@@ -970,18 +971,14 @@ def editProfile():
     current_user_email = identity['email']
     print(f"Extracted email: {current_user_email}")
     user_information = User.get_user_by_email(current_user_email)
-    student_id = user_information.studentID
-    user_id = user_information.userID
-    major_id = user_information.majorID
+    if not user_information:
+        return jsonify({"message": "User not found"}), 404
+    user_role = user_information.role
     data = request.get_json()
     if not current_user_email:
         print("AUTH REQUIRED")
         return jsonify({"message": "Authentication required"}), 401
     try:
-        user = User.get_user_by_email(current_user_email)
-        if not user:
-            return jsonify({"message": "User not found"}), 404
-
         connection = connectToDB()
         cursor = connection.cursor(dictionary=True)
 
@@ -993,10 +990,9 @@ def editProfile():
         if 'lastname' in data:
             updates.append("u.Lname = %s")
             params.append(data['lastname'])
-        if 'major' in data:
+        if 'major' in data and user_role != 'Instructor':
             cursor.execute("SELECT majorID, majorName FROM tblMajor WHERE majorName = %s", (data['major'],))
             maj_result = cursor.fetchone()
-            majorID = maj_result['majorID']
             majorName = maj_result['majorName']
             print("Fetch result:", maj_result)
             if maj_result:
@@ -1006,14 +1002,23 @@ def editProfile():
             # params.append(data['major'])
         
         if updates:
-            
-            joined_updates = ', '.join(updates)
-            query = f"""
-            UPDATE tblStudents s
-            JOIN tblUser u ON s.userID = u.userID
-            SET {joined_updates}
-            WHERE u.Email = %s
-            """
+            if user_role == 'Instructor':
+                joined_updates = ', '.join(updates)
+                query = f"""
+                UPDATE tblInstructor i
+                JOIN tblUser u ON i.userID = u.userID
+                SET {joined_updates} WHERE u.Email = %s
+                """
+                print("AS INSTRUCTOR:")
+            else:
+                joined_updates = ', '.join(updates)
+                query = f"""
+                UPDATE tblStudents s
+                JOIN tblUser u ON s.userID = u.userID
+                SET {joined_updates}
+                WHERE u.Email = %s
+                """
+                print("AS STUDENT:")
             params.append(current_user_email)
             print("Executing query:", query)  
             print("With params:", params)    
@@ -1469,10 +1474,15 @@ def fetch_todays_notification():
 @jwt_required()
 def delete_account():
     identity = get_jwt_identity()
-    user_id = identity.get('userID')
+    user_email = identity.get('email')
     try:
         connection = connectToDB()
         cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT userID FROM tblUser WHERE Email = %s", (user_email,))
+        user_info = cursor.fetchone()
+        if not user_info: return jsonify({"message": "User not found"}), 404
+        user_id = user_info['userID']
+        cursor.execute("DELETE FROM tblInstructor WHERE userID = %s", (user_id,))
         cursor.execute("DELETE FROM tblUser WHERE userID = %s", (user_id,))
         connection.commit()
         print("ACCOUNT DELETED")
