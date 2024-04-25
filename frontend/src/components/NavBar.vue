@@ -128,7 +128,7 @@
         methods:{
             fetchNotifications() {
                 axios.get('http://localhost:5000/notifications')
-                    .then(response => {
+                    .then(response => { 
                     if (response.status === 200) {
                         this.upcomingNotification = response.data;
                     } else {

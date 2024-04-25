@@ -575,7 +575,7 @@
                                                 :gradient="['black']"
                                                 :line-width="'10'"
                                                 :smooth="2"
-                                                :model-value="[78, 3, 9, 5, 10, 0, 0]"
+                                                :model-value="[storedData[0].count, storedData[1].count, storedData[2].count, storedData[3].count, storedData[4].count, storedData[5].count]"
                                                 :padding="'5'"
                                                 :type="'bar'"
                                                 auto-draw
@@ -596,10 +596,10 @@
                                             <p style="font-family: Poppins; margin-left: 50px;">Majors</p>
                                         </v-col>
                                         <v-col cols="1.5">
-                                            <p style="font-family: Poppins;margin-left: 0px;">Student Reviews</p>
+                                            <p style="font-family: Poppins;margin-left: 0px;">Reviews</p>
                                         </v-col>
                                         <v-col cols="1.5">
-                                            <p style="font-family: Poppins;margin-left: -8px;">User Schedules</p>
+                                            <p style="font-family: Poppins;margin-left: -8px;">Schedules</p>
                                         </v-col>
                                         <v-col cols="1.5">
                                             <p style="font-family: Poppins;margin-left: -33px;">Announcements</p>
@@ -667,8 +667,7 @@
                 instructorDialog: [],
                 archiveDialog: [],
                 unarchiveDialog: [],
-                
-
+            
                 sources: ['Admin', 'UNR'],
                 selectedSource: '',
                 notificationDescription: '',
@@ -683,9 +682,18 @@
                 emailSent: [],
 
                 userAnalytics:[
-                    {label: 'Students', count: 25}, 
-                    {label: 'Instructors', count: 10}, 
+                    {label: 'Students', count: 0}, 
+                    {label: 'Instructors', count: 0}, 
                     {label: 'Admins', count: 3}, 
+                ],
+
+                storedData: [
+                    {label: 'Courses', count: 0},
+                    {label: 'Majors', count: 0},
+                    {label: 'Student Reviews', count: 0},
+                    {label: 'Schedules', count: 0},
+                    {label: 'Announccements', count: 0},
+                    {label: 'TBA', count: 0},
                 ],
             };
         },
@@ -711,7 +719,7 @@
         
             handleToast(toastData) {
 
-            console.log(toastData.message);
+                console.log(toastData.message);
             },
 
             chooseInstructors(){
@@ -815,6 +823,37 @@
                 this.emailContent = '';
                 this.emailDialog = false;
             },
+
+            fetchCounts() {
+                axios.get('http://127.0.0.1:5000/analytics/counts', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
+                .then(response => {
+                    this.userAnalytics[0].count = response.data.student_count;
+                    this.userAnalytics[1].count = response.data.instructor_count;
+                    console.log('Counts fetched successfully', response.data);
+                })
+                .catch(error => {
+                    console.error("Error fetching counts", error);
+                });
+            },
+
+            fetchDataCounts() {
+                axios.get('http://127.0.0.1:5000/analytics/stored-data-counts', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
+                .then(response => {
+                    this.storedData[0].count = response.data.course_count;
+                    this.storedData[1].count = response.data.major_count;
+                    // this.storedData[2].count = response.data.review_count;
+                    this.storedData[3].count = response.data.schedule_count;
+                    console.log('Data counts fetched successfully', response.data);
+                })
+                .catch(error => {
+                    console.error("Error fetching data counts", error);
+                });
+            },
+        },
+
+        created() {
+            this.fetchCounts(); // Fetches total user count
+            this.fetchDataCounts(); // Fetches stored data counts
         },
     
 
