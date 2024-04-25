@@ -356,7 +356,7 @@
                                                                 <v-card-actions>
                                                                     <v-spacer></v-spacer>
                                                                     <v-btn text="No" variant="plain" @click="archiveDialog[index] = false"></v-btn>
-                                                                    <v-btn color="primary" text="Yes" variant="tonal" @click="archiveApprovedInstructor(index)"></v-btn>
+                                                                    <v-btn color="primary" text="Yes" variant="tonal" @click="archiveInstructor(approvedInstructors[index].email, index)"></v-btn>
                                                                 </v-card-actions>
                                                             </v-card>
                                                         </v-dialog> 
@@ -623,12 +623,9 @@
                     major: '',
                 },
 
+                // Retrieve approved, archived, and pending instructors for admin
                 approvedInstructors: [],
-
-                archivedInstructors: [
-                    {name: 'Tom Ross', email: 't.ross@nevada.unr.edu', onHold: false},
-                ],
-
+                archivedInstructors: [],
                 pendingInstructors: [],
                 
                 notificationDialog: false,
@@ -734,14 +731,6 @@
             removeArchivedInstructor(index) {
                 this.archivedInstructors.splice(index, 1);
                 this.removeDialog[index] = false;
-            },
-
-            archiveApprovedInstructor(index) {
-                const toArchive = this.approvedInstructors[index];
-                this.approvedInstructors.splice(index, 1);
-                this.archivedInstructors.push(toArchive);
-                this.archiveDialog[index] = false;
-                this.instructorDialog[index] = false;
             },
 
             unarchiveInstructor(index) {
@@ -859,6 +848,21 @@
                 });
             },
 
+            fetchArchivedInstructors() {
+                axios.get('http://127.0.0.1:5000/archived-instructors', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
+                .then(response => {
+                    this.archivedInstructors = response.data.map(instructor => ({
+                        ...instructor,
+                        name: instructor.name || 'N/A',
+                        email: instructor.Email
+                    }));
+                    console.log(this.archivedInstructors);
+                })
+                .catch(error => {
+                    console.error("Error while fetching archived instructors", error);
+                });
+            },
+
             confirmApproveInstructor(instructor) {
                 this.currentInstructor = instructor;
                 this.approveDialog = true;
@@ -872,6 +876,11 @@
             approveInstructor() {
                 axios.post('http://127.0.0.1:5000/approve-instructor', { email: this.currentInstructor.email })
                     .then(response => {
+                        this.approvedInstructors.push(this.currentInstructor);
+                        const index = this.pendingInstructors.findIndex(instructor => instructor.email === this.currentInstructor.email);
+                        if (index !== -1) {
+                            this.pendingInstructors.splice(index, 1);
+                        }
                         this.fetchPendingInstructors();
                         this.approveDialog = false;
                         console.log("Instructor approved: ", response.data);
@@ -892,6 +901,24 @@
                         console.error("Error rejecting instructor: ", error);
                     });
             },
+
+            archiveInstructor(instructor_email, index) {
+                axios.post('http://127.0.0.1:5000/archive-instructor', { email: instructor_email })
+                    .then(response => {
+                        const archivedInstructor = this.approvedInstructors[index];
+                        this.archivedInstructors.push(archivedInstructor);
+                        this.approvedInstructors.splice(index, 1);
+                        this.fetchArchivedInstructors();
+                        this.archiveDialog[index] = false;
+                        this.instructorDialog[index] = false;
+                        console.log("Instructor archived: ", response.data);
+                    })
+                    .catch(error => {
+                        console.error("Error archiving instructor: ", error);
+                        this.archiveDialog[index] = false;
+                        this.instructorDialog[index] = false;
+                    });
+            },
         },
 
         created() {
@@ -899,6 +926,7 @@
             this.fetchDataCounts(); // Fetches stored data counts
             this.fetchPendingInstructors(); // Fetches pending instructors for admin to accept
             this.fetchApprovedInstructors(); // ya ya ya fetch approved instructors
+            this.fetchArchivedInstructors(); // archived instructors
         },
     
 
