@@ -35,6 +35,15 @@ create table cs425.tblInstructor(
     foreign key (userID) references tblUser(userID)
 );
 
+/*Junction table, multiple instructors per course*/
+create table cs425.tblCourseInstructors (
+    courseInstructorID int primary key auto_increment,
+    scheduleID int,
+    instructorID int,
+    foreign key (scheduleID) references tblcourseSchedule(scheduleID),
+    foreign key (instructorID) references tblInstructor(instructorID)
+);
+
 /*Department table*/
 create table cs425.tblDepartment(
     deptID int primary key auto_increment,
