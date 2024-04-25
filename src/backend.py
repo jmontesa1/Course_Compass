@@ -1621,39 +1621,46 @@ def get_stored_data_counts():
 # LV    
 @app.route('/pending-instructors', methods=['GET'])
 def get_pending_instructors():
-    # try:
-    #     connection = connectToDB()
-    #     cursor = connection.cursor(dictionary=True)
-    #     cursor.execute("SELECT userID, Email, CONCAT(firstName, ''FROM tblInstructor WHERE approval_status = %s", ('pending',))
-    #     pending_instructors = cursor.fetchall()
-    #     print(pending_instructors)
-    #     return jsonify(pending_instructors), 200
-    # except Error as err:
-    #     print(err)
-    #     return jsonify({"message": "Error occurred while fetching pending instructors"}), 500
-    # finally:
-    #     cursor.close()
-    #     connection.close()
     try:
         connection = connectToDB()
         cursor = connection.cursor(dictionary=True)
-        sql_query = """
+        query = """
         SELECT i.Email, CONCAT(u.FName, ' ', u.LName) AS name, i.approval_status
         FROM tblInstructor AS i
         JOIN tblUser AS u ON i.userID = u.userID
         WHERE i.approval_status = %s
         """
-        cursor.execute(sql_query, ('pending',))
+        cursor.execute(query, ('pending',))
         pending_instructors = cursor.fetchall()
         return jsonify(pending_instructors), 200
     except Error as err:
         print(err)
         return jsonify({"message": "Error occurred while fetching pending instructors"}), 500
     finally:
-        if cursor:
             cursor.close()
-        if connection:
             connection.close()
+            
+            
+@app.route('/approved-instructors', methods=['GET'])
+def get_approved_instructors():
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary = True)
+        query = """
+        SELECT i.Email, CONCAT(u.FName, ' ', u.LName) AS name, i.approval_status
+        FROM tblInstructor AS i
+        JOIN tblUser AS u ON i.userID = u.userID
+        WHERE i.approval_status = %s
+        """
+        cursor.execute(query, ('approved',))
+        accepted_instructors = cursor.fetchall()
+        return jsonify(accepted_instructors), 200
+    except Error as err:
+        print(err)
+        return jsonify({"message": "Error while fetching approved instructors"}), 500
+    finally:
+        cursor.close()
+        connection.close()
             
             
 # LV
