@@ -623,19 +623,13 @@
                     major: '',
                 },
 
-                approvedInstructors: [
-                    {name: 'Tony Yars', email: 'tyars@nevada.unr.edu', onHold: false, holdReason: ''},
-                    {name: 'Hank Stark', email: 'hstark@nevada.unr.edu', onHold: true, holdReason: 'University Adminsitrative Leave'},
-                ],
+                approvedInstructors: [],
 
                 archivedInstructors: [
                     {name: 'Tom Ross', email: 't.ross@nevada.unr.edu', onHold: false},
                 ],
 
-                pendingInstructors: [
-                    {name: 'Jeremy Potts', email: 'jeremypotts@nevada.unr.edu', onHold: false, holdReason: ''},
-                    {name: 'Jimmy Fraschia', email: 'jimmy.fraschia@gmail', onHold: false, holdReason: ''},
-                ],
+                pendingInstructors: [],
                 
                 notificationDialog: false,
                 settingsDialog: false,
@@ -840,13 +834,28 @@
                 .then(response => {
                     this.pendingInstructors = response.data.map(instructor => ({
                         ...instructor,
-                        name: instructor.name || 'No name provided',
+                        name: instructor.name || 'N/A',
                         email: instructor.Email
                     }));
                     console.log(this.pendingInstructors);
                 })
                 .catch(error => {
                     console.error("Error fetching pending instructors", error);
+                });
+            },
+
+            fetchApprovedInstructors() {
+                axios.get('http://127.0.0.1:5000/approved-instructors', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
+                .then(response => {
+                    this.approvedInstructors = response.data.map(instructor => ({
+                        ...instructor,
+                        name: instructor.name || 'N/A',
+                        email: instructor.Email
+                    }));
+                    console.log(this.approvedInstructors);
+                })
+                .catch(error => {
+                    console.error("Error while fetching accepted instructors", error);
                 });
             },
 
@@ -889,6 +898,7 @@
             this.fetchCounts(); // Fetches total user count
             this.fetchDataCounts(); // Fetches stored data counts
             this.fetchPendingInstructors(); // Fetches pending instructors for admin to accept
+            this.fetchApprovedInstructors(); // ya ya ya fetch approved instructors
         },
     
 
