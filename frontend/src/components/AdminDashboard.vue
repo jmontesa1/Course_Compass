@@ -607,9 +607,6 @@
                                         <v-col cols="1.5">
                                             <p style="font-family: Poppins;margin-left: 0px;">TBA</p>
                                         </v-col>
-                                        <v-col cols="1">
-                                            <p style="font-family: Poppins;margin-left: -16px;">TBA</p>
-                                        </v-col>
                                     </v-row>
                                 </v-card-text>
                                 </v-card>                            
@@ -843,6 +840,7 @@
                     this.storedData[1].count = response.data.major_count;
                     // this.storedData[2].count = response.data.review_count;
                     this.storedData[3].count = response.data.schedule_count;
+                    this.storedData[4].count = response.data.announcement_count;
                     console.log('Data counts fetched successfully', response.data);
                 })
                 .catch(error => {
