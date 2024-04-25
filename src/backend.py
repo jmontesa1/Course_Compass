@@ -1751,6 +1751,26 @@ def archive_instructor():
     finally:
         cursor.close()
         connection.close()
+        
+        
+# LV
+@app.route('/remove-instructor', methods=['POST'])
+def remove_instructor():
+    instructor_email = request.json.get('email')
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor()
+        query = "UPDATE tblInstructor SET approval_status = %s WHERE Email = %s"
+        cursor.execute(query, ('removed', instructor_email))
+        connection.commit()
+        return jsonify({"message": "Instructor removed."}), 200
+    except Error as err:
+        connection.rollback()
+        print(err)
+        return jsonify({"message": "Error removing instructor"}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 
 # LV
