@@ -1535,6 +1535,9 @@ def get_stored_data_counts():
         cursor.execute("SELECT COUNT(*) AS schedule_count FROM tblUserSchedule")
         schedule_count = cursor.fetchone()
         response['schedule_count'] = schedule_count['schedule_count'] if schedule_count else 0
+        cursor.execute("SELECT COUNT(*) AS announcement_count FROM tblNotifications")
+        announcement_count = cursor.fetchone()
+        response['announcement_count'] = announcement_count['announcement_count'] if announcement_count else 0
         
         return jsonify(response), 200
     except Exception as exc:
