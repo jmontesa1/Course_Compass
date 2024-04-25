@@ -55,8 +55,17 @@
                             <input type="text" class="form-control" v-model="newSection" style="height: 20px; margin-bottom: -1px;">
                         </div>
                         <div class="edit-form">
-                            <p style="margin-right: 10px;"><strong>Professor:</strong></p>
-                            <input type="text" class="form-control" v-model="newProfessor" style="height: 20px; margin-bottom: -1px;">
+                            <p style="margin-right: 5px;"><strong>Professors:</strong></p>
+
+                            <div v-for="(professor, index) in newProfessor" :key="index">
+                                <input type="text" class="form-control" v-model="newProfessor[index]" style="height: 20px; margin-bottom: -1px; margin-right: 5px;">
+                            </div>
+                            <v-btn size="extra-small" variant="plain" @click="addProfessor" :disabled="newProfessor.length > 6">
+                                <span class="material-icons" style="color:black">person_add</span>
+                            </v-btn>
+                            <v-btn size="extra-small" variant="plain" @click="removeProfessor" :disabled="newProfessor.length === 1">
+                                <span class="material-icons" style="color:black">remove</span>
+                            </v-btn>
                         </div>
                         <br>
                         <div class="edit-form">
@@ -146,7 +155,7 @@
                 newName: '',
                 newCode: '',
                 newSection: '',
-                newProfessor: '',
+                newProfessor: [''],
                 newFormat: '',
                 newTerm: '',
                 newUnits: '',
@@ -156,6 +165,7 @@
                 newLocation: '',
                 newDays: '',
                 newMeetingTime:'',
+
             };
         },
 
@@ -193,7 +203,17 @@
                 this.newLocation = '';
                 this.newDays = '';
                 this.newMeetingTime = '';
-            }
+            },
+
+            addProfessor(){
+                this.newProfessor.push('');
+            },
+
+            removeProfessor(index){
+                this.newProfessor.pop();
+            },
+            
+
         },
     };
     </script>
@@ -300,5 +320,8 @@
     .edit-form{
         display: flex;
         align-items: center;
+    }
+
+    .add-btn{
     }
 </style>

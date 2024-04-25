@@ -572,22 +572,22 @@
                                     </v-row>
                                     <v-divider></v-divider>
                                     <v-row>
-                                        <v-col cols="1.5">
-                                            <p style="font-family: Poppins; margin-left: 60px;">Courses</p>
+                                        <v-col cols="2" class="d-flex justify-center align-center">
+                                            <p style="font-family: Poppins; margin-left: 0px;">Courses</p>
                                         </v-col>
-                                        <v-col cols="1.5">
-                                            <p style="font-family: Poppins; margin-left: 50px;">Majors</p>
+                                        <v-col cols="2" class="d-flex justify-center align-center">
+                                            <p style="font-family: Poppins; margin-left: 0px;">Majors</p>
                                         </v-col>
-                                        <v-col cols="1.5">
+                                        <v-col cols="2" class="d-flex justify-center align-center">
                                             <p style="font-family: Poppins;margin-left: 0px;">Reviews</p>
                                         </v-col>
-                                        <v-col cols="1.5">
+                                        <v-col cols="2" class="d-flex justify-center align-center">
                                             <p style="font-family: Poppins;margin-left: -8px;">Schedules</p>
                                         </v-col>
-                                        <v-col cols="1.5">
-                                            <p style="font-family: Poppins;margin-left: -33px;">Announcements</p>
+                                        <v-col cols="2" class="d-flex justify-center align-center"> 
+                                            <p style="font-family: Poppins;margin-left: -3px;">Announcements</p>
                                         </v-col>
-                                        <v-col cols="1.5">
+                                        <v-col cols="2" class="d-flex justify-center align-center">
                                             <p style="font-family: Poppins;margin-left: 0px;">TBA</p>
                                         </v-col>
                                     </v-row>
