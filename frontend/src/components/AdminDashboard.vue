@@ -404,7 +404,7 @@
                                                     <v-card-actions>
                                                         <v-spacer></v-spacer>
                                                         <v-btn text="No" variant="plain" @click="removeDialog[index] = false"></v-btn>
-                                                        <v-btn color="primary" text="Yes" variant="tonal" @click="removeArchivedInstructor(index)"></v-btn>
+                                                        <v-btn color="primary" text="Yes" variant="tonal" @click="removeInstructor(archivedInstructors[index].email, index)"></v-btn>
                                                     </v-card-actions>
                                                 </v-card>
                                             </v-dialog> 
@@ -919,6 +919,19 @@
                         this.instructorDialog[index] = false;
                     });
             },
+
+            removeInstructor(instructor_email, index) {
+                axios.post('http://127.0.0.1:5000/remove-instructor', { email: instructor_email })
+                    .then(response => {
+                        this.archivedInstructors.splice(index, 1);
+                        this.removeDialog[index] = false;
+                        console.log("Instructor removed: ", response.data);
+                    })
+                    .catch(error => {
+                        console.error("Error removing instructor: ", error);
+                        this.removeDialog[index] = false;
+                    });
+            }
         },
 
         created() {
