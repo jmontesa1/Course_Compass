@@ -650,19 +650,21 @@ def get_enrolled_courses():
                 TIME_FORMAT(cs.startTime, '%l:%i %p') AS start,
                 TIME_FORMAT(cs.endTime, '%l:%i %p') AS end,
                 cs.Location AS location,
-                cs.Instructor AS instructor,
+                GROUP_CONCAT(DISTINCT cs.Instructor SEPARATOR ', ') AS instructors,
                 cs.Section,
                 c.Credits,
-                IFNULL(i.officeHours, 'N/A') AS officeHours,
-                IFNULL(i.officeLocation, 'N/A') AS officeLocation
+                GROUP_CONCAT(DISTINCT IFNULL(i.officeHours, 'N/A') SEPARATOR ', ') AS officeHours,
+                GROUP_CONCAT(DISTINCT IFNULL(i.officeLocation, 'N/A') SEPARATOR ', ') AS officeLocations
             FROM 
                 tblUserSchedule us
             JOIN
                 tblcourseSchedule cs ON us.scheduleID = cs.scheduleID
             JOIN 
                 tblCourses c ON cs.courseID = c.courseID
-            LEFT JOIN 
-                tblInstructor i ON cs.instructorID = i.instructorID
+            LEFT JOIN
+                tblCourseInstructors ci ON cs.scheduleID = ci.scheduleID
+            LEFT JOIN
+                tblInstructor i ON ci.instructorID = i.instructorID
             WHERE 
                 us.studentID = %s AND cs.semesterID = (
                 SELECT semesterID
@@ -670,7 +672,8 @@ def get_enrolled_courses():
                 WHERE startDate < CURDATE()
                 ORDER BY startDate ASC
                 LIMIT 1
-            );
+            )
+            GROUP BY cs.scheduleID;
             """
             cursor.execute(query, (user.studentID,))
         elif user.role == 'Instructor':
@@ -685,25 +688,28 @@ def get_enrolled_courses():
                 TIME_FORMAT(cs.startTime, '%l:%i %p') AS start,
                 TIME_FORMAT(cs.endTime, '%l:%i %p') AS end,
                 cs.Location AS location,
-                cs.Instructor AS instructor,
+                GROUP_CONCAT(DISTINCT cs.Instructor SEPARATOR ', ') AS instructors,
                 cs.Section,
                 c.Credits,
-                IFNULL(i.officeHours, 'N/A') AS officeHours,
-                IFNULL(i.officeLocation, 'N/A') AS officeLocation
+                GROUP_CONCAT(DISTINCT IFNULL(i.officeHours, 'N/A') SEPARATOR ', ') AS officeHours,
+                GROUP_CONCAT(DISTINCT IFNULL(i.officeLocation, 'N/A') SEPARATOR ', ') AS officeLocations
             FROM 
                 tblcourseSchedule cs
             JOIN 
                 tblCourses c ON cs.courseID = c.courseID
-            LEFT JOIN 
-                tblInstructor i ON cs.instructorID = i.instructorID
+            JOIN
+                tblCourseInstructors ci ON cs.scheduleID = ci.scheduleID
+            JOIN
+                tblInstructor i ON ci.instructorID = i.instructorID
             WHERE 
-                cs.instructorID = %s AND cs.semesterID = (
+                ci.instructorID = %s AND cs.semesterID = (
                     SELECT semesterID
                     FROM tblSemesters
                     WHERE startDate < CURDATE()
                     ORDER BY startDate ASC
                     LIMIT 1
-                );
+                )
+            GROUP BY cs.scheduleID;
             """
             cursor.execute(query, (user.instructorID,))
 
@@ -718,11 +724,11 @@ def get_enrolled_courses():
                 'start': course[5],
                 'end': course[6],
                 'location': course[7],
-                'instructor': course[8],
+                'instructors': course[8],
                 'Section': course[9],
                 'Credits': course[10],
                 'officeHours': course[11],
-                'officeLocation': course[12]
+                'officeLocations': course[12]
             }
             for course in result
         ]

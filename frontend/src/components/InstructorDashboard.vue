@@ -272,8 +272,8 @@
                                         <strong>Instructor: </strong> {{ course.instructor }}<br>
                                         <strong>Credits: </strong> {{ course.Credits }}<br>
                                         <strong>Section: </strong> {{ course.Section }}<br>
-                                        <strong>Office Hours: </strong> FIGURE OUT OFFICE HOURS<br>
-                                        <strong>Office Hours Location: </strong> FIGURE OUT OFFICE HOURS LOC<br>
+                                        <strong>Office Hours: </strong> {{ course.officeHours }}<br>
+                                        <strong>Office Hours Location: </strong> {{ course.officeLocation }}<br>
                                     </v-col>
                                 </v-row>
                             </v-card-text> 
