@@ -6,6 +6,11 @@
 
 <template>
     <div class="login-container">
+        <transition name="fade">
+            <div v-if="isVerified" class="alert alert-success">
+            Your account has been verified. You may now log in.
+        </div>
+        </transition>
             <img class="logo" src="../assets/course compass logo.png" alt="Course Compass Logo">
             <h2>Log In</h2>
 
@@ -44,8 +49,16 @@
                 email: '',
                 password: '',
                 passwordVis: false,
-
+                isVerified: false,
             };
+        },
+        mounted() {
+            if (this.$route.query.verified === 'true') {
+                this.isVerified = true;
+                setTimeout(() => {
+                    this.isVerified = false;
+                }, 4000);
+            }
         },
         methods:{
             toggleVisibility(){
@@ -100,7 +113,11 @@
                 .catch(error => {
                     if (error.response && error.response.status === 401) {
                         this.$emit("show-toast",{ message: "Invalid email or password."});
-                    } else {
+                    } 
+                    else if (error.response && error.response.status === 403) {
+                        this.$emit("show-toast",{ message: "Account not verified. please check your email."});
+                    }
+                    else {
                         console.error("Login error: ", error);
                         this.$emit("show-toast",{ message: "An error occurred during login."});
                     }
@@ -112,6 +129,12 @@
 </script>
 
 <style scoped>
+    .fade-enter-active, fade-leave-active {
+        transition: opacity 3s;
+    }
+    .fade-enter, .fade-leave-to {
+        opacity: 0;
+    }
     h2 {
         margin-left: 30px;
         text-align: left;
