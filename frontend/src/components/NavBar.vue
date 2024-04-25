@@ -18,7 +18,17 @@
         </v-banner-actions>
     </v-banner>
 
-    <div v-if="isLoggedIn">
+    <div v-if="$route.path === '/admin-dashboard'">
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+                <router-link to="/" class="navbar-brand">
+                    <img src="../assets/course compass logo.png" alt="Course Compass Logo">
+                </router-link>
+            </div>
+        </nav>
+    </div>
+
+    <div v-else-if="isLoggedIn">
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container-fluid">
                     <router-link to="/" class="navbar-brand">
