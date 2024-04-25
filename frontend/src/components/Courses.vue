@@ -4,7 +4,7 @@
 <!-- Courses will have a popup menu that gives details about it -->
 
 <template> 
-    <div v-if="userType === 'Student' || userType === 'Instructor'">
+    <div v-if="userType === 'Student' || userType === 'Admin'">
         <div class="top-row">
             <div class="row">
                 <div class="col-sm-2 d-flex flex-column">
