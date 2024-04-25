@@ -246,56 +246,39 @@
                                 <v-expansion-panel-text>
                                     <v-row no-gutters v-for="(instructor, index) in pendingInstructors" :key="index">
                                         <v-col cols="10">
-                                            <p class="row-text">{{ instructor.name }} - {{ instructor.Email }}</p>
+                                            <p class="row-text">{{ instructor.name }} - {{ instructor.email }}</p>
                                         </v-col>
                                         <v-col cols="1">
-                                            <v-dialog v-model="removeDialog[index]" max-width="500" style="font-family: Poppins;">
-                                                <template v-slot:activator="{ props: activatorProps }">
-                                                    <v-btn v-bind="activatorProps" icon="$close" variant="plain">
-                                                        <span class="material-symbols-outlined">
-                                                        block
-                                                        </span>
-                                                    </v-btn>
-                                                </template>
-                                                <!--Pop up -->
-                                                <v-card title="Are you sure you want to deny:">
-                                                    <v-card-text>
-                                                        <br>
-                                                        <p>{{pendingInstructors[index].name}} - {{pendingInstructors[index].email}}</p>
-                                                    </v-card-text> 
-                                                    <v-card-actions>
-                                                        <v-spacer></v-spacer>
-                                                        <v-btn text="No" variant="plain" @click="removeDialog[index] = false"></v-btn>
-                                                        <v-btn color="primary" text="Yes" variant="tonal" @click="removePendingInstructor(index)"></v-btn>
-                                                    </v-card-actions>
-                                                </v-card>
-                                            </v-dialog>                                        
-
+                                            <v-btn icon @click="confirmRejectInstructor(instructor)">
+                                                <span class="material-symbols-outlined">block</span>
+                                            </v-btn>
                                         </v-col>
                                         <v-col cols="1">
-                                            <v-dialog v-model="approveDialog[index]" max-width="500" style="font-family: Poppins;">
-                                                <template v-slot:activator="{ props: activatorProps }">
-                                                    <v-btn v-bind="activatorProps" icon="$close" variant="plain">
-                                                        <span class="material-symbols-outlined">
-                                                        check_circle
-                                                        </span>
-                                                    </v-btn>
-                                                </template>
-                                                <!--Pop up -->
-                                                <v-card title="Are you sure you want to approve:">
-                                                    <v-card-text>
-                                                        <br>
-                                                        <p>{{pendingInstructors[index].name}} - {{pendingInstructors[index].email}}</p>
-                                                    </v-card-text> 
-                                                    <v-card-actions>
-                                                        <v-spacer></v-spacer>
-                                                        <v-btn text="No" variant="plain" @click="approveDialog[index] = false"></v-btn>
-                                                        <v-btn color="primary" text="Yes" variant="tonal" @click="approvePendingInstructor(index)"></v-btn>
-                                                    </v-card-actions>
-                                                </v-card>
-                                            </v-dialog>   
-
+                                            <v-btn icon @click="confirmApproveInstructor(instructor)">
+                                                <span class="material-symbols-outlined">check_circle</span>
+                                            </v-btn>
                                         </v-col>
+
+                                        <v-dialog v-model="approveDialog" max-width="500" style="font-family: Poppins;" persistent>
+                                            <v-card>
+                                                <v-card-title>Confirm Approval</v-card-title>
+                                                <v-card-text>Are you sure you want to approve {{ currentInstructor ? currentInstructor.name : '' }}?</v-card-text>
+                                                <v-card-actions>
+                                                    <v-btn color="primary" text @click="approveInstructor">Approve</v-btn>
+                                                    <v-btn color="primary" text @click="approveDialog = false">Cancel</v-btn>
+                                                </v-card-actions>
+                                            </v-card>
+                                        </v-dialog>
+                                        <v-dialog v-model="rejectDialog" max-width="500" style="font-family: Poppins;" persistent>
+                                            <v-card>
+                                                <v-card-title>Confirm Rejection</v-card-title>
+                                                <v-card-text>Are you sure you want to reject {{ currentInstructor ? currentInstructor.name : '' }}?</v-card-text>
+                                                <v-card-actions>
+                                                    <v-btn color="red" text @click="rejectInstructor">Reject</v-btn>
+                                                    <v-btn text @click="rejectDialog = false">Cancel</v-btn>
+                                                </v-card-actions>
+                                            </v-card>
+                                        </v-dialog>
                                         <v-divider class="instructor-divider"></v-divider>
                                     </v-row>
                                 </v-expansion-panel-text>
@@ -660,7 +643,9 @@
                 removeDialog: [],
                 removeNotificationDialog: [],
                 removeEmailDialog: [],
-                approveDialog: [],
+                approveDialog: false,
+                rejectDialog: false,
+                currentInstructor: null,
                 instructorDialog: [],
                 archiveDialog: [],
                 unarchiveDialog: [],
@@ -692,6 +677,8 @@
                     {label: 'Announccements', count: 0},
                     {label: 'TBA', count: 0},
                 ],
+
+                selectedInstructorEmail: '',
             };
         },
 
@@ -861,6 +848,40 @@
                 .catch(error => {
                     console.error("Error fetching pending instructors", error);
                 });
+            },
+
+            confirmApproveInstructor(instructor) {
+                this.currentInstructor = instructor;
+                this.approveDialog = true;
+            },
+
+            confirmRejectInstructor(instructor) {
+                this.currentInstructor = instructor;
+                this.rejectDialog = true;
+            },
+
+            approveInstructor() {
+                axios.post('http://127.0.0.1:5000/approve-instructor', { email: this.currentInstructor.email })
+                    .then(response => {
+                        this.fetchPendingInstructors();
+                        this.approveDialog = false;
+                        console.log("Instructor approved: ", response.data);
+                    })
+                    .catch(error => {
+                        console.error("Error approving instructor: ", error);
+                    });
+            },
+
+            rejectInstructor() {
+                axios.post('http://127.0.0.1:5000/reject-instructor', { email: this.currentInstructor.email })
+                    .then(response => {
+                        this.fetchPendingInstructors(); // refresh
+                        this.rejectDialog = false;
+                        console.log("Instructor rejected: ", response.data);
+                    })
+                    .catch(error => {
+                        console.error("Error rejecting instructor: ", error);
+                    });
             },
         },
 

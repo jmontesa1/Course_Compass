@@ -1599,6 +1599,45 @@ def get_pending_instructors():
             cursor.close()
         if connection:
             connection.close()
+            
+            
+# LV
+@app.route('/approve-instructor', methods=['POST'])
+def approve_instructor():
+    instructor_email = request.json.get('email')
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor()
+        query = "UPDATE tblInstructor SET approval_status = %s WHERE Email = %s"
+        cursor.execute(query, ('approved', instructor_email))
+        connection.commit()
+        return jsonify({"message": "Instructor approved."}), 200
+    except Error as err:
+        connection.rollback()
+        print(err)
+        return jsonify({"message": "Error accepting instructor"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+        
+        
+@app.route('/reject-instructor', methods=['POST'])
+def reject_instructor():
+    instructor_email = request.json.get('email')
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor()
+        query = "UPDATE tblInstructor SET approval_status = %s WHERE Email = %s"
+        cursor.execute(query, ('rejected', instructor_email))
+        connection.commit()
+        return jsonify({"message": "Instructor rejected."}), 200
+    except Error as err:
+        connection.rollback()
+        print(err)
+        return jsonify({"message": "Error rejecting instructor"}), 500
+    finally:
+        cursor.close()
+        connection.close()
         
 
 # LV
