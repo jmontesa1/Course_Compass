@@ -21,12 +21,12 @@
                     <h2>My Account</h2>
                     <div>
                         <br>
-                        <br>
+                        <p v-if="user.role == 'Instructor'" style="font-size: 20px;"><strong><i>Instructor</i></strong></p>
                         <p><strong>First Name:</strong> {{ user.firstname }}</p>
                         <p><strong>Last Name:</strong> {{ user.lastname }}</p>
                         <p><strong>Email:</strong> {{ user.email }}</p>
                         <p><strong>Birthdate:</strong> {{ user.dob }}</p>
-                        <p><strong>Major:</strong> {{ user.major }}</p>
+                        <p v-if="user.role !== 'Instructor'"><strong>Major:</strong> {{ user.major }}</p>
                         <v-dialog v-model="dialog" max-width="500" style="font-family: Poppins;">
                             <template v-slot:activator="{ props: activatorProps }">
                                 <btn class="account-button" v-bind="activatorProps">Edit Profile</btn>
@@ -38,7 +38,7 @@
                                         <v-text-field v-model="editData.firstName" label="First Name"></v-text-field>
                                         <v-text-field v-model="editData.lastName" label="Last Name"></v-text-field>
                                         <!--<v-select v-model="editData.major" :items="majorOptions" label="Major"></v-select> -->
-                                        <v-select v-model="editData.major_name" id="major" required>
+                                        <v-select v-if="user.role !== 'Instructor'" v-model="editData.major_name" id="major" required>
                                             <option value="" disabled>Select your major</option>
                                             <option v-for="major in majors" :key="major" :value="major">{{ major }}</option>
                                         </v-select>
@@ -84,6 +84,7 @@
                     dob: '',
                     major: '',
                     profilePicture: require('../assets/profile-picture.jpg'),
+                    role: '',
                 },
                 editData: {
                     firstName: '',
@@ -127,6 +128,7 @@
                     this.user.email = response.data.Email;
                     this.user.dob = response.data.DOB;
                     this.user.major = response.data.majorName;
+                    this.user.role = response.data.role;
                     console.log('My Account page loaded successfully', response.data);
                     this.loading = false;
                 })
@@ -139,8 +141,10 @@
                 const updatedInfo = {
                     firstname: this.editData.firstName,
                     lastname: this.editData.lastName,
-                    major: this.editData.major_name,
                 };
+                if (this.user.role !== 'Instructor') {
+                    updatedInfo.major = this.editData.major_name;
+                }
                 axios.post('http://127.0.0.1:5000/editprofile', updatedInfo, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                 .then(response => {
                     this.fetchUserInfo(); 
