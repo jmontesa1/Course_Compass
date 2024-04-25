@@ -246,7 +246,7 @@
                                 <v-expansion-panel-text>
                                     <v-row no-gutters v-for="(instructor, index) in pendingInstructors" :key="index">
                                         <v-col cols="10">
-                                            <p class="row-text">{{pendingInstructors[index].name}} - {{pendingInstructors[index].email}}</p>
+                                            <p class="row-text">{{ instructor.name }} - {{ instructor.Email }}</p>
                                         </v-col>
                                         <v-col cols="1">
                                             <v-dialog v-model="removeDialog[index]" max-width="500" style="font-family: Poppins;">
@@ -847,11 +847,27 @@
                     console.error("Error fetching data counts", error);
                 });
             },
+
+            fetchPendingInstructors() {
+                axios.get('http://127.0.0.1:5000/pending-instructors', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
+                .then(response => {
+                    this.pendingInstructors = response.data.map(instructor => ({
+                        ...instructor,
+                        name: instructor.name || 'No name provided',
+                        email: instructor.Email
+                    }));
+                    console.log(this.pendingInstructors);
+                })
+                .catch(error => {
+                    console.error("Error fetching pending instructors", error);
+                });
+            },
         },
 
         created() {
             this.fetchCounts(); // Fetches total user count
             this.fetchDataCounts(); // Fetches stored data counts
+            this.fetchPendingInstructors(); // Fetches pending instructors for admin to accept
         },
     
 

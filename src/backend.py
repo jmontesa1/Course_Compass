@@ -29,6 +29,7 @@ app.config['MAIL_PASSWORD'] = 'rlse btgk aelx uxlk'
 mail = Mail(app)
 
 
+# LV
 # User class to store user information
 class User:
     def __init__(self, userID=None, Fname=None, Lname=None, DOB=None, Email=None, majorName=None, majorID=None, studentID=None, role=None):
@@ -117,8 +118,9 @@ class User:
         return {
             "courses": self.get_major_courses()
         }
+    
         
-
+# LV
 # Login functionality for backend
 # Check backend development notes (Lucas)
 # Included print statements for terminal reference
@@ -204,8 +206,9 @@ def login():
     else:
         print("INVALID REQUEST")
         return jsonify({"message": "Invalid request"}), 400
+   
             
-
+# LV
 # Signup functionality for backend
 # Check backend development notes (Lucas)
 # Included print statements for terminal reference
@@ -270,8 +273,10 @@ def signup():
                 cursor.execute("INSERT INTO tblStudents (userID, Email, majorName, majorID) VALUES (%s, %s, %s, %s)", (new_user['userID'], email,majorName, majorID))
                 connection.commit()
             elif userType == 'Instructor':
-                cursor.execute("INSERT INTO tblInstructor (userID, Email) VALUES (%s, %s)", (new_user['userID'], email))
+                cursor.execute("INSERT INTO tblInstructor (userID, Email, approval_status) VALUES (%s, %s, %s)", (new_user['userID'], email, 'pending'))
                 connection.commit()
+                # cursor.execute("INSERT INTO tblInstructor (userID, Email) VALUES (%s, %s)", (new_user['userID'], email))
+                # connection.commit()
             
             session['email'] = email
             access_token = create_access_token(identity={"email": email, "userID": new_user['userID']})
@@ -297,6 +302,7 @@ def signup():
     return jsonify({"message": "Invalid request"}), 400
 
 
+# LV
 @app.route('/resend_confirmation_email', methods=['POST'])
 def resend_confirmation_email():
     email = request.json.get('email')
@@ -324,6 +330,7 @@ def resend_confirmation_email():
         connection.close()
         
 
+# LV
 # Fetch user information
 @app.route('/getUserInfo', methods=['GET'])
 def getUserInfo():
@@ -881,6 +888,7 @@ def fetch_user_course_tags(email):
         return None
 
 
+# LV
 # Retrieve majors
 @app.route('/majors', methods=['GET'])
 def get_majors():
@@ -898,9 +906,10 @@ def get_majors():
             connection.close()
     else:
         return jsonify({"error": "DB connection failed"}), 500
+   
     
-
-#logout route
+# LV
+# Logout route
 @app.route('/logout', methods=['POST'])
 def logout():
     session.clear()  
@@ -918,6 +927,7 @@ def check_login():
         return jsonify({'logged_in': False}), 401
     
 
+# LV
 # User session for dashboard
 @app.route('/dashboard', methods=['GET'])
 @jwt_required()
@@ -932,7 +942,8 @@ def user_dashboard():
     else:
         return jsonify({"message": "User not found"}), 404
     
-    
+
+# LV
 # Load courses page with user-specific course list
 @app.route('/courses', methods=['GET'])
 @jwt_required()
@@ -963,7 +974,8 @@ def myAccount():
     else:
         return jsonify({"message": "User not found"}), 404
     
-    
+
+# LV
 @app.route('/editprofile', methods=['POST'])
 @jwt_required()
 def editProfile():
@@ -1040,6 +1052,7 @@ def editProfile():
             connection.close()
     
     
+# LV
 @app.route('/changepassword', methods=['POST'])
 @jwt_required()
 def changePassword():
@@ -1196,9 +1209,8 @@ def get_career_progress():
             connection.close()
     else:
         return jsonify({"error": "DB connection failed"}), 500
-
     
-    
+# LV / JU
 # Retrieve courses related to user input at department search
 @app.route('/search-departments', methods=['GET'])
 @jwt_required()
@@ -1324,7 +1336,7 @@ def search_departments():
     else:
         return jsonify({"message": "Failed to connect to database"}), 500
     
-    
+# LV
 # Add courses to user schedule
 @app.route('/enrollCourses', methods=['POST'])
 @jwt_required()
@@ -1469,7 +1481,8 @@ def fetch_todays_notification():
         cursor.close()
         connection.close()
         
-        
+
+# LV
 @app.route('/delete-account', methods=['DELETE'])
 @jwt_required()
 def delete_account():
@@ -1495,7 +1508,8 @@ def delete_account():
         cursor.close()
         connection.close()
         
-        
+
+# LV
 @app.route('/analytics/counts', methods=['GET'])
 @jwt_required()
 def get_counts():
@@ -1519,6 +1533,7 @@ def get_counts():
         connection.close()
         
 
+# LV
 @app.route('/analytics/stored-data-counts', methods=['GET'])
 @jwt_required()
 def get_stored_data_counts():
@@ -1548,6 +1563,45 @@ def get_stored_data_counts():
         connection.close()
         
 
+# LV    
+@app.route('/pending-instructors', methods=['GET'])
+def get_pending_instructors():
+    # try:
+    #     connection = connectToDB()
+    #     cursor = connection.cursor(dictionary=True)
+    #     cursor.execute("SELECT userID, Email, CONCAT(firstName, ''FROM tblInstructor WHERE approval_status = %s", ('pending',))
+    #     pending_instructors = cursor.fetchall()
+    #     print(pending_instructors)
+    #     return jsonify(pending_instructors), 200
+    # except Error as err:
+    #     print(err)
+    #     return jsonify({"message": "Error occurred while fetching pending instructors"}), 500
+    # finally:
+    #     cursor.close()
+    #     connection.close()
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary=True)
+        sql_query = """
+        SELECT i.Email, CONCAT(u.FName, ' ', u.LName) AS name, i.approval_status
+        FROM tblInstructor AS i
+        JOIN tblUser AS u ON i.userID = u.userID
+        WHERE i.approval_status = %s
+        """
+        cursor.execute(sql_query, ('pending',))
+        pending_instructors = cursor.fetchall()
+        return jsonify(pending_instructors), 200
+    except Error as err:
+        print(err)
+        return jsonify({"message": "Error occurred while fetching pending instructors"}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+        
+
+# LV
 # Connect to database
 def connectToDB():
     try:
