@@ -1495,6 +1495,55 @@ def delete_account():
         cursor.close()
         connection.close()
         
+        
+@app.route('/analytics/counts', methods=['GET'])
+@jwt_required()
+def get_counts():
+    connection = connectToDB()
+    cursor = connection.cursor(dictionary=True)
+    try:
+        response = {}
+        cursor.execute("SELECT COUNT(*) AS student_count FROM tblStudents")
+        student_count = cursor.fetchone()
+        response['student_count'] = student_count['student_count'] if student_count else 0
+        cursor.execute("SELECT COUNT(*) AS instructor_count FROM tblInstructor")
+        instructor_count = cursor.fetchone()
+        response['instructor_count'] = instructor_count['instructor_count'] if instructor_count else 0
+        
+        return jsonify(response), 200
+    except Exception as exc:
+        print(f"Error fetching counts: {exc}")
+        return jsonify({"error": "Error occurred while fetching user counts"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+        
+
+@app.route('/analytics/stored-data-counts', methods=['GET'])
+@jwt_required()
+def get_stored_data_counts():
+    connection = connectToDB()
+    cursor = connection.cursor(dictionary=True)
+    try:
+        response = {}
+        cursor.execute("SELECT COUNT(*) AS course_count FROM tblCourses")
+        course_count = cursor.fetchone()
+        response['course_count'] = course_count['course_count'] if course_count else 0
+        cursor.execute("SELECT COUNT(*) AS major_count FROM tblMajor")
+        major_count = cursor.fetchone()
+        response['major_count'] = major_count['major_count'] if major_count else 0
+        cursor.execute("SELECT COUNT(*) AS schedule_count FROM tblUserSchedule")
+        schedule_count = cursor.fetchone()
+        response['schedule_count'] = schedule_count['schedule_count'] if schedule_count else 0
+        
+        return jsonify(response), 200
+    except Exception as exc:
+        print(f"Error fetching stored data counts: {exc}")
+        return jsonify({"error": "Error occurred while fetching stored data counts"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+        
 
 # Connect to database
 def connectToDB():
