@@ -123,6 +123,46 @@ class User:
 # Included print statements for terminal reference
 @app.route('/login', methods=['POST'])
 def login(): 
+    # if request.method == 'POST':
+    #     email = request.json.get('email')
+    #     password = request.json.get('password')
+        
+    #     if not email or not password:
+    #         print("MISSING EMAIL OR PASSWORD")
+    #         return jsonify({"message": "Missing email or password"}), 400
+        
+    #     try:
+    #         connection = connectToDB()
+    #         cursor = connection.cursor(dictionary=True)
+    #         cursor.execute("SELECT userID, Email, Passwd, role, verified FROM tblUser WHERE Email = %s", (email,))
+    #         user = cursor.fetchone()
+            
+    #         # if not user['verified']:
+    #         #     print("EMAIL NOT VERIFIED")
+    #         #     return jsonify({"message": "Unverified email."})
+            
+    #         if user and bcrypt.check_password_hash(user['Passwd'], password):
+    #             session['email'] = email
+                
+    #             print("LOGIN SUCCESSFUL")
+
+    #             role = user['role']
+                
+    #             access_token = create_access_token(identity={"email": user['Email'], "userID": user['userID'], "role": role})
+    #             return jsonify({"message": "Login successful", "access_token": access_token, "role": role}), 200
+    #         else:
+    #             print("INVALID EMAIL OR PASSWORD")
+    #             return jsonify({"message": "Invalid email or password"}), 401
+    #     except Error as err:
+    #         print(err)
+    #         return jsonify({"message": "An error occurred"}), 500
+        
+    #     finally:
+    #         cursor.close()
+    #         connection.close()
+    # else:
+    #     print("INVALID REQUEST")
+    #     return jsonify({"message": "Invalid request"}), 400
     if request.method == 'POST':
         email = request.json.get('email')
         password = request.json.get('password')
@@ -134,16 +174,21 @@ def login():
         try:
             connection = connectToDB()
             cursor = connection.cursor(dictionary=True)
-            cursor.execute("SELECT userID, Email, Passwd, role FROM tblUser WHERE Email = %s", (email,))
+            cursor.execute("SELECT userID, Email, Passwd, role, verified FROM tblUser WHERE Email = %s", (email,))
             user = cursor.fetchone()
             
-            if user and bcrypt.check_password_hash(user['Passwd'], password):
-                session['email'] = email
-                
-                print("LOGIN SUCCESSFUL")
+            if not user:
+                print("INVALID EMAIL OR PASSWORD")
+                return jsonify({"message": "Invalid email or password"}), 401
+            
+            # if not user['verified']:
+            #     print("EMAIL NOT VERIFIED")
+            #     return jsonify({"message": "Email not verified. Please check your email to verify your account."}), 403
 
+            if bcrypt.check_password_hash(user['Passwd'], password):
+                session['email'] = email
+                print("LOGIN SUCCESSFUL")
                 role = user['role']
-                
                 access_token = create_access_token(identity={"email": user['Email'], "userID": user['userID'], "role": role})
                 return jsonify({"message": "Login successful", "access_token": access_token, "role": role}), 200
             else:
@@ -152,7 +197,6 @@ def login():
         except Error as err:
             print(err)
             return jsonify({"message": "An error occurred"}), 500
-        
         finally:
             cursor.close()
             connection.close()
@@ -230,7 +274,8 @@ def signup():
             
             session['email'] = email
             access_token = create_access_token(identity={"email": email, "userID": new_user['userID']})
-            confirm_url = f"http://localhost:8080/login?token={access_token}"
+            # confirm_url = f"http://localhost:8080/login?token={access_token}"
+            confirm_url = f"http://localhost:8080/login?verified=true"
             html = render_template('confirm_template.html', confirm_url=confirm_url)
             msg = Message("Course Compass - Confirm Your Email", sender="coursecompassunr@gmail.com", recipients=[email])
             msg.body = f"Please click on the link to confirm your Course Compass account: {confirm_url}"
@@ -276,6 +321,7 @@ def resend_confirmation_email():
     finally:
         cursor.close()
         connection.close()
+        
 
 # Fetch user information
 @app.route('/getUserInfo', methods=['GET'])
