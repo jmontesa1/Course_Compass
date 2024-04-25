@@ -269,11 +269,11 @@
                                 <v-row dense>
                                     <v-col cols="auto">
                                         <strong>Course Name: </strong> {{ course.courseName }}<br>
-                                        <strong>Instructor: </strong> {{ course.instructor }}<br>
+                                        <strong>Instructor: </strong> {{ course.instructors }}<br>
                                         <strong>Credits: </strong> {{ course.Credits }}<br>
                                         <strong>Section: </strong> {{ course.Section }}<br>
                                         <strong>Office Hours: </strong> {{ course.officeHours }}<br>
-                                        <strong>Office Hours Location: </strong> {{ course.officeLocation }}<br>
+                                        <strong>Office Hours Location: </strong> {{ course.officeLocations }}<br>
                                     </v-col>
                                 </v-row>
                             </v-card-text> 
