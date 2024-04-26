@@ -1646,7 +1646,8 @@ def get_pending_instructors():
             cursor.close()
             connection.close()
             
-            
+    
+# LV        
 @app.route('/approved-instructors', methods=['GET'])
 def get_approved_instructors():
     try:
@@ -1664,6 +1665,29 @@ def get_approved_instructors():
     except Error as err:
         print(err)
         return jsonify({"message": "Error while fetching approved instructors"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+        
+        
+# LV
+@app.route('/archived-instructors', methods=['GET'])
+def get_archived_instructors():
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary=True)
+        query = """
+        SELECT i.Email, CONCAT(u.Fname, ' ', u.LName) AS name, i.approval_status
+        FROM tblInstructor AS i
+        JOIN tblUser AS u ON i.userID = u.userID
+        WHERE i.approval_status = %s
+        """
+        cursor.execute(query, ('archived',))
+        archived_instructors = cursor.fetchall()
+        return jsonify(archived_instructors), 200
+    except Error as err:
+        print(err)
+        return jsonify({"message": "Error while fetching archived instructors"}), 500
     finally:
         cursor.close()
         connection.close()
@@ -1689,6 +1713,7 @@ def approve_instructor():
         connection.close()
         
         
+# LV
 @app.route('/reject-instructor', methods=['POST'])
 def reject_instructor():
     instructor_email = request.json.get('email')
@@ -1707,6 +1732,49 @@ def reject_instructor():
         cursor.close()
         connection.close()
         
+        
+# LV
+@app.route('/archive-instructor', methods=['POST'])
+def archive_instructor():
+    instructor_email = request.json.get('email')
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor()
+        query = "UPDATE tblInstructor SET approval_status = %s WHERE Email = %s"
+        cursor.execute(query, ('archived', instructor_email))
+        connection.commit()
+        return jsonify({"message": "Instructor archived."}), 200
+    except Error as err:
+        connection.rollback()
+        print(err)
+        return jsonify({"message": "Error archiving instructor"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+        
+        
+# LV
+@app.route('/remove-instructor', methods=['POST'])
+def remove_instructor():
+    instructor_email = request.json.get('email')
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT userID FROM tblInstructor WHERE Email = %s", (instructor_email,))
+        user_info = cursor.fetchone()
+        user_id = user_info['userID']
+        cursor.execute("DELETE FROM tblInstructor WHERE userID = %s", (user_id,))
+        cursor.execute("DELETE FROM tblUser WHERE userID = %s", (user_id,))
+        connection.commit()
+        return jsonify({"message": "Instructor removed."}), 200
+    except Error as err:
+        connection.rollback()
+        print(err)
+        return jsonify({"message": "Error removing instructor"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
 
 # LV
 # Connect to database
