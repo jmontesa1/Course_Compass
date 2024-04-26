@@ -537,7 +537,7 @@
                                     </v-row>
                                     <v-row>
                                         <v-col cols="12">
-                                            <p style="font-family: Poppins;">Currently Active Users: 0</p>
+                                            <p style="font-family: Poppins;">Currently Active Users: 1</p>
                                         </v-col>
                                     </v-row>
 
