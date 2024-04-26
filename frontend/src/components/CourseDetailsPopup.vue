@@ -322,6 +322,4 @@
         align-items: center;
     }
 
-    .add-btn{
-    }
 </style>

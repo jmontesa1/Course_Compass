@@ -86,17 +86,17 @@
                                     </v-row>
                                     <v-row v-if="notificationsActive === true">
                                         <v-col cols="auto">
-                                            <p>Remind me <strong style="color: red">{{notificationDaysBefore}}</strong> days before a deadline.<br><span style="font-size: 12px; color: gray;">(Sent to <em>{{user.email}}</em>)</span></p>
+                                            <p>Remind me <strong style="color: red">{{daysBeforeNotification}}</strong> days before a deadline.<br><span style="font-size: 12px; color: gray;">(Sent to <em>{{user.email}}</em>)</span></p>
                                         </v-col>
                                         <v-col cols="1">
-                                            <v-btn :disabled="notificationDaysBefore === 1" size="extra-small" v-bind="activatorProps" variant="plain" style="position: relative;" @click="notificationDaysBefore--">
+                                            <v-btn :disabled="daysBeforeNotification === 1" size="extra-small" v-bind="activatorProps" variant="plain" style="position: relative;" @click="daysBeforeNotification--">
                                                 <span class="material-symbols-outlined">
                                                     remove
                                                 </span>
                                             </v-btn>
                                         </v-col>
                                         <v-col cols="1">
-                                            <v-btn :disabled="notificationDaysBefore === 7" size="extra-small" v-bind="activatorProps" variant="plain" style="position: relative;" @click="notificationDaysBefore++">
+                                            <v-btn :disabled="daysBeforeNotification === 7" size="extra-small" v-bind="activatorProps" variant="plain" style="position: relative;" @click="daysBeforeNotification++">
                                                 <span class="material-symbols-outlined">
                                                     add
                                                 </span>
@@ -303,7 +303,7 @@
                 //notifications on/off
                 notificationsActive: false,
                 dialogNotifications: false,
-                notificationDaysBefore: 1,
+                daysBeforeNotification: 1,
                 selectedNotificationSources: [],
 
                 schedule: [],
@@ -326,6 +326,7 @@
                     {date: '5/20/2024', source: 'UNR', message: 'Faculty to post final grades in MyNEVADA by 5 p.m.'},
                     {date: '5/20/2024', source: 'UNR', message: 'Spring semester ends, last day faculty on campus for spring semester'},
                 ],
+                emailNotifications:[], //THESE ARE THE ONES SENT TO THE USERS EMAIL, they have the exact day to send to the email, which is a set amount of days before actual date
             };
         },
         methods: {
@@ -423,17 +424,28 @@
             },
 
             turnOnEmailNotifications(){
-                console.log('Sources selected', this.selectedNotificationSources);
                 const currentDate = new Date();
+                const grabNotifications = JSON.parse(JSON.stringify(this.notifications));//copy this.notifcations
 
-                const filteredNotifications = this.notifications.filter(notification => {
+                let filteredNotifications = grabNotifications.filter(notification => {
                     const notificationDate = new Date(notification.date);
+
                     const isSelectedSource = this.selectedNotificationSources.includes(notification.source);
+
                     const isFutureDate = notificationDate > currentDate;
-                    
+
+                    const sendNotificationDate = new Date(notificationDate);
+                    sendNotificationDate.setDate(sendNotificationDate.getDate() - this.daysBeforeNotification);
+
+                    notification.date = sendNotificationDate.toISOString().split('T')[0];
+
                     return isSelectedSource && isFutureDate;
                 });
 
+                filteredNotifications.sort((a, b) => new Date(a.date) - new Date(b.date)); //filter by date
+
+                this.emailNotifications = filteredNotifications;
+                this.daysBeforeNotification = 1;
                 this.dialogNotifications = false;
                 console.log('Filtered Notifications', filteredNotifications);                
             },

@@ -89,17 +89,17 @@
                                     </v-row>
                                     <v-row v-if="notificationsActive === true">
                                         <v-col cols="auto">
-                                            <p>Remind me <strong style="color: red">{{notificationDaysBefore}}</strong> days before a deadline.<br><span style="font-size: 12px; color: gray;">(Sent to <em>{{user.email}}</em>)</span></p>
+                                            <p>Remind me <strong style="color: red">{{daysBeforeNotification}}</strong> days before a deadline.<br><span style="font-size: 12px; color: gray;">(Sent to <em>{{user.email}}</em>)</span></p>
                                         </v-col>
                                         <v-col cols="1">
-                                            <v-btn :disabled="notificationDaysBefore === 1" size="extra-small" v-bind="activatorProps" variant="plain" style="position: relative;" @click="notificationDaysBefore--">
+                                            <v-btn :disabled="daysBeforeNotification === 1" size="extra-small" v-bind="activatorProps" variant="plain" style="position: relative;" @click="daysBeforeNotification--">
                                                 <span class="material-symbols-outlined">
                                                     remove
                                                 </span>
                                             </v-btn>
                                         </v-col>
                                         <v-col cols="1">
-                                            <v-btn :disabled="notificationDaysBefore === 7" size="extra-small" v-bind="activatorProps" variant="plain" style="position: relative;" @click="notificationDaysBefore++">
+                                            <v-btn :disabled="daysBeforeNotification === 7" size="extra-small" v-bind="activatorProps" variant="plain" style="position: relative;" @click="daysBeforeNotification++">
                                                 <span class="material-symbols-outlined">
                                                     add
                                                 </span>
@@ -302,10 +302,10 @@
                                 <br>
                                 <v-row dense>
                                     <v-col auto>
-                                            <v-text-field v-model="officeHoursStart" placeholder="00:00 AM" label="Start Time"></v-text-field>
+                                            <v-text-field v-model="officeHoursStart" type="time" :rules="[timeValidation]" label="Start Time"></v-text-field>
                                     </v-col>
                                     <v-col auto>
-                                            <v-text-field v-model="officeHoursEnd" placeholder="00:00 AM" label="End Time"></v-text-field>
+                                            <v-text-field v-model="officeHoursEnd" type="time" :rules="[timeValidation]" label="End Time"></v-text-field>
                                     </v-col>
                                     <v-col auto>
                                             <v-text-field v-model="officeHoursLocation" label="Location"></v-text-field>
@@ -322,7 +322,7 @@
                             <v-card-actions>
                                 <v-btn text="Close" variant="plain" @click="officeHoursDialog[index] = false"></v-btn>
                                 <v-spacer></v-spacer>
-                                <v-btn color="dark-grey" text="Change" variant="tonal" @click="confirmOfficeHours(course.scheduleID, index)"></v-btn>
+                                <v-btn color="dark-grey" text="Change" variant="tonal" @click="confirmOfficeHours(course.scheduleID, index)" :disabled="!timeValid"></v-btn>
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
@@ -360,10 +360,24 @@
     <v-container class="dashboard-container4">
         <div class="inner-container">
         <v-row>
-            <h1 class="header-text">Student Reviews</h1>
+            <h1 class="header-text">Recent Student Reviews</h1>
         </v-row>
-        <p v-if="studentReviews.length === 0"><br>No recent student reviews</p>
-        <p v-for="(review, index) in studentReviews" :key="index"><br>{{studentReviews[index].course}} - {{studentReviews[index].review}}</p>
+        <p v-if="courseReviews.length === 0"><br>No recent student reviews</p>
+            <v-card  style="height: 620px; overflow-y: auto;">
+                <v-list lines="auto" style="font-family: Poppins;">
+                    <div v-for="(course,indexTitle) in courseReviews" :key="indexTitle">
+                        <v-list-item v-for="(review,index) in courseReviews[indexTitle].reviews" :key="index">
+                            <template v-slot:title>
+                                {{courseReviews[indexTitle].course}} - {{courseReviews[indexTitle].reviews[index].date}}
+                            </template>
+                            <template v-slot:subtitle>
+                                <strong>Anonymous</strong> &mdash; {{courseReviews[indexTitle].reviews[index].text}}
+                            </template>
+                            <v-divider></v-divider>
+                        </v-list-item>
+                    </div>
+                </v-list>
+            </v-card>
         </div>
     </v-container>
 </template>
@@ -407,7 +421,7 @@
 
                 notifications: [
                     {date: '5/15/2024', source: 'UNR', message: 'Instruction Ends'},
-                    {date: '4/25/2024', source: 'Professor Mike', message: 'Hello Students, hw 1 is due in the next few weeks, and there is an exam tomorrow about coffee.'},
+                    {date: '4/26/2024', source: 'Professor Mike', message: 'Hello Students, hw 1 is due in the next few weeks, and there is an exam tomorrow about coffee.'},
                     {date: '3/1/2024', source: 'UNR', message: 'Deadline to apply for May graduation'},
                     {date: '3/18/2024', source: 'UNR', message: 'Summer Session registration starts'},
                     {date: '3/19/2024', source: 'UNR', message: 'Final fee payment due for those on a payment plan'},
@@ -423,21 +437,42 @@
                     {date: '5/20/2024', source: 'UNR', message: 'Spring semester ends, last day faculty on campus for spring semester'},
                 ],
 
+                emailNotifications:[],
+
                 //Office Hours
                 officeHoursStart: '',
                 officeHoursEnd: '',
+                timeValid: false,
                 officeHoursLocation: '',
                 chosenOfficeHoursDays: [],
 
                 //notifications on/off
                 notificationsActive: false,
                 dialogNotifications: false,
-                notificationDaysBefore: 1,
+                daysBeforeNotification: 1,
                 selectedNotificationSources: [],
 
                 //student reviews
-                studentReviews: [
-                    {course: 'CS 302', review: 'Class was extremely easy'},
+                courseReviews: [
+                    {course: 'MATH 182',
+                        reviews: [
+                            { text: 'The course material was outdated and not helpful.', date: 'Jan 12th, 2016' },
+                            { text: 'The lectures were confusing and poorly structured.', date: 'Feb 23rd, 2015' },
+                            { text: 'Didn\'t find the course engaging or informative.', date: 'Aug 7th, 2023' },
+                            { text: 'The content was too basic and not worth the price.', date: 'May 15th, 2018' },
+                            { text: 'I expected more from the course but was disappointed.', date: 'Apr 29th, 2024' }
+                        ],
+                    },
+
+                    {course: 'ENG 100',
+                        reviews: [
+                            { text: 'Great course content, very informative!', date: 'Apr 9th, 2017' },
+                            { text: 'Enjoyed the interactive lessons and quizzes.', date: 'Jan 4th, 2022' },
+                            { text: 'Highly recommend for anyone new to the subject.', date: 'Jul 18th, 2019' },
+                            { text: 'Excellent instructors, clear explanations.', date: 'Oct 25th, 2016' },
+                            { text: 'Practical exercises were really helpful.', date: 'Mar 8th, 2020' }
+                        ],
+                    },
                 ],
             };
         },
@@ -577,19 +612,29 @@
                 this.notifications.splice(deadlineNotification, 1);
                 this.deleteNotificationDialog[index] = false;
             },
-
             turnOnEmailNotifications(){
-                console.log('Sources selected', this.selectedNotificationSources);
                 const currentDate = new Date();
+                const grabNotifications = JSON.parse(JSON.stringify(this.notifications));//copy this.notifcations
 
-                const filteredNotifications = this.notifications.filter(notification => {
+                let filteredNotifications = grabNotifications.filter(notification => {
                     const notificationDate = new Date(notification.date);
+
                     const isSelectedSource = this.selectedNotificationSources.includes(notification.source);
+
                     const isFutureDate = notificationDate > currentDate;
-                    
+
+                    const sendNotificationDate = new Date(notificationDate);
+                    sendNotificationDate.setDate(sendNotificationDate.getDate() - this.daysBeforeNotification);
+
+                    notification.date = sendNotificationDate.toISOString().split('T')[0];
+
                     return isSelectedSource && isFutureDate;
                 });
 
+                filteredNotifications.sort((a, b) => new Date(a.date) - new Date(b.date)); //filter by date
+
+                this.emailNotifications = filteredNotifications;
+                this.daysBeforeNotification = 1;
                 this.dialogNotifications = false;
                 console.log('Filtered Notifications', filteredNotifications);                
             },
@@ -668,6 +713,23 @@
                     }
                     return timeComparison;
                 });
+            },
+
+            timeValidation() {
+                return () => {
+                const startTime = this.officeHoursStart;
+                const endTime = this.officeHoursEnd;
+                
+                const validOrder = startTime < endTime;
+
+                this.timeValid = validOrder;
+
+                if (!validOrder) {
+                    return "Start time must be before end time";
+                }
+
+                return this.timeValid || "Invalid times";
+                };
             },
         },
 
