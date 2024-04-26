@@ -92,8 +92,7 @@
             confirmEmail: '',
             password: '',
             confirmPass: '',
-            passwordVis: false,
-            confirmPassVis: false,
+            visibility: false,
             selectedMajor: '',
             selectedRole: '',
             majors: [] 
@@ -112,27 +111,14 @@
         },
 
     methods: {
-        toggleVisibility(refName) {
-            const inputField = this.$refs[refName];
-            if (inputField) {
-                if (refName === 'passwordInput') {
-                this.passwordVis = !this.passwordVis;
-                inputField.type = this.passwordVis ? 'text' : 'password';
-                } else if (refName === 'confirmPasswordInput') {
-                this.confirmPassVis = !this.confirmPassVis;
-                inputField.type = this.confirmPassVis ? 'text' : 'password';
-                }
-            }
+        toggleVisibility() {
+            this.visibility = !this.visibility;
+            this.$refs.passwordInput.type = this.visibility ? 'text' : 'password';
+            this.$refs.confirmPasswordInput.type = this.visibility ? 'text' : 'password';
         },
 
         eyeIcon(refName) {
-            return refName === 'passwordInput'
-                ? this.passwordVis
-                ? require('../assets/eyeclose.png')
-                : require('../assets/eye.png')
-                : this.confirmPassVis
-                ? require('../assets/eyeclose.png')
-                : require('../assets/eye.png');
+            return this.visibility ? require('../assets/eyeclose.png') : require('../assets/eye.png');
         },
 
         validateForm() {
@@ -202,12 +188,7 @@
             return false;
         }
         return true;
-
-
     },
-
-
-        
     },
 };
 </script>

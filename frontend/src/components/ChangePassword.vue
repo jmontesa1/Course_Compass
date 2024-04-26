@@ -42,8 +42,7 @@ export default {
     },
     methods: {
         toggleVisibility() {
-            this.visibility = !this.visibility;  // Toggle visibility state
-            // Apply the visibility state to both password fields
+            this.visibility = !this.visibility;
             this.$refs.passwordInput.type = this.visibility ? 'text' : 'password';
             this.$refs.passwordConfirmInput.type = this.visibility ? 'text' : 'password';
         },

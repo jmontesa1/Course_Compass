@@ -1719,9 +1719,12 @@ def reject_instructor():
     instructor_email = request.json.get('email')
     try:
         connection = connectToDB()
-        cursor = connection.cursor()
-        query = "UPDATE tblInstructor SET approval_status = %s WHERE Email = %s"
-        cursor.execute(query, ('rejected', instructor_email))
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT userID FROM tblInstructor WHERE Email = %s", (instructor_email,))
+        user_info = cursor.fetchone()
+        user_id = user_info['userID']
+        cursor.execute("DELETE FROM tblInstructor WHERE userID = %s", (user_id,))
+        cursor.execute("DELETE FROM tblUser WHERE userID = %s", (user_id,))
         connection.commit()
         return jsonify({"message": "Instructor rejected."}), 200
     except Error as err:
