@@ -60,6 +60,14 @@
                 }, 4000);
             }
 
+            const tag = this.$route.params.tag || this.$route.query.tag;
+            if (tag === 'verified=true') {
+                this.isVerified = true;
+                setTimeout(() => {
+                    this.isVerified = false;
+                }, 3000);
+            }
+
             this.handleLogin = this.determineLoginHandler();
         },
         methods:{
