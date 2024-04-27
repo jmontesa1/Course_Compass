@@ -59,6 +59,8 @@
                     this.isVerified = false;
                 }, 4000);
             }
+
+            this.handleLogin = this.determineLoginHandler();
         },
         methods:{
             toggleVisibility(){
@@ -72,7 +74,15 @@
                 return this.passwordVis ? require('../assets/eyeclose.png') : require('../assets/eye.png');
             },
 
-            handleLogin(){
+            determineLoginHandler() {
+                const tag = this.$route.params.tag;
+                if (tag === 'verified=true') {
+                    return this.handleLoginVerify;
+                }
+                return this.handleDefaultLogin;
+            },
+
+            handleDefaultLogin(){
                 const loginData = {
                     email: this.email,
                     password: this.password
@@ -124,6 +134,52 @@
                     });
             },
 
+            handleLoginVerify(){
+                const loginData = {
+                    email: this.email,
+                    password: this.password
+                };
+                axios.post('http://127.0.0.1:5000/login-verify', loginData, { withCredentials: true })
+                .then(response => {
+                    console.log(response.data.message);
+                    if (response.status === 200) {
+                        localStorage.setItem('access_token', response.data.access_token);
+                        this.$emit("show-toast", { message: "Login successful. Welcome back!", color: '#51da6e' });
+                        const userType = response.data.role;
+                        console.log('User type:', userType);
+                        this.$emit('update-user-type', userType);
+                        switch(userType) {
+                            case 'Student':
+                                this.$router.push('/dashboard');
+                                break;
+                            case 'Instructor':
+                                this.$router.push('/instructor-dashboard');
+                                break;
+                            case 'Admin':
+                                this.$router.push('/admin-dashboard');
+                                break;
+                            default:
+                                this.$router.push('/');
+                        }
+                        this.$emit('login-status-changed', true);
+                    } else{
+                        console.error("Unexpected response during login: ", response);
+                        this.$emit("show-toast",{ message: "An error occurred during login. Please try again."});
+                    }
+                })
+                .catch(error => {
+                    if (error.response && error.response.status === 401) {
+                        this.$emit("show-toast",{ message: "Invalid email or password."});
+                    } 
+                    else if (error.response && error.response.status === 403) {
+                        this.$emit("show-toast",{ message: "Account not verified. please check your email."});
+                    }
+                    else {
+                        console.error("Login error: ", error);
+                        this.$emit("show-toast",{ message: "An error occurred during login."});
+                    }
+                    });
+            },
         }
     };
 </script>
