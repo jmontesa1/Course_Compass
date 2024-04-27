@@ -6,7 +6,7 @@ select
     c.courseCode as courseCode,
     m.majorName as courseMajor,
     d.deptName as department,
-    cs.Instructor as professor,
+    group_concat(distinct concat(i.FirstName, ' ', i.LastName) separator ',') as professors,
     cs.Term as term,
     cs.meetingFormat as format,
     c.Credits as units,
@@ -26,6 +26,8 @@ from
     join tblMajor m on cm.majorID = m.majorID
     join tblDepartment d on m.deptID = d.deptID
     left join tblcourseSchedule cs on c.courseID = cs.courseID
+    left join tblCourseInstructors ci on cs.scheduleID = ci.scheduleID
+    left join tblInstructor i on ci.instructorID = i.instructorID
     left join tblRatings r on c.courseID = r.courseID
     left join (
         select
@@ -52,15 +54,14 @@ from
             c.courseID, c.courseCode, c.courseName
     ) as tf on c.courseID = tf.courseID
 where
-    cs.Instructor is not null
+    ci.courseInstructorID is not null
 group by
     cs.scheduleID,
-    cs.Section, 
+    cs.Section,
     c.courseName,
     c.courseCode,
     m.majorName,
     d.deptName,
-    cs.Instructor,
     cs.Term,
     cs.meetingFormat,
     c.Credits,

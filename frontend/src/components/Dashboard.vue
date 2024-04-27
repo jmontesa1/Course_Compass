@@ -224,14 +224,14 @@
                                 <v-row dense>
                                     <v-col cols = "auto">
                                         <strong>Course Name: </strong> {{ course.courseName }}<br>
-                                        <strong>Instructor: </strong> {{ course.instructors }}<br>
+                                        <strong>Instructor: </strong> {{ course.instructors && course.instructors.length > 0 ? course.instructors.join(', ') : 'N/A' }}<br>
                                         <strong>Credits: </strong> {{ course.Credits }}<br>
                                         <strong>Section: </strong> {{ course.Section }}<br>
-                                        <strong>Office Hours: </strong> {{ course.officeHours }}<br>
-                                        <strong>Office Location: </strong> {{ course.officeLocations }}<br>
+                                        <strong>Office Hours: </strong> {{ course.officeHours && course.officeHours.length > 0 ? course.officeHours.join(', ') : 'N/A' }}<br>
+                                        <strong>Office Location: </strong> {{ course.officeLocations && course.officeLocations.length > 0 ? course.officeLocations.join(', ') : 'N/A' }}<br>
                                     </v-col>
                                 </v-row>
-                            </v-card-text> 
+                            </v-card-text>  
 
                             <v-card-actions>
                                 <v-btn text="Close" variant="plain" @click="dialog[index] = false"></v-btn>

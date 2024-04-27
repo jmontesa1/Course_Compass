@@ -631,6 +631,7 @@ def delete_custom_event(event_id):
 
 
 #get user enrolled courses
+#get user enrolled courses
 @app.route('/getEnrolledCourses', methods=['GET'])
 @jwt_required()
 @role_required(['Student', 'Instructor'])
@@ -658,7 +659,7 @@ def get_enrolled_courses():
                 TIME_FORMAT(cs.startTime, '%l:%i %p') AS start,
                 TIME_FORMAT(cs.endTime, '%l:%i %p') AS end,
                 cs.Location AS location,
-                GROUP_CONCAT(DISTINCT cs.Instructor SEPARATOR ', ') AS instructors,
+                GROUP_CONCAT(DISTINCT CONCAT(i.FirstName, ' ', i.LastName) SEPARATOR ', ') AS instructors,
                 cs.Section,
                 c.Credits,
                 GROUP_CONCAT(DISTINCT IFNULL(i.officeHours, 'N/A') SEPARATOR ', ') AS officeHours,
@@ -696,7 +697,7 @@ def get_enrolled_courses():
                 TIME_FORMAT(cs.startTime, '%l:%i %p') AS start,
                 TIME_FORMAT(cs.endTime, '%l:%i %p') AS end,
                 cs.Location AS location,
-                GROUP_CONCAT(DISTINCT cs.Instructor SEPARATOR ', ') AS instructors,
+                GROUP_CONCAT(DISTINCT CONCAT(i.FirstName, ' ', i.LastName) SEPARATOR ', ') AS instructors,
                 cs.Section,
                 c.Credits,
                 GROUP_CONCAT(DISTINCT IFNULL(i.officeHours, 'N/A') SEPARATOR ', ') AS officeHours,
@@ -732,11 +733,11 @@ def get_enrolled_courses():
                 'start': course[5],
                 'end': course[6],
                 'location': course[7],
-                'instructors': course[8],
+                'instructors': course[8].split(', ') if course[8] else [],
                 'Section': course[9],
                 'Credits': course[10],
-                'officeHours': course[11],
-                'officeLocations': course[12]
+                'officeHours': course[11].split(', ') if course[11] else [],
+                'officeLocations': course[12].split(', ') if course[12] else []
             }
             for course in result
         ]
@@ -1296,7 +1297,7 @@ def search_departments():
                 courseCode,
                 courseMajor,
                 department,
-                professor,
+                professors,
                 term,
                 format,
                 units,
@@ -1373,7 +1374,7 @@ def search_departments():
             departments = [{
                 'scheduleID': dept['scheduleID'],
                 'section': dept['Section'],
-                'professor': dept['professor'],
+                'professors': dept['professors'].split(',') if dept['professors'] else [],
                 'courseName': dept['courseName'],
                 'courseCode': dept['courseCode'],
                 'courseMajor': dept['courseMajor'],
@@ -1719,12 +1720,9 @@ def reject_instructor():
     instructor_email = request.json.get('email')
     try:
         connection = connectToDB()
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute("SELECT userID FROM tblInstructor WHERE Email = %s", (instructor_email,))
-        user_info = cursor.fetchone()
-        user_id = user_info['userID']
-        cursor.execute("DELETE FROM tblInstructor WHERE userID = %s", (user_id,))
-        cursor.execute("DELETE FROM tblUser WHERE userID = %s", (user_id,))
+        cursor = connection.cursor()
+        query = "UPDATE tblInstructor SET approval_status = %s WHERE Email = %s"
+        cursor.execute(query, ('rejected', instructor_email))
         connection.commit()
         return jsonify({"message": "Instructor rejected."}), 200
     except Error as err:
@@ -1778,6 +1776,140 @@ def remove_instructor():
         cursor.close()
         connection.close()
 
+#fetch CS instructors for Admin to enroll in course page 
+@app.route('/getInstructors', methods=['GET'])
+@jwt_required()
+@role_required(['Admin'])
+def get_instructors():
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor()
+
+        query = """
+            SELECT u.Fname, u.Lname, i.instructorID
+            FROM cs425.tblUser u
+            JOIN cs425.tblInstructor i ON u.userID = i.userID
+            WHERE i.deptID = 3;
+        """
+        cursor.execute(query)
+        instructors = cursor.fetchall()
+
+        instructor_data = []
+        for instructor in instructors:
+            instructor_data.append({
+                'instructorID': instructor[2],
+                'name': f"{instructor[0]} {instructor[1]}"
+            })
+
+        return jsonify({"instructors": instructor_data}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+#Admin assign instructors to courses
+@app.route('/assignInstructors', methods=['POST'])
+@jwt_required()
+@role_required(['Admin'])
+def assign_instructors():
+    data = request.get_json()
+    schedule_id = data['courseId']
+    instructor_ids = data['instructorIds']
+
+    print("Received data from frontend:")
+    print("Course ID:", schedule_id)
+    print("Instructor IDs:", instructor_ids)
+
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT scheduleID FROM tblcourseSchedule WHERE scheduleID = %s", (schedule_id,))
+        course_schedule = cursor.fetchone()
+        if not course_schedule:
+            return jsonify({"error": "Course schedule not found"}), 404
+
+        assigned_instructors = []
+        already_assigned_instructors = []
+
+        for instructor_id in instructor_ids:
+            #check if the instructor exists
+            cursor.execute("SELECT instructorID FROM tblInstructor WHERE instructorID = %s", (instructor_id,))
+            instructor = cursor.fetchone()
+            if not instructor:
+                continue  #skip if instructor doesn't exist
+
+            #check if the instructor is already assigned to the course schedule
+            cursor.execute("SELECT courseInstructorID FROM tblCourseInstructors WHERE scheduleID = %s AND instructorID = %s", (schedule_id, instructor_id))
+            existing_assignment = cursor.fetchone()
+            if existing_assignment:
+                already_assigned_instructors.append(instructor_id)
+                continue  #skip if instructor is already assigned
+
+            #assign the instructor to the course schedule
+            cursor.execute("INSERT INTO tblCourseInstructors (scheduleID, instructorID) VALUES (%s, %s)", (schedule_id, instructor_id))
+            assigned_instructors.append(instructor_id)
+
+        connection.commit()
+
+        response_message = ""
+        if assigned_instructors:
+            response_message += f"Instructors {assigned_instructors} assigned successfully. "
+        if already_assigned_instructors:
+            response_message += f"Instructors {already_assigned_instructors} are already assigned to the course."
+
+        print("Response message:", response_message)
+
+        return jsonify({"message": response_message}), 200
+
+    except Exception as e:
+        connection.rollback()
+        print("Error:", str(e))
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
+
+#Admin unassign instructor from course
+@app.route('/unassignInstructor', methods=['POST'])
+@jwt_required()
+@role_required(['Admin'])
+def unassign_instructor():
+    data = request.get_json()
+    schedule_id = data['courseId']
+    instructor_id = data['instructorId']
+
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT scheduleID FROM tblcourseSchedule WHERE scheduleID = %s", (schedule_id,))
+        course_schedule = cursor.fetchone()
+        if not course_schedule:
+            return jsonify({"error": "Course schedule not found"}), 404
+
+        #check if the instructor is already assigned to the course 
+        cursor.execute("SELECT courseInstructorID FROM tblCourseInstructors WHERE scheduleID = %s AND instructorID = %s",
+                       (schedule_id, instructor_id))
+        assignment = cursor.fetchone()
+        if not assignment:
+            return jsonify({"error": "Instructor is not assigned to the course"}), 400
+
+        #unassign the instructor from the course schedule
+        cursor.execute("DELETE FROM tblCourseInstructors WHERE scheduleID = %s AND instructorID = %s",
+                       (schedule_id, instructor_id))
+
+        connection.commit()
+
+        return jsonify({"message": "Instructor unassigned successfully"}), 200
+    except Exception as e:
+        connection.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 # LV
 # Connect to database

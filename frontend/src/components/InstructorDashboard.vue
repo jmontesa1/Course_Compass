@@ -272,7 +272,7 @@
                                         <strong>Instructor: </strong> {{ course.instructor }}<br>
                                         <strong>Credits: </strong> {{ course.Credits }}<br>
                                         <strong>Section: </strong> {{ course.Section }}<br>
-                                        <strong>Office Hours: </strong> {{ course.officeHours }}<br>
+                                        <strong>Office Hours: </strong> {{ course.officeHours && course.officeHours.length > 0 ? course.officeHours.join(', ') : 'N/A' }}<br>
                                         <strong>Office Hours Location: </strong> {{ course.officeLocation }}<br>
                                     </v-col>
                                 </v-row>
