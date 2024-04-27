@@ -83,6 +83,9 @@
                     <v-select
                         :items="instructors"
                         v-model="selectedInstructor"
+                        item-value="id"
+                        item-title="name"
+                        return-object
                         variant="underlined"
                         density="compact"
                         label="Select an Instructor"
@@ -112,7 +115,7 @@
                                 Are you sure you want to enroll in:
                             </v-card-title>
                             <v-card-title v-if="userType === 'Admin'">
-                                Are you sure you want to enroll <strong>{{selectedInstructor}}</strong> in:
+                                Are you sure you want to enroll <strong>{{selectedInstructor?.name}}</strong> in:
                             </v-card-title>
                             <v-card-text>
                                 <v-row dense>
@@ -458,7 +461,7 @@
 
 
                 //Admin variables
-                instructors: ['Vinh Le', 'Devrin Lee', 'Sara Davis', 'David Feil-Seifer'],
+                instructors: [],
                 selectedInstructor: null,
             };
         },
@@ -504,6 +507,10 @@
                 const retrieveStudents = this.courseStudents[this.tab].students;
                 return retrieveStudents;
             },
+        },
+
+        created() {
+            this.fetchInstructors();
         },
 
         methods: {
@@ -724,22 +731,35 @@
                         this.$emit("show-toast", { message: errorMessage, color: '#da5151' });
                     }
                 }
-                else if (this.userType === 'Admin'){
-                    //use instructor variable here i would assume?
-                    console.log('Instructor chosen', instructor);
-                    try {
-                        //i deleted some stuff here
-                        if (response.status === 200) {
-                            this.$emit("show-toast", { message: "Courses added to schedule!", color: '#51da6e' });
-                            this.schedule = [];
-                        }
-                    } catch (error) {
-                        console.error("Failed to add courses to schedule.", error);
-                        let errorMessage = "Failed to add course to schedule."; //default message
-                        if (error.response && error.response.data && error.response.data.message) {
-                            errorMessage = error.response.data.message; //use  server's error message
-                        }
-                        this.$emit("show-toast", { message: errorMessage, color: '#da5151' });
+                else if (this.userType === 'Admin') {
+                try {
+                const scheduleIDs = this.schedule.map(course => course.scheduleID);
+                const Instructor = this.selectedInstructor;
+
+                const response = await axios.post('http://127.0.0.1:5000/assignInstructors', {
+                    courseId: scheduleIDs[0],
+                    instructorIds: [Instructor.id]
+                }, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                });
+
+                if (response.status === 200) {
+                    const message = response.data.message;
+                    if (message.includes("assigned successfully")) {
+                    this.$emit("show-toast", { message: "Instructor assigned successfully!", color: '#51da6e' });
+                    } else if (message.includes("already assigned")) {
+                    this.$emit("show-toast", { message: "Instructor is already assigned to the course.", color: '#da5151' });
+                    }
+                    this.schedule = [];
+                    this.selectedInstructor = null;
+                }
+                } catch (error) {
+                    console.error("Failed to assign instructor.", error);
+                    let errorMessage = "Failed to assign instructor.";
+                    if (error.response && error.response.data && error.response.data.message) {
+                        errorMessage = error.response.data.message;
+                    }
+                    this.$emit("show-toast", { message: errorMessage, color: '#da5151' });
                     }
                 }
 
@@ -865,6 +885,21 @@
                 this.tallyU = uCount;
                 this.sparklineKey++;
                 this.gradeAnalytics = tallyGrades;
+            },
+
+            async fetchInstructors() {
+                try {
+                    const response = await axios.get('http://127.0.0.1:5000/getInstructors', {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                    });
+                    this.instructors = response.data.instructors.map(instructor => ({
+                    id: instructor.instructorID,
+                    name: instructor.name
+                    }));
+                    console.log("Instructors data:", this.instructors);
+                } catch (error) {
+                    console.error("Error fetching instructors:", error);
+                }
             },
         },
 
