@@ -304,7 +304,7 @@ def signup():
             session['email'] = email
             access_token = create_access_token(identity={"email": email, "userID": new_user['userID']})
             # confirm_url = f"http://localhost:8080/login?token={access_token}"
-            confirm_url = f"http://localhost:8080/login?verified=true"
+            confirm_url = f"http://localhost:8080/login/verified=true"
             html = render_template('confirm_template.html', confirm_url=confirm_url)
             msg = Message("Course Compass - Confirm Your Email", sender="coursecompassunr@gmail.com", recipients=[email])
             msg.body = f"Please click on the link to confirm your Course Compass account: {confirm_url}"
