@@ -142,46 +142,6 @@ def role_required(allowed_roles):
 # Included print statements for terminal reference
 @app.route('/login', methods=['POST'])
 def login(): 
-    # if request.method == 'POST':
-    #     email = request.json.get('email')
-    #     password = request.json.get('password')
-        
-    #     if not email or not password:
-    #         print("MISSING EMAIL OR PASSWORD")
-    #         return jsonify({"message": "Missing email or password"}), 400
-        
-    #     try:
-    #         connection = connectToDB()
-    #         cursor = connection.cursor(dictionary=True)
-    #         cursor.execute("SELECT userID, Email, Passwd, role, verified FROM tblUser WHERE Email = %s", (email,))
-    #         user = cursor.fetchone()
-            
-    #         # if not user['verified']:
-    #         #     print("EMAIL NOT VERIFIED")
-    #         #     return jsonify({"message": "Unverified email."})
-            
-    #         if user and bcrypt.check_password_hash(user['Passwd'], password):
-    #             session['email'] = email
-                
-    #             print("LOGIN SUCCESSFUL")
-
-    #             role = user['role']
-                
-    #             access_token = create_access_token(identity={"email": user['Email'], "userID": user['userID'], "role": role})
-    #             return jsonify({"message": "Login successful", "access_token": access_token, "role": role}), 200
-    #         else:
-    #             print("INVALID EMAIL OR PASSWORD")
-    #             return jsonify({"message": "Invalid email or password"}), 401
-    #     except Error as err:
-    #         print(err)
-    #         return jsonify({"message": "An error occurred"}), 500
-        
-    #     finally:
-    #         cursor.close()
-    #         connection.close()
-    # else:
-    #     print("INVALID REQUEST")
-    #     return jsonify({"message": "Invalid request"}), 400
     if request.method == 'POST':
         email = request.json.get('email')
         password = request.json.get('password')
@@ -193,16 +153,63 @@ def login():
         try:
             connection = connectToDB()
             cursor = connection.cursor(dictionary=True)
-            cursor.execute("SELECT userID, Email, Passwd, role, verified FROM tblUser WHERE Email = %s", (email,))
+            cursor.execute("SELECT userID, Email, Passwd, role, verified, created_at FROM tblUser WHERE Email = %s", (email,))
             user = cursor.fetchone()
             
             if not user:
                 print("INVALID EMAIL OR PASSWORD")
                 return jsonify({"message": "Invalid email or password"}), 401
             
-            # if not user['verified']:
-            #     print("EMAIL NOT VERIFIED")
-            #     return jsonify({"message": "Email not verified. Please check your email to verify your account."}), 403
+            account_creation_date = user['created_at']
+            if not user['verified'] and account_creation_date > datetime(2024, 4, 26):
+                print("EMAIL NOT VERIFIED")
+                return jsonify({"message": "Email not verified. Please check your email."}), 403
+
+            if bcrypt.check_password_hash(user['Passwd'], password):
+                session['email'] = email
+                print("LOGIN SUCCESSFUL")
+                role = user['role']
+                access_token = create_access_token(identity={"email": user['Email'], "userID": user['userID'], "role": role})
+                return jsonify({"message": "Login successful", "access_token": access_token, "role": role}), 200
+            else:
+                print("INVALID EMAIL OR PASSWORD")
+                return jsonify({"message": "Invalid email or password"}), 401
+        except Error as err:
+            print(err)
+            return jsonify({"message": "An error occurred"}), 500
+        finally:
+            cursor.close()
+            connection.close()
+    else:
+        print("INVALID REQUEST")
+        return jsonify({"message": "Invalid request"}), 400
+   
+   
+@app.route('/login-verify', methods=['POST'])
+def login_verify(): 
+    if request.method == 'POST':
+        email = request.json.get('email')
+        password = request.json.get('password')
+        
+        if not email or not password:
+            print("MISSING EMAIL OR PASSWORD")
+            return jsonify({"message": "Missing email or password"}), 400
+        
+        try:
+            connection = connectToDB()
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute("UPDATE tblUser SET verified = %s WHERE Email = %s", (True, email,))
+            connection.commit()
+            cursor.execute("SELECT userID, Email, Passwd, role, verified, created_at FROM tblUser WHERE Email = %s", (email,))
+            user = cursor.fetchone()
+            
+            if not user:
+                print("INVALID EMAIL OR PASSWORD")
+                return jsonify({"message": "Invalid email or password"}), 401
+            
+            if not user['verified']:
+                print("EMAIL NOT VERIFIED")
+                return jsonify({"message": "Email not verified. Please check your email."}), 403
 
             if bcrypt.check_password_hash(user['Passwd'], password):
                 session['email'] = email
@@ -270,7 +277,7 @@ def signup():
             
             #insert into user table
             hashed_pw = bcrypt.generate_password_hash(pw).decode('utf-8')
-            cursor.execute("INSERT INTO tblUser (Fname, Lname, DOB, Email, Passwd, role) VALUES (%s, %s, %s, %s, %s, %s)", (fname, lname, dob, email, hashed_pw, userType))
+            cursor.execute("INSERT INTO tblUser (Fname, Lname, DOB, Email, Passwd, role, verified) VALUES (%s, %s, %s, %s, %s, %s, %s)", (fname, lname, dob, email, hashed_pw, userType, False))
             
             #retrieve the new userID
             cursor.execute("SELECT userID FROM tblUser WHERE Email = %s", (email,))
@@ -316,6 +323,30 @@ def signup():
             
     print("INVALID REQUEST")
     return jsonify({"message": "Invalid request"}), 400
+
+
+@app.route('/verify-email', methods=['GET'])
+def verify_email():
+    email = request.args.get('email')
+    token = request.args.get('token')
+    
+    if not email:
+        return jsonify({"message": "Invalid request"}), 400
+    
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("UPDATE tblUser SET verified = TRUE WHERE Email = %s", (email,))
+        connection.commit()
+        
+        return jsonify({"message": "Email verified."}), 200
+    except Error as err:
+        print(err)
+        connection.rollback()
+        return jsonify({"message": "An error occurred during verification"}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 
 # LV

@@ -45,6 +45,11 @@ const routes = [
     component: Login
   },
   {
+    path: '/login/:tag',
+    name: 'logintag',
+    component: Login
+  },
+  {
     path: '/signup',
     name: 'signup',
     component: Signup
