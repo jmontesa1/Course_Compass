@@ -26,14 +26,46 @@
                 <br>
 
                 <div class="button-container">
-                    <button type="submit">Log In</button>
+                    <button class="login-button" type="submit">Log In</button>
                 </div>
             </form>
             <div class="signup-link">
                 <p>Don't have an account? <router-link to="/signup" >Sign Up</router-link></p>
             </div>
             <div class="signup-link">
-                <p><router-link to="/changepassword" >Forgot Password?</router-link></p>
+                <v-dialog v-model="dialog" max-width="500" style="font-family: Poppins;">
+                    <template v-slot:activator="{ props: activatorProps }">
+                        <p><a v-bind="activatorProps" style="cursor: pointer;">Forgot Password?</a></p>
+                    </template>
+                    <!--Pop up -->
+                    <v-card title="Forgot Password">
+                        <v-card-text>
+                            Please enter your email:
+                            <v-text-field v-model="forgotPassEmail" label="Email" type="email"></v-text-field>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
+
+                            <v-dialog v-model="dialog2" max-width="500" style="font-family: Poppins;">
+                                <template v-slot:activator="{ props: activatorProps }">
+                                    <v-btn v-bind="activatorProps" color="primary" text="Send" variant="tonal" @click="sendEmail"></v-btn>
+                                </template>
+                                <!--Pop up -->
+                                <v-card title="Email Sent">
+                                    <v-card-text>
+                                        An email was sent to <strong>{{forgotPassEmail}}</strong> with your password.
+                                    </v-card-text>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn text="Close" variant="plain" @click="dialog2 = false; forgotPassEmail = ''; dialog = false;"></v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-dialog>  
+
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>  
             </div>
 
 
@@ -50,6 +82,9 @@
                 password: '',
                 passwordVis: false,
                 isVerified: false,
+                dialog: false,
+                dialog2: false,
+                forgotPassEmail: '',
             };
         },
         mounted() {
@@ -190,6 +225,29 @@
                     }
                     });
             },
+
+            sendEmail(){
+                const newDate = new Date().toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                });
+
+                const email = {
+                    date: newDate,
+                    subject: 'Course Compass - Forgot Password',
+                    to: this.forgotPassEmail, 
+                    content: 'You have requested that you forgot your password.\nYour password is: ',
+                };
+
+                axios.post('http://127.0.0.1:5000/send-email', email)
+                .then(response => {
+                    console.log("Email sent successfully");
+                })
+                .catch(error => {
+                    console.error("Failed to send email: ", error);
+                });
+            },
         }
     };
 </script>
@@ -241,7 +299,7 @@
         text-align: right;
     }
 
-    button {
+    .login-button {
         font-family: coolvetica, sans-serif;
         font-size: 25px;
         background-color: #000000;
@@ -253,7 +311,7 @@
         transition: background-color 0.3s linear, color 0.3s linear;
     }
 
-    button:hover {
+    .login-button:hover {
         background-color: #555555;
     }
 
