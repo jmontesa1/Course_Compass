@@ -26,7 +26,7 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'coursecompassunr@gmail.com'
-app.config['MAIL_PASSWORD'] = 'rlse btgk aelx uxlk'
+app.config['MAIL_PASSWORD'] = 'rlse btgk aelx uxlk' # REAL PASSWORD IS Compass2024$
 mail = Mail(app)
 
 
@@ -1987,9 +1987,12 @@ def send_email():
             cursor.execute("SELECT Email FROM tblInstructor")
         elif recipient_group == 'Students':
             cursor.execute("SELECT Email FROM tblStudents")
+        elif recipient_group == 'Admins':
+            recipients = ["coursecompassunr@gmail.com"]
             
-        result = cursor.fetchall()
-        recipients = [user['Email'] for user in result]
+        if recipient_group != 'Admins':
+            result = cursor.fetchall()
+            recipients = [user['Email'] for user in result]
         
         msg = Message(subject, sender='coursecompassunr@gmail.com', recipients=recipients)
         msg.body = content
