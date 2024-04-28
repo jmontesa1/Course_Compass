@@ -445,9 +445,60 @@
                 filteredNotifications.sort((a, b) => new Date(a.date) - new Date(b.date)); //filter by date
 
                 this.emailNotifications = filteredNotifications;
-                this.daysBeforeNotification = 1;
                 this.dialogNotifications = false;
-                console.log('Filtered Notifications', filteredNotifications);                
+                console.log('Filtered Notifications', filteredNotifications);
+                this.sendEmail();                
+            },
+
+            sendEmail(){
+                const notificationToEmail = this.emailNotifications[0];
+
+                const reformatDate = new Date(notificationToEmail.date).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                });
+
+                const newDate = new Date().toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                });
+
+                const originalDeadline = new Date(notificationToEmail.date);
+
+                originalDeadline.setDate(originalDeadline.getDate() + this.daysBeforeNotification);
+
+                const formattedDeadline = originalDeadline.toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                });
+
+                const email = {
+                    date: newDate,
+                    subject: 'Course Compass Upcoming Deadline Reminder ' + newDate,
+                    to: this.user.email, 
+                    content: 'This is an automated message to remind you of an upcoming deadline in ' + this.daysBeforeNotification + ' days:\nDeadline message: ' + notificationToEmail.message + '\nDeadline source: ' + notificationToEmail.source + '\nEmail received on ' + reformatDate + '\nDate of deadline: ' + formattedDeadline,
+                };
+
+                axios.post('http://127.0.0.1:5000/send-email', email)
+                .then(response => {
+                    console.log("Email sent successfully");
+                })
+                .catch(error => {
+                    console.error("Failed to send email: ", error);
+                });
+            },
+
+            deadlineCheck(){
+                const notification = this.emailNotifications[0];
+
+                const today = newDate();
+                const deadline = new Date(notification.date)
+                if(today >= deadline){
+                    this.sendEmail();
+                }
             },
         },
         
@@ -538,6 +589,11 @@
                 this.fetchDashboardData();
                 this.fetchEnrolledCourses(); //enrolled courses data
             }
+
+            //check date for sending deadline email every day
+            this.checkDate = setInterval(() => {
+                this.deadlineCheck();
+            }, 1000*60*60*24);
         },
     }
 </script>

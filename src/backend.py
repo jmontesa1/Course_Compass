@@ -1989,8 +1989,11 @@ def send_email():
             cursor.execute("SELECT Email FROM tblStudents")
         elif recipient_group == 'Admins':
             recipients = ["coursecompassunr@gmail.com"]
-            
-        if recipient_group != 'Admins':
+        else:
+            recipients = [recipient_group]
+            print("Email sent to ", recipient_group)
+
+        if recipient_group == 'All Users' or recipient_group == 'Instructors' or recipient_group == 'Students':
             result = cursor.fetchall()
             recipients = [user['Email'] for user in result]
         

@@ -138,7 +138,7 @@
                                                                         <p class="row-text"><strong>{{adminNotifications[index].date}}</strong> {{adminNotifications[index].source}} - {{adminNotifications[index].description}}<br>Override Status: {{adminNotifications[index].override}}</p>
                                                                     </v-col>
                                                                     <v-col cols="1">
-                                                                        <v-dialog v-model="removeNotificationDialog[index]" max-width="800" style="font-family: Poppins;">
+                                                                        <v-dialog v-model="removeNotificationDialog[index]" max-width="500" style="font-family: Poppins;">
                                                                             <template v-slot:activator="{ props: activatorProps }">
                                                                                 <v-btn v-bind="activatorProps" icon="$close" variant="plain">
                                                                                     <span class="material-symbols-outlined">
@@ -338,8 +338,43 @@
                                                             </v-col>
                                                         </v-row>
                                                         <br>Courses Taught:
+                                                        <v-container>
+                                                            <p><br>Not enrolled in any courses</p><!-- PUT v-if="approvedInstructors[index].courses.length === 0"-->
+                                                            <v-list lines="auto" style="font-family: Poppins;">                                        
+                                                                <v-list-item v-for="(courses ,indexCourses) in approvedInstructors" :key="indexCourses">
+                                                                        <!--Example, find vinh le's index, then the courses he is enrolled in, then the course code is displayed-->
+                                                                        <v-row>
+                                                                            <v-col cols="10">
+                                                                            approvedInstructors[index].courses[indexCourses].course.code
+                                                                            </v-col>
+                                                                            <v-col cols="2">
+                                                                                <v-dialog v-model="unenrollDialog[index]" max-width="500" style="font-family: Poppins;">
+                                                                                    <template v-slot:activator="{ props: activatorProps }">
+                                                                                        <v-btn v-bind="activatorProps" variant="plain">
+                                                                                            <span class="material-symbols-outlined">
+                                                                                            remove
+                                                                                            </span>
+                                                                                        </v-btn>
+                                                                                    </template>
+                                                                                    <!--Pop up -->
+                                                                                    <v-card title="Are you sure you want to unenroll:">
+                                                                                        <v-card-text>
+                                                                                            Unenroll <strong>{{approvedInstructors[index].name}}</strong> from approvedInstructors[index].courses[indexCourses].course.code?
+                                                                                        </v-card-text> 
+                                                                                        <v-card-actions>
+                                                                                            <v-spacer></v-spacer>
+                                                                                            <v-btn text="Cancel" variant="plain" @click="unenrollDialog[index] = false"></v-btn>
+                                                                                            <v-btn color="red" text="Unenroll" variant="tonal" @click="unenrollCourse(index)"></v-btn>
+                                                                                        </v-card-actions>
+                                                                                    </v-card>
+                                                                                </v-dialog>
+                                                                            </v-col>
+                                                                        </v-row>
+                                                                    <v-divider></v-divider>
+                                                                </v-list-item>
+                                                            </v-list>
+                                                        </v-container>
                                                         <br>
-                                                        
                                                         </p>
                                                     </v-card-text> 
                                                     <v-card-actions>
@@ -365,7 +400,6 @@
                                                     </v-card-actions>
                                                 </v-card>
                                             </v-dialog> 
-
                                         </v-col>
                                         <v-divider class="instructor-divider"></v-divider>
                                     </v-row>
@@ -617,7 +651,7 @@
                 instructors: false,
                 analytics: false,
                 user: {
-                    firstname: 'John',
+                    firstname: '',
                     lastname: '',
                     email: '',
                     major: '',
@@ -640,6 +674,7 @@
                 instructorDialog: [],
                 archiveDialog: [],
                 unarchiveDialog: [],
+                unenrollDialog: [],
             
                 sources: ['Admin', 'UNR'],
                 selectedSource: '',
@@ -693,7 +728,6 @@
             },
         
             handleToast(toastData) {
-
                 console.log(toastData.message);
             },
 
@@ -938,7 +972,28 @@
                         console.error("Error removing instructor: ", error);
                         this.removeDialog[index] = false;
                     });
-            }
+            },
+
+            async unenrollCourse(index) {
+                try {
+                    const response = await axios.post('http://127.0.0.1:5000/unenrollCourse', {
+                        scheduleID: this.unenrollScheduleID
+                    }, {
+                        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                    });
+
+                    if (response.status === 200) {
+                        this.schedule = this.schedule.filter(course => course.scheduleID !== this.unenrollScheduleID);
+                        console.log('Course unenrolled successfully');
+                        this.showUnenrollDialog = false;
+                        this.$emit('show-toast', { message: 'Course unenrolled.', color: '#51da6e' });
+                    }
+                } catch (error) {
+                    console.error("Error unenrolling course:", error);
+                }
+
+                this.unenrollDialog[index] = false;
+            },
         },
 
         created() {

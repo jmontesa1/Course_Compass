@@ -110,6 +110,7 @@
                 type: Boolean,
                 required: true, //login
             },
+
             userType:{
                 type: String,
                 required: '',

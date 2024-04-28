@@ -19,7 +19,6 @@
                         <p><strong>Department:</strong> {{ course.department || 'N/A' }}</p>
                         <p><strong>Name:</strong> {{ course.name || 'N/A' }}</p>
                         <p><strong>Code:</strong> {{ course.code || 'N/A' }}</p>
-                        <p><strong>Section:</strong> <!--{{ course.secion || 'N/A' }}--></p>
                         <p><strong>Professor:</strong> {{ course.professor || 'N/A' }}</p>
                         <br>
                         <p><strong>Format:</strong> {{ course.format || 'N/A' }}</p>
@@ -49,10 +48,6 @@
                         <div class="edit-form">
                             <p style="margin-right: 10px;"><strong>Code:</strong></p>
                             <input type="text" class="form-control" v-model="newCode" style="height: 20px; margin-bottom: -1px;">
-                        </div>
-                        <div class="edit-form">
-                            <p style="margin-right: 10px;"><strong>Section:</strong></p>
-                            <input type="text" class="form-control" v-model="newSection" style="height: 20px; margin-bottom: -1px;">
                         </div>
                         <div class="edit-form">
                             <p style="margin-right: 5px;"><strong>Professors:</strong></p>
