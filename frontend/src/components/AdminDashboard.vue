@@ -457,12 +457,12 @@
                                                 <v-card title="Are you sure you want to unarchive:">
                                                     <v-card-text>
                                                         <br>
-                                                        <p>{{archivedInstructors[index].name}} - {{approvedInstructors[index].email}}</p>
+                                                        <p>{{archivedInstructors[index].name}} - {{archivedInstructors[index].email}}</p>
                                                     </v-card-text> 
                                                     <v-card-actions>
                                                         <v-spacer></v-spacer>
                                                         <v-btn text="No" variant="plain" @click="unarchiveDialog[index] = false"></v-btn>
-                                                        <v-btn color="primary" text="Yes" variant="tonal" @click="unarchiveInstructor(index)"></v-btn>
+                                                        <v-btn color="primary" text="Yes" variant="tonal" @click="unarchiveInstructor(archivedInstructors[index].email, index)"></v-btn>
                                                     </v-card-actions>
                                                 </v-card>
                                             </v-dialog> 
@@ -803,12 +803,12 @@
                 this.removeDialog[index] = false;
             },
 
-            unarchiveInstructor(index) {
-                const toUnarchive = this.archivedInstructors[index];
-                this.archivedInstructors.splice(index, 1);
-                this.approvedInstructors.push(toUnarchive);
-                this.unarchiveDialog[index] = false;
-            },
+            // unarchiveInstructor(index) {
+            //     const toUnarchive = this.archivedInstructors[index];
+            //     this.archivedInstructors.splice(index, 1);
+            //     this.approvedInstructors.push(toUnarchive);
+            //     this.unarchiveDialog[index] = false;
+            // },
 
             approvePendingInstructor(index) {
                 const instructor = this.pendingInstructors[index];
@@ -1013,6 +1013,22 @@
                         console.error("Error archiving instructor: ", error);
                         this.archiveDialog[index] = false;
                         this.instructorDialog[index] = false;
+                    });
+            },
+
+            unarchiveInstructor(instructor_email, index) {
+                axios.post('http://127.0.0.1:5000/unarchive-instructor', { email: instructor_email })
+                    .then(response => {
+                        const approvedInstructor = this.archivedInstructors[index];
+                        this.approvedInstructors.push(approvedInstructor);
+                        this.archivedInstructors.splice(index, 1);
+                        this.fetchApprovedInstructors();
+                        this.unarchiveDialog[index] = false;
+                        console.log("Instructor unarchived: ", response.data);
+                    })
+                    .catch(error => {
+                        console.error("Error unarchiving instructor: ", error);
+                        this.unarchiveDialog[index] = false;
                     });
             },
 
