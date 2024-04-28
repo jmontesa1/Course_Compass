@@ -1938,6 +1938,71 @@ def unassign_instructor():
     finally:
         cursor.close()
         connection.close()
+        
+        
+# LV
+# @app.route('/send-email', methods=['POST'])
+# def send_email():
+#     data = request.json
+#     user_type = data['userType']
+#     email_body = data['emailBody']
+#     subject = data['emailSubject']
+    
+#     recipients = []
+#     if user_type == 'All':
+#         recipients = [user.Email for user in User.query.all()]
+#     elif user_type == 'Instructors':
+#         recipients = [user.Email for user in User.query.filter(User.role == 'Instructor')]
+#     elif user_type == 'Students':
+#         recipients = [user.Email for user in User.query.filter(User.role == 'Student')]
+        
+#     if recipients:
+#         msg = Message(subject, sender='coursecompassunr@gmail.com', recipients=recipients)
+#         msg.body = email_body
+#         try:
+#             mail.send(msg)
+#             return jsonify({"message": "Emails sent successfully"}), 200
+#         except Exception as exc:
+#             return jsonify({"error": str(exc)}), 500
+#     else:
+#         return jsonify({"message": "No recipients found"}), 404
+
+
+# LV
+@app.route('/send-email', methods=['POST'])
+def send_email():
+    data = request.get_json()
+    subject = data['subject']
+    recipient_group = data['to']
+    content = data['content']
+    recipients = []
+    
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary=True)
+        
+        if recipient_group == 'All Users':
+            cursor.execute("SELECT Email FROM tblUser")
+        elif recipient_group == 'Instructors':
+            cursor.execute("SELECT Email FROM tblInstructor")
+        elif recipient_group == 'Students':
+            cursor.execute("SELECT Email FROM tblStudents")
+            
+        result = cursor.fetchall()
+        recipients = [user['Email'] for user in result]
+        
+        msg = Message(subject, sender='coursecompassunr@gmail.com', recipients=recipients)
+        msg.body = content
+        mail.send(msg)
+        
+        return jsonify({"message": "Emails sent."}), 200
+    except Exception as exc:
+        print(exc)
+        return jsonify({"message": "Failed to send emails."}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
 
 # LV
 # Connect to database

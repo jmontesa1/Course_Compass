@@ -780,15 +780,22 @@
                 const email = {
                     date: reformatDate,
                     subject: this.emailSubject,
-                    to: this.emailTo,
+                    to: this.emailTo, 
                     content: this.emailContent,
                 };
 
-                this.emailSent.push(email);
-                this.emailSubject = '';
-                this.emailTo = '';
-                this.emailContent = '';
-                this.emailDialog = false;
+                axios.post('http://127.0.0.1:5000/send-email', email)
+                .then(response => {
+                    this.emailSent.push(email);
+                    this.emailSubject = '';
+                    this.emailTo = '';
+                    this.emailContent = '';
+                    this.emailDialog = false;
+                    console.log("Email sent successfully");
+                })
+                .catch(error => {
+                    console.error("Failed to send email: ", error);
+                });
             },
 
             fetchCounts() {
