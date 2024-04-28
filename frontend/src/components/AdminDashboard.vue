@@ -128,14 +128,14 @@
                                                             <v-expansion-panel-title>
                                                                     <v-row no-gutters>
                                                                         <v-col class="d-flex justify-start" cols="4">
-                                                                            Active Admin Notifications ({{adminNotifications.length}})
+                                                                            Active Admin Notifications ({{activeNotifs.length}})
                                                                         </v-col>
                                                                     </v-row>
                                                             </v-expansion-panel-title>
                                                             <v-expansion-panel-text>
-                                                                <v-row  no-gutters v-for="(notification, index) in adminNotifications" :key="index">
+                                                                <v-row  no-gutters v-for="(notif, index) in activeNotifs" :key="notif.notificationID">
                                                                     <v-col cols="11">
-                                                                        <p class="row-text"><strong>{{adminNotifications[index].date}}</strong> {{adminNotifications[index].source}} - {{adminNotifications[index].description}}<br>Override Status: {{adminNotifications[index].override}}</p>
+                                                                        <p class="row-text"><strong>{{notif.announceDate}}</strong> {{notif.source}} - {{notif.message}}<br></p>
                                                                     </v-col>
                                                                     <v-col cols="1">
                                                                         <v-dialog v-model="removeNotificationDialog[index]" max-width="800" style="font-family: Poppins;">
@@ -150,12 +150,12 @@
                                                                             <v-card title="Are you sure you want to remove:">
                                                                                 <v-card-text>
                                                                                     <br>
-                                                                                    <p><strong>{{adminNotifications[index].date}}</strong> {{adminNotifications[index].source}} - {{adminNotifications[index].description}}</p>
+                                                                                    <p><strong>{{notif.announceDate}}</strong> {{notif.source}} - {{notif.message}}</p>
                                                                                 </v-card-text> 
                                                                                 <v-card-actions>
                                                                                     <v-spacer></v-spacer>
                                                                                     <v-btn text="No" variant="plain" @click="removeNotificationDialog[index] = false"></v-btn>
-                                                                                    <v-btn color="primary" text="Yes" variant="tonal" @click="removeNotification(index)"></v-btn>
+                                                                                    <v-btn color="primary" text="Yes" variant="tonal" @click="removeNotification(notif.notificationID, index)"></v-btn>
                                                                                 </v-card-actions>
                                                                             </v-card>
                                                                         </v-dialog> 
@@ -646,7 +646,11 @@
                 notificationDescription: '',
                 notificationOverride: false,
                 notificationDate: new Date(),
+                expireDate: new Date(),
+                notificationDescription: '',
+                selectedSource: '',
                 adminNotifications:[],
+                activeNotifs: [],
 
                 to:['All Users', 'Admins', 'Instructors', 'Students'],
                 emailSubject: '',
@@ -720,9 +724,17 @@
                 this.analytics = true;
             },
 
-            removeNotification(index){
-                this.adminNotifications.splice(index, 1);
-                this.removeNotificationDialog[index] = false;
+            removeNotification(notificationID, index){
+                axios.post('http://127.0.0.1:5000/remove-active-notif', { notificationID: notificationID })
+                    .then(response => {
+                        this.activeNotifs.splice(index, 1);
+                        this.removeNotificationDialog[index] = false;
+                        console.log("Notification removed: ", response.data);
+                    })
+                    .catch(error => {
+                        console.log("Error removing notification: ", error);
+                        this.removeNotificationDialog[index] = false;
+                    });
             },
 
             removePendingInstructor(index) {
@@ -749,27 +761,46 @@
                 this.removePendingInstructor(index);
             },
 
-            sendNotification(){
-                const reformatDate = new Date(this.notificationDate).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric',
-                });
+            // sendNotification(){
+            //     const reformatDate = new Date(this.notificationDate).toLocaleDateString('en-US', {
+            //         month: 'long',
+            //         day: 'numeric',
+            //         year: 'numeric',
+            //     });
 
+            //     const notification = {
+            //         date: reformatDate,
+            //         source: this.selectedSource,
+            //         description: this.notificationDescription,
+            //         override: this.notificationOverride,
+            //     };
+
+            //     this.adminNotifications.push(notification);
+
+            //     this.selectedSource = '';
+            //     this.notificationDate = new Date();
+            //     this.notificationDescription ='';
+            //     this.notificationOverride = false;
+            //     this.notificationDialog = false;
+            // },
+
+            sendNotification() {
+                const now = new Date();
                 const notification = {
-                    date: reformatDate,
-                    source: this.selectedSource,
-                    description: this.notificationDescription,
-                    override: this.notificationOverride,
+                    announceDate: this.notificationDate.toISOString().split('T')[0],
+                    createDate: now.toISOString().split('T')[0],
+                    message: this.notificationDescription,
+                    source: this.selectedSource
                 };
 
-                this.adminNotifications.push(notification);
-
-                this.selectedSource = '';
-                this.notificationDate = new Date();
-                this.notificationDescription ='';
-                this.notificationOverride = false;
-                this.notificationDialog = false;
+                axios.post('http://127.0.0.1:5000/notifications/create', notification)
+                    .then(response => {
+                        this.notificationDialog = false;
+                        console.log("Notification sent.");
+                    })
+                    .catch(error => {
+                        console.error("Failed to send notification: ", error);
+                    });
             },
 
             sendEmail(){
@@ -950,7 +981,17 @@
                     .catch(error => {
                         console.error("Error fetching outbound emails:", error)
                     });
-            }
+            },
+
+            fetchActiveNotifs() {
+                axios.get('http://127.0.0.1:5000/active-notifs')
+                    .then(response => {
+                        this.activeNotifs = response.data;
+                    })
+                    .catch(error => {
+                        console.error("Error fetching active notifs:", error)
+                    });
+            },
         },
 
         created() {
@@ -960,6 +1001,7 @@
             this.fetchApprovedInstructors(); // ya ya ya fetch approved instructors
             this.fetchArchivedInstructors(); // archived instructors
             this.fetchOutboundEmails();
+            this.fetchActiveNotifs();
         },
 
         computed: {
