@@ -4,6 +4,7 @@
 <!-- Courses will have a popup menu that gives details about it -->
 
 <template> 
+<div v-if="userType !== ''">
     <div v-if="userType === 'Student' || userType === 'Admin'">
         <div class="top-row">
         <div class="row">
@@ -352,6 +353,22 @@
             </v-col>
         </v-row>       
     </div>
+</div> 
+<div v-else>
+<v-container fluid fill-height>
+    <v-row align="center" justify="center">
+      <v-col cols="12" sm="8" md="6">
+        <img src="../assets/course compass logo.png" alt="Course Compass Logo" class="mx-auto d-block" style="width: 225px; height:auto;">
+        <br>
+        <h1 class="text-center" style="font-family: Coolvetica;">You are unauthorized to view this page.</h1>
+        <p class="text-center">
+            <br>
+            Redirect back to <router-link to="/" >Home</router-link> page.
+        </p>
+      </v-col>
+    </v-row>
+  </v-container>
+</div>
 </template>
 
 <script>

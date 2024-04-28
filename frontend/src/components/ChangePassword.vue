@@ -2,6 +2,7 @@
 <!-- This is the Change Password page for Course Compass -->
 
 <template>
+<div v-if="userType !== ''">
     <div class="login-container">
         <img class="logo" src="../assets/course compass logo.png" alt="Course Compass Logo">
         <h2>Change Password</h2>
@@ -27,12 +28,35 @@
             </div>
         </form>
     </div>
+</div> 
+<div v-else>
+<v-container fluid fill-height>
+    <v-row align="center" justify="center">
+      <v-col cols="12" sm="8" md="6">
+        <img src="../assets/course compass logo.png" alt="Course Compass Logo" class="mx-auto d-block" style="width: 225px; height:auto;">
+        <br>
+        <h1 class="text-center" style="font-family: Coolvetica;">You are unauthorized to view this page.</h1>
+        <p class="text-center">
+            <br>
+            Redirect back to <router-link to="/" >Home</router-link> page.
+        </p>
+      </v-col>
+    </v-row>
+  </v-container>
+</div>
 </template>
+
 
 <script>
 import axios from 'axios';
 
 export default {
+    props:{
+        userType:{
+            type: String,
+            required: '',
+        }
+    },    
     data() {
         return {
             password: '',

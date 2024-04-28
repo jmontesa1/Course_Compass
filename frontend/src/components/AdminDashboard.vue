@@ -2,10 +2,11 @@
 <!-- Created by: John Montesa -->
 
 <template>
+<div v-if="userType === 'Admin'">
     <v-row no-gutters>
             <v-col cols="2">
                 <h2 class="welcome-text">
-                    Welcome, {{user.firstname}}
+                    Welcome
                 </h2>
                 <v-divider></v-divider>
                 <v-tabs v-model="tab" direction="vertical" color="primary" selected-class="selected-tab" slider-color="black">
@@ -636,13 +637,34 @@
     </v-row>
     
     
-    
+</div> 
+<div v-else>
+<v-container fluid fill-height>
+    <v-row align="center" justify="center">
+      <v-col cols="12" sm="8" md="6">
+        <img src="../assets/course compass logo.png" alt="Course Compass Logo" class="mx-auto d-block" style="width: 225px; height:auto;">
+        <br>
+        <h1 class="text-center" style="font-family: Coolvetica;">You are unauthorized to view this page.</h1>
+        <p class="text-center">
+            <br>
+            Redirect back to <router-link to="/" >Home</router-link> page.
+        </p>
+      </v-col>
+    </v-row>
+  </v-container>
+</div>
 </template>
 
 <script>
     import axios from 'axios';
 
     export default {
+        props:{
+            userType:{
+                type: String,
+                required: '',
+            }
+        },
         data() {
             return {
                 confirmationDialog: false,
