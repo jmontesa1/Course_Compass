@@ -1543,6 +1543,34 @@ def get_today_notification():
     return jsonify(notification), 200
 
 
+# LV
+@app.route('/notifications/create', methods=['POST'])
+def create_notification():
+    if not request.json:
+        return jsonify({"message": "No data provided"}), 400
+    announce_date = request.json.get('announceDate')
+    create_date = request.json.get('createDate')
+    message = request.json.get('message')
+    source = request.json.get('source')
+    active = True
+    
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor()
+        cursor.execute("""
+            INSERT INTO tblNotifications (announceDate, createDate, message, source, active)
+            VALUES (%s, NOW(), %s, %s, %s)""", (announce_date, message, source, active))
+        connection.commit()
+        return jsonify({"message": "Notification created."}), 201
+    except Exception as exc:
+        connection.rollback()
+        print(exc)
+        return jsonify({"message": "Failed to add notification"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+
 def get_formatted_notification():
     notification, error = fetch_todays_notification()
     if error:
@@ -1994,6 +2022,43 @@ def get_outbound_emails():
     except Exception as exc:
         print(exc)
         return jsonify({"message": "Failed to retrieve emails."}), 500
+    finally:
+        cursor.close()
+        connection.close()
+        
+        
+# LV
+@app.route('/active-notifs', methods=['GET'])
+def get_active_notifs():
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT notificationID, announceDate, source, message, createDate FROM tblNotifications WHERE active = True ORDER BY createDate DESC")
+        notifs = cursor.fetchall()
+        return jsonify(notifs), 200
+    except Exception as exc:
+        print(exc)
+        return jsonify({"message": "Failed to fetch active notifs."}), 500
+    finally:
+        cursor.close()
+        connection.close()
+        
+        
+# LV
+@app.route('/remove-active-notif', methods=['POST'])
+def remove_active_notif():
+    notif_id = request.json.get('notificationID')
+    print(notif_id, "TETSETSETSETSETESTSETSETSETSTE")
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("DELETE FROM tblNotifications WHERE notificationID = %s", (notif_id,))
+        connection.commit()
+        return jsonify({"message": "Notification removed."}), 200
+    except Error as err:
+        connection.rollback()
+        print(err)
+        return jsonify({"message": "Error removing admin notification"}), 500
     finally:
         cursor.close()
         connection.close()
