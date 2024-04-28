@@ -6,7 +6,7 @@
         <img class="logo" src="../assets/course compass logo.png" alt="Course Compass Logo">
         <h2>Change Password</h2>
         <!-- Input fields for email and password -->
-        <form @submit.prevent="changePassword">
+        <form @submit.prevent="changePassword" style="font-family: Poppins;">
             <div class="password-container">
                 <input ref="passwordInput" type="password" v-model="password" id="passwordInput" placeholder="Password"
                     pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}"
@@ -37,18 +37,30 @@ export default {
         return {
             password: '',
             passwordConfirm: '',
-            visibility: false,
+            passwordVis: false,
+            confirmPassVis: false,
         };
     },
     methods: {
-        toggleVisibility() {
-            this.visibility = !this.visibility;
-            this.$refs.passwordInput.type = this.visibility ? 'text' : 'password';
-            this.$refs.passwordConfirmInput.type = this.visibility ? 'text' : 'password';
+        toggleVisibility(refName) {
+            const inputField = this.$refs[refName];
+            if (inputField) {
+                if (refName === 'passwordInput') {
+                this.passwordVis = !this.passwordVis;
+                inputField.type = this.passwordVis ? 'text' : 'password';
+                } else if (refName === 'passwordConfirmInput') {
+                this.confirmPassVis = !this.confirmPassVis;
+                inputField.type = this.confirmPassVis ? 'text' : 'password';
+                }
+            }
         },
 
-        eyeIcon() {
-            return this.visibility
+        eyeIcon(refName) {
+            return refName === 'passwordInput'
+                ? this.passwordVis
+                ? require('../assets/eyeclose.png')
+                : require('../assets/eye.png')
+                : this.confirmPassVis
                 ? require('../assets/eyeclose.png')
                 : require('../assets/eye.png');
         },
@@ -100,6 +112,7 @@ h2 {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     align-content: center;
     text-align: center;
+    border: 1px solid black;
 }
 
 .logo {

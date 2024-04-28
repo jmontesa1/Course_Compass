@@ -6,16 +6,16 @@
 
 <template>
     <div class="login-container">
-        <transition name="fade">
+        <!--<transition name="fade">
             <div v-if="isVerified" class="alert alert-success">
             Your account has been verified. You may now log in.
-        </div>
-        </transition>
+            </div>
+        </transition>-->
             <img class="logo" src="../assets/course compass logo.png" alt="Course Compass Logo">
             <h2>Log In</h2>
 
             <!-- Input fields for email and password -->
-            <form @submit.prevent="handleLogin">
+            <form @submit.prevent="handleLogin" style="font-family: Poppins;">
                 <input type="email" v-model="email" placeholder="Email" required>
                 <br>
 
@@ -55,6 +55,7 @@
         mounted() {
             if (this.$route.query.verified === 'true') {
                 this.isVerified = true;
+                this.$emit("show-toast", { message: "Your account has been verified. You may now log in.", color: '#51da6e' });
                 setTimeout(() => {
                     this.isVerified = false;
                 }, 4000);
@@ -63,6 +64,7 @@
             const tag = this.$route.params.tag || this.$route.query.tag;
             if (tag === 'verified=true') {
                 this.isVerified = true;
+                this.$emit("show-toast", { message: "Your account has been verified. You may now log in.", color: '#51da6e' });
                 setTimeout(() => {
                     this.isVerified = false;
                 }, 3000);
@@ -279,5 +281,9 @@
         width: 30px;
         height: auto;
         cursor: pointer;
+    }
+
+    p{
+        font-family: Poppins;
     }
 </style>
