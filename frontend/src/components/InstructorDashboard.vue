@@ -719,25 +719,33 @@
             //retrieves todays and tomorrows classes
             retrieveSchedule(){
                 const currentDayIndex = new Date().getDay();
-                const currentDay = this.daysOfWeek[currentDayIndex];
+                const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const currentDay = daysOfWeek[currentDayIndex];
 
                 return this.schedule.filter(course => {
                     return course.days.some(day => day.trim() === currentDay);
                 }).sort((a, b) => {
                     const getTime = time => {
-                        const [hours, minutes] = time.split(' - ')[0].split(':').map(Number);
-                        const paddedHours = hours.toString().padStart(2, '0');
-                        return parseInt(`${paddedHours}${minutes}`, 10);
-                    };
+                        const [timeVar, ampm] = time.split(' ');
+                        let [hours, minutes] = timeVar.split(':').map(Number);
 
-                    const timeComparison = getTime(a.time) - getTime(b.time);
+                        if (ampm.trim() === 'PM' && hours !== 12) {
+                            hours += 12; 
+                        } else if (ampm.trim() === 'AM' && hours === 12) {
+                            hours = 0;
+                        }
 
-                    if (a.time.includes('AM') && b.time.includes('PM')) {
-                        return -1;
-                    } else if (a.time.includes('PM') && b.time.includes('AM')) {
-                        return 1;
-                    }
-                    return timeComparison;
+                        return hours * 60 + minutes; 
+                        };
+
+                        const startOne = getTime(a.start);
+                        const startTwo = getTime(b.start);
+
+                        if (startOne < startTwo) {
+                            return -1;
+                        } else if (startOne > startTwo) {
+                            return 1;
+                        }
                 });
             },
 
@@ -746,25 +754,33 @@
                 tomorrow.setDate(tomorrow.getDate() + 1); //Tomorrow
 
                 const nextDayIndex = tomorrow.getDay();
-                const nextDay = this.daysOfWeek[nextDayIndex];
+                const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const nextDay = daysOfWeek[nextDayIndex];
 
                 return this.schedule.filter(course => {
                     return course.days.some(day => day.trim() === nextDay);
                 }).sort((a, b) => {
                     const getTime = time => {
-                        const [hours, minutes] = time.split(' - ')[0].split(':').map(Number);
-                        const paddedHours = hours.toString().padStart(2, '0');
-                        return parseInt(`${paddedHours}${minutes}`, 10);
-                    };
+                        const [timeVar, ampm] = time.split(' ');
+                        let [hours, minutes] = timeVar.split(':').map(Number);
 
-                    const timeComparison = getTime(a.time) - getTime(b.time);
+                        if (ampm.trim() === 'PM' && hours !== 12) {
+                            hours += 12; 
+                        } else if (ampm.trim() === 'AM' && hours === 12) {
+                            hours = 0;
+                        }
 
-                    if (a.time.includes('AM') && b.time.includes('PM')) {
-                        return -1;
-                    } else if (a.time.includes('PM') && b.time.includes('AM')) {
-                        return 1;
-                    }
-                    return timeComparison;
+                        return hours * 60 + minutes; 
+                        };
+
+                        const startOne = getTime(a.start);
+                        const startTwo = getTime(b.start);
+
+                        if (startOne < startTwo) {
+                            return -1;
+                        } else if (startOne > startTwo) {
+                            return 1;
+                        }
                 });
             },
 
