@@ -19,7 +19,7 @@
                         <p><strong>Department:</strong> {{ course.department || 'N/A' }}</p>
                         <p><strong>Name:</strong> {{ course.name || 'N/A' }}</p>
                         <p><strong>Code:</strong> {{ course.code || 'N/A' }}</p>
-                        <p><strong>Professor:</strong> {{ course.professor || 'N/A' }}</p>
+                        <p><strong>Professors:</strong> {{ course.professor && course.professor.length > 0 ? course.professor.join(', ') : 'Information not available' }}</p>
                         <br>
                         <p><strong>Format:</strong> {{ course.format || 'N/A' }}</p>
                         <p><strong>Term:</strong> {{ course.term || 'N/A' }}</p>
