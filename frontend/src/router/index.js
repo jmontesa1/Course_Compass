@@ -12,6 +12,7 @@ import ChangePassword from '../views/ChangePasswordView.vue'
 import AdminDashboard from '../views/AdminDashboardView.vue'
 import InstructorDashboard from '../views/InstructorDashboardView.vue'
 import RegistrationConfirm from '../views/RegistrationConfirmView.vue'
+import NotFoundView from '../views/NotFoundView.vue'
 
 const routes = [
   {
@@ -83,6 +84,11 @@ const routes = [
     path: '/registration-confirm',
     name: 'registration-confirm',
     component: RegistrationConfirm,
+  },
+  {
+    path: '/:catchAll(.*)*',
+    name: 'NotFound',
+    component: NotFoundView,
   },
 ]
 

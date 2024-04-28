@@ -1,0 +1,51 @@
+<template>
+    <div>
+        <h1>Sorry!</h1>
+        <p>The page you are looking for does not exist.</p>
+        <button @click="goBack">Go back</button>
+    </div>
+</template>
+
+<script>
+export default {
+    methods: {
+        goBack() {
+            window.history.back();
+        }
+    }
+}
+</script>
+
+<style scoped>
+    h1 {
+        font-family: Poppins;
+        font-weight: bold;
+        font-size: 48pt;
+        text-align: center;
+    }
+    p {
+        font-family: Poppins;
+        font-size: 20pt;
+        text-align: center;
+    }
+    div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 60vh;
+    }
+    button {
+        font-family: Poppins;
+        background: none;
+        border: none;
+        color: blue;
+        font-size: 16pt;
+        text-decoration: underline;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+    button:hover {
+        text-decoration: none;
+    }
+</style>
