@@ -18,14 +18,13 @@ export default {
 
 <style scoped>
     h1 {
-        font-family: Poppins;
-        font-weight: bold;
+        font-family: Coolvetica;
         font-size: 48pt;
         text-align: center;
     }
     p {
         font-family: Poppins;
-        font-size: 20pt;
+        font-size: 14pt;
         text-align: center;
     }
     div {
@@ -40,7 +39,7 @@ export default {
         background: none;
         border: none;
         color: blue;
-        font-size: 16pt;
+        font-size: 12pt;
         text-decoration: underline;
         cursor: pointer;
         margin-top: 20px;

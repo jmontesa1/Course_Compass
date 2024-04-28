@@ -8,7 +8,7 @@
       <v-col cols="12" sm="8" md="6">
         <img src="../assets/course compass logo.png" alt="University of Nevada, Reno logo." class="mx-auto d-block" style="width: 225px; height:auto;">
         <br>
-        <h1 class="text-center" style="font-family: Coolvetica;">Thank you for registering!<br>There is one more step to finish your sign up.</h1>
+        <h1 class="text-center" style="font-family: Coolvetica;">Thank you for registering!<br>There is one more step to finish the sign up process.</h1>
         <p class="text-center">
             <br>
             We have sent a confirmation letter to your email!
