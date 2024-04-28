@@ -6,12 +6,39 @@
 <template> 
     <div v-if="userType === 'Student' || userType === 'Admin'">
         <div class="top-row">
-            <div class="row">
+        <div class="row">
+            <div class="col-sm-2 d-flex flex-column justify-content-end">
+                <p style="font-size: 20px; position:relative; top:-4px;" class="text-end">Search:</p>
+            </div>
+            <div class="col d-flex flex-column">
+            <v-row>
+                <v-col cols="6">
+                    <!--Courses Search Row-->
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" v-model="courseSearch" placeholder="Enter Course Name">
+                    </div>                    
+                </v-col>
+                <v-col cols="3">
+                    <!--Department Search Row-->
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" v-model="departmentSearch" placeholder="Enter Department Name">
+                    </div>
+                </v-col>
+                <v-col cols="3">
+                    <!--Professor Search Row-->
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" v-model="professorSearch" placeholder="Enter Professor Name">
+                    </div>
+                </v-col>
+
+            </v-row>
+            </div>
+            <div class="col-sm-2 d-flex flex-column"></div>
+        </div>
+            <!--<div class="row">
                 <div class="col-sm-2 d-flex flex-column">
-                    <h1>Courses</h1>
                 </div>
                 <div class="col d-flex flex-column">
-                    <!--Courses Search Row-->
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="course-search">Course</span>
                         <input type="text" class="form-control" v-model="courseSearch" placeholder="Enter Course Name">
@@ -24,27 +51,22 @@
                 <div class="col-sm-2 d-flex flex-column">
                 </div>
                 <div class="col d-flex flex-column">
-                    <!--Department Search Row-->
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="department-search">Department</span>
                         <input type="text" class="form-control" v-model="departmentSearch" placeholder="Enter Department Name">
                     </div>
                 </div>
                 <div class="col d-flex flex-column">
-                    <!--Professor Search Row-->
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="professor-search">Professor</span>
                         <input type="text" class="form-control" v-model="professorSearch" placeholder="Enter Professor Name">
                     </div>
                 </div>
                 <div class="col-sm-2 d-flex flex-column"></div>
-            </div>
-
+            </div>-->
         </div>
 
         <div class="row">
-            <div class="col-sm-2 d-flex flex-column"></div>
-
             <div class="col d-flex flex-column">
                 <div class="filter-row">
                     <div class="filter-chips-container">
@@ -927,15 +949,12 @@
         font-size: 14px;
     }
     h1{
-        font-family: 'coolvetica', coolvetica;
+        font-family: 'Coolvetica';
         text-align: left;
         margin-top: -11px;
         margin-left: 16px;
     }
-    h2{
-        font-family: 'coolvetica', coolvetica;
-        text-align: left;
-    }
+
 
     .chip-text{
         width: 165px;
@@ -1007,12 +1026,12 @@
     .enroll-button {
         margin-left:auto;
         position: relative;
-        font-family: coolvetica;
+        font-family: Poppins;
         background-color: #000000;
         color: #ffffff;
         padding: 5px 10px;
         font-size: 15px;
-        border-radius: 5px;
+        border-radius: 4px;
         cursor: pointer;
         transition: background-color 0.3s linear, color 0.3s linear;
         text-decoration: none;

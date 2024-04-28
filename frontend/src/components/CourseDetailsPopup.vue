@@ -279,6 +279,7 @@
         display: inline-block;
         transition: background-color 0.3s linear, color 0.3s linear;
         text-decoration: none;
+        border-radius: 4px;
     }
 
     .schedule-button2 {
@@ -294,6 +295,7 @@
         margin-bottom: 10px;
         border: 1px solid black;
         align-content: flex-start;
+        border-radius: 4px;
     }
 
     .schedule-button:hover {
