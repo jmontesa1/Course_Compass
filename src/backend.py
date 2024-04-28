@@ -1967,6 +1967,31 @@ def unassign_instructor():
         cursor.close()
         connection.close()
 
+#change instructor office hours
+@app.route('/updateOfficeHours', methods=['POST'])
+@jwt_required()
+@role_required(['Instructor'])
+def update_office_hours():
+    try:
+        current_user_email = get_jwt_identity()['email']
+        user = User.get_user_by_email(current_user_email)
+        if not user or not user.instructorID:
+            return jsonify({"message": "User not found or not an instructor"}), 400
+        data = request.get_json()
+        office_hours = data['officeHours']
+        office_location = data['officeLocation']
+        connection = connectToDB()
+        cursor = connection.cursor()
+        update_query = "UPDATE tblInstructor SET officeHours = %s, officeLocation = %s WHERE instructorID = %s"
+        cursor.execute(update_query, (office_hours, office_location, user.instructorID))
+        connection.commit()
+        return jsonify({"message": "Office hours updated successfully"}), 200
+    except Error as e:
+        print(e)
+        return jsonify({"message": "Error updating office hours"}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 # LV
 @app.route('/send-email', methods=['POST'])

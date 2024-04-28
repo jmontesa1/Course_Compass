@@ -547,14 +547,41 @@
                 this.officeHoursDialog[index] = false;
             },
 
-            changeOfficeHours(){
-                //NEEDS IMPLEMENTATION TO CHANGE OFFICE HOURS FROM
+            changeOfficeHours() {
+                const scheduleID = this.unenrollScheduleID;
+                const selectedDays = this.chosenOfficeHoursDays
+                    .map((checked, index) => checked ? this.daysOfWeek[index + 1] : null)
+                    .filter(day => day !== null)
+                    .join(', ');
+                
+                const formatTime = (time) => {
+                    const [hours, minutes] = time.split(':');
+                    const formattedHours = hours % 12 || 12;
+                    const period = hours >= 12 ? 'PM' : 'AM';
+                    return `${formattedHours}:${minutes} ${period}`;
+                };
 
-                this.officeHoursStart = '';
-                this.officeHoursEnd = '';
-                this.officeHoursLocation = '';
-                this.chosenOfficeHoursDays = [];
-                this.officeHoursConfirmDialog = false;
+                const officeHoursString = `${selectedDays} ${formatTime(this.officeHoursStart)} - ${formatTime(this.officeHoursEnd)}`;
+                const officeLocation = this.officeHoursLocation;
+
+                axios.post('http://127.0.0.1:5000/updateOfficeHours', {
+                    scheduleID: scheduleID,
+                    officeHours: officeHoursString,
+                    officeLocation: officeLocation
+                }, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                })
+                .then(response => {
+                    console.log("Office hours updated successfully");
+                    this.officeHoursStart = '';
+                    this.officeHoursEnd = '';
+                    this.officeHoursLocation = '';
+                    this.chosenOfficeHoursDays = [];
+                    this.officeHoursConfirmDialog = false;
+                })
+                .catch(error => {
+                    console.error("Failed to update office hours: ", error);
+                });
             },
 
             sendNotification(){
