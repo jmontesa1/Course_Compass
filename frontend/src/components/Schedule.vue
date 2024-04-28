@@ -30,61 +30,76 @@
                     <div class="row justify-content-center">
                         <div class="col d-flex flex-column">
 
-                            <h1>                            
-                                <select v-model="selectedScheduleTitle" @change="handleScheduleChange">
-                                    <option v-for="schedule in userSchedules" :key="schedule.title" :value="schedule.title">{{ schedule.title }}</option>
-                                </select>
+                            <h1>
+                                <v-row>                            
+                                    <!--<select v-model="selectedScheduleTitle" @change="handleScheduleChange">
+                                        <option v-for="schedule in userSchedules" :key="schedule.title" :value="schedule.title">{{ schedule.title }}</option>
+                                    </select>-->
+                                    <v-col cols="9">
+                                        <v-select
+                                            v-model="selectedScheduleTitle"
+                                            :items="userSchedules"
+                                            item-value="title"
+                                            label="Select Schedule"
+                                            variant="outlined"
+                                            style="margin-bottom: -125px;"
+                                            >
+                                            <template #prepend-inner>
+                                                <span class="material-symbols-outlined">calendar_today</span>
+                                            </template>
+                                        </v-select>
+                                    </v-col>
+                                    <v-dialog v-model="dialog" max-width="500" style="font-family: Poppins;">
+                                        <template v-slot:activator="{ props: activatorProps }">
+                                            <v-btn class="add-schedule" size="small" v-bind="activatorProps" style="max-width: 41px; height:41px; margin-top:18px;">
+                                                <span class="material-symbols-outlined" style="font-size: 41px;">calendar_add_on</span>
+                                            </v-btn>
+                                        </template>
+                                        <!--Pop up -->
+                                        <v-card title="Add a weekly schedule">
+                                            <v-card-text>
+                                                <v-row dense>
+                                                    <v-col>  
+                                                        <v-text-field v-model="scheduleTitle" label="Schedule Title" required></v-text-field>
+                                                        <v-select v-model="newScheduleOption" :items="scheduleOptions" label="Week" required></v-select>
+                                                    </v-col>
+                                                </v-row>
+                                            </v-card-text>
+                                            <v-card-actions>
+                                                <v-spacer></v-spacer>
+                                                <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
+                                                <v-btn color="primary" text="Add" variant="tonal" @click="createCustomSchedule">ADD</v-btn>
+                                            </v-card-actions>
+                                        </v-card>
+                                    </v-dialog>
 
-                                <v-dialog v-model="dialog" max-width="500" style="font-family: Poppins;">
-                                    <template v-slot:activator="{ props: activatorProps }">
-                                        <v-btn class="add-schedule" v-bind="activatorProps" style="max-width: 41px; height:41px;">
-                                            <span class="material-symbols-outlined" style="font-size: 41px;">add_ad</span>
-                                        </v-btn>
-                                    </template>
-                                    <!--Pop up -->
-                                    <v-card title="Add a weekly schedule">
-                                        <v-card-text>
-                                            <v-row dense>
-                                                <v-col>  
-                                                    <v-text-field v-model="scheduleTitle" label="Schedule Title" required></v-text-field>
-                                                    <v-select v-model="newScheduleOption" :items="scheduleOptions" label="Week" required></v-select>
-                                                </v-col>
-                                            </v-row>
-                                        </v-card-text>
-                                        <v-card-actions>
-                                            <v-spacer></v-spacer>
-                                            <v-btn text="Close" variant="plain" @click="dialog = false"></v-btn>
-                                            <v-btn color="primary" text="Add" variant="tonal" @click="createCustomSchedule">ADD</v-btn>
-                                        </v-card-actions>
-                                    </v-card>
-                                </v-dialog>
-
-                                <v-dialog v-model="dialog_delete_schedule" max-width="500" style="font-family: Poppins;" v-if="scheduleOption === 'Weekdays and Weekends' || scheduleOption === 'Weekdays'">
-                                    <template v-slot:activator="{ props: activatorProps }">
-                                        <v-btn class="add-schedule" v-bind="activatorProps" style="max-width: 41px; height:41px;">
-                                            <span class="material-symbols-outlined" style="font-size: 41px;">delete</span>
-                                        </v-btn>
-                                    </template>
-                                    <!--Pop up -->
-                                    <v-card title="Delete Schedule">
-                                        <v-card-text>
-                                            <v-row dense>
-                                                <p>Are you sure you want to delete schedule <strong>{{this.selectedScheduleTitle}}</strong>?</p>
-                                                <p>This will delete all of your weekly events.</p>
-                                            </v-row>
-                                        </v-card-text>
-                                        <v-card-actions>
-                                            <v-spacer></v-spacer>
-                                            <v-btn text="Close" variant="plain" @click="dialog_delete_schedule = false"></v-btn>
-                                            <v-btn color="#da4d4d" text="Delete" variant="tonal" @click="deleteSchedule()"></v-btn>
-                                        </v-card-actions>
-                                    </v-card>
-                                </v-dialog>
+                                    <v-dialog v-model="dialog_delete_schedule" max-width="500" style="font-family: Poppins;" v-if="scheduleOption === 'Weekdays and Weekends' || scheduleOption === 'Weekdays'">
+                                        <template v-slot:activator="{ props: activatorProps }">
+                                            <v-btn class="add-schedule" size="small"  v-bind="activatorProps" style="max-width: 41px; height:41px; margin-top:18px;">
+                                                <span class="material-symbols-outlined" style="font-size: 41px;">delete</span>
+                                            </v-btn>
+                                        </template>
+                                        <!--Pop up -->
+                                        <v-card title="Delete Schedule">
+                                            <v-card-text>
+                                                <v-row dense>
+                                                    <p>Are you sure you want to delete schedule <strong>{{this.selectedScheduleTitle}}</strong>?</p>
+                                                    <p>This will delete all of your weekly events.</p>
+                                                </v-row>
+                                            </v-card-text>
+                                            <v-card-actions>
+                                                <v-spacer></v-spacer>
+                                                <v-btn text="Close" variant="plain" @click="dialog_delete_schedule = false"></v-btn>
+                                                <v-btn color="#da4d4d" text="Delete" variant="tonal" @click="deleteSchedule()"></v-btn>
+                                            </v-card-actions>
+                                        </v-card>
+                                    </v-dialog>
+                                </v-row>
                             </h1>
                         </div>
 
                         <div class="col d-flex flex-column">
-                            <v-btn class="add-schedule" @click="downloadPDF" style="max-width: 46px; height:46px; margin-left: auto; margin-right: 10px;">
+                            <v-btn class="add-schedule" @click="downloadPDF" size="small" style="max-width: 46px; height:46px; margin-top:6px; margin-left: auto; margin-right: 10px;">
                                 <span class="material-symbols-outlined" style="font-size: 46px;">print</span>
                             </v-btn>
                         </div>
@@ -498,6 +513,12 @@
                 eventDate: new Date(),
 
                 }),
+
+        watch:{
+            selectedScheduleTitle(){
+                this.handleScheduleChange();
+            }
+        },
 
         computed: {
             timeValidation() {
@@ -1025,13 +1046,11 @@
     }
 
     h1 {
-        white-space: nowrap;
         text-align: left;
         font-family: Poppins;
-        font-size: 30px;
         margin-top: 2px;
         margin-bottom: -6px;
-        margin-left: 16px;
+        margin-left: 14px;
     }
 
     .schedule-days { /* outer part of the schedule*/
@@ -1039,6 +1058,7 @@
         font-size: 20px;
         text-align: center;
         padding: 10px;
+        border-radius: 5px;
         border: 1px solid #d3d3d3; 
     }
 
@@ -1186,7 +1206,7 @@
 
     .add-weekly-event{
         width: 150px;
-        margin-top: 17px;
+        margin-top: 19px;
         margin-right: 25px;
         font-family: Poppins;
         color: rgb(255, 255, 255);
@@ -1195,7 +1215,7 @@
     }
     
     .add-schedule{
-        margin-left: 15px;
+        margin-left: 5px;
         margin-bottom: 4px;
         font-family: Poppins;
         box-shadow: none;

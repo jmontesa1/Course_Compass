@@ -33,121 +33,123 @@
 
             <v-col>
                 <div class="progress-page" v-if="this.progress === true">
-                        <div v-for="(major, index) in filteredMajors" :key="index">
-                        <h1>Progress</h1>
-                        <div class="container-fluid mt-3">
-                            <div class="row">
-                                <div class="col-md-4 d-flex flex-column" style="border-right: 1px solid black;">
-                                    <h2>Career</h2>
-                                    <p>
-                                    <strong>Major: </strong>
-                                    <span v-if="dataLoaded">{{ majorName }}</span>
-                                    <span v-else> </span>
-                                    </p>
-                                    <p><strong>Term:</strong> {{ currentTerm }}</p>
-                                    <p>
-                                    <strong>Class Standing: </strong>
-                                    <span v-if="dataLoaded">{{ calculateClassStanding }}</span>
-                                    <span v-else> </span>
-                                    </p>
-                                    <p><strong>Current GPA:</strong> {{ currentGPA }}</p>
-                                    <p><strong>Currently Enrolled Credits:</strong> {{ currentCredits }}</p>
-                                    <p>
-                                    <strong>Dean's List?: </strong> 
-                                    <span v-if="dataLoaded">{{ isOnDeansList }}</span>
-                                    <span v-else> </span>
-                                    </p>
-                                    <p><strong>Academic Standing:</strong> Good Standing</p>
-                                    <p><strong>Credits Completed:</strong> {{ unitsCompleted }}/{{ major.units }}</p>
-                                    <br>
-                                    <v-btn class="save-changes-btn" @click="confirmationDialog = true" size="small">Save</v-btn>
-                                </div>
-                                
-                                <div class="col-md-8 d-flex flex-column">
-                                    <h2>Courses</h2>
-                                    <div class="input-group mb-3">
-                                        <!--<span class="input-group-text" id="course-search">Search</span>-->
-                                        <input type="text" class="form-control" v-model="courseSearch" placeholder="Enter Course Name">
-                                    </div>
+                        <v-card style="border-radius: 0px;">
+                        <v-card-title style="font-family:Poppins; font-size: 26px;">Progress</v-card-title>
+                            <v-card-text>
+                                <div v-for="(major, index) in filteredMajors" :key="index">
+                                <div class="container-fluid mt-3">
+                                    <div class="row">
+                                        <div class="col-md-4 d-flex flex-column" style="border-right: 1px solid black;">
+                                            <h2>Career</h2>
+                                            <p>
+                                            <strong>Major: </strong>
+                                            <span v-if="dataLoaded">{{ majorName }}</span>
+                                            <span v-else> </span>
+                                            </p>
+                                            <p><strong>Term:</strong> {{ currentTerm }}</p>
+                                            <p>
+                                            <strong>Class Standing: </strong>
+                                            <span v-if="dataLoaded">{{ calculateClassStanding }}</span>
+                                            <span v-else> </span>
+                                            </p>
+                                            <p><strong>Current GPA:</strong> {{ currentGPA }}</p>
+                                            <p><strong>Currently Enrolled Credits:</strong> {{ currentCredits }}</p>
+                                            <p>
+                                            <strong>Dean's List?: </strong> 
+                                            <span v-if="dataLoaded">{{ isOnDeansList }}</span>
+                                            <span v-else> </span>
+                                            </p>
+                                            <p><strong>Academic Standing:</strong> Good Standing</p>
+                                            <p><strong>Credits Completed:</strong> {{ unitsCompleted }}/{{ major.units }}</p>
+                                            <p><v-btn class="save-changes-btn" @click="confirmationDialog = true" size="small">Save</v-btn></p>
+                                        </div>
+                                        
+                                        <div class="col-md-8 d-flex flex-column">
+                                            <h2>Courses</h2>
+                                            <div class="input-group mb-3">
+                                                <!--<span class="input-group-text" id="course-search">Search</span>-->
+                                                <input type="text" class="form-control" v-model="courseSearch" placeholder="Enter Course Name">
+                                            </div>
 
-                                    <div class="scroll"> 
-                                    <div class="loading" v-if="filteredCourses.length === 0">
-                                        <v-progress-circular indeterminate :width="5"></v-progress-circular>
-                                    </div>
-                                        <div v-for="(course, index) in filteredCourses" :key="index">
-                                            <div class="course-container">
-                                                <input type="checkbox" v-model="course.completed" @change="course.changed = true" :disabled="isCourseSaved(course)" />
-                                                <v-expansion-panels>
-                                                    <v-expansion-panel>
-                                                        <v-expansion-panel-title>
-                                                            <label>{{ course.name }}</label>
-                                                        </v-expansion-panel-title>
-                                                        <v-expansion-panel-text>
-                                                            <label>Credits: {{ course.credits }}</label>
-                                                            <br>
-                                                            <!--<v-row>
-                                                                <v-col cols="auto">
-                                                                    <label style="position:relative;top:16px;">Grade:</label>
-                                                                </v-col>
-                                                                <v-col cols="4">
-                                                                    <v-select
-                                                                        class="grade-select"
-                                                                        clearable
-                                                                        density="compact"
-                                                                        label="Select your course grade"
-                                                                        :items="grades.map(item => item.grade)"
-                                                                        v-model="course.letterGrade"
-                                                                        @change="course.changed = true"
-                                                                    ></v-select>
-                                                                </v-col>
-                                                            </v-row>-->
-                                                            <div>
-                                                                <label style="position:relative;top:-19px;">Your Rating:</label>
-                                                                <v-rating
-                                                                    v-model="course.studentRating"
-                                                                    :length="5"
-                                                                    color="yellow darken-3"
-                                                                    background-color="grey lighten-1"
-                                                                    empty-icon="$ratingEmpty"
-                                                                    hover
-                                                                    :readonly="course.studentRating > 0"
+                                            <div class="scroll"> 
+                                            <div class="loading" v-if="filteredCourses.length === 0">
+                                                <v-progress-circular indeterminate :width="5"></v-progress-circular>
+                                            </div>
+                                                <div v-for="(course, index) in filteredCourses" :key="index">
+                                                    <div class="course-container">
+                                                        <input type="checkbox" v-model="course.completed" @change="course.changed = true" :disabled="isCourseSaved(course)" />
+                                                        <v-expansion-panels>
+                                                            <v-expansion-panel>
+                                                                <v-expansion-panel-title>
+                                                                    <label>{{ course.name }}</label>
+                                                                </v-expansion-panel-title>
+                                                                <v-expansion-panel-text>
+                                                                    <label>Credits: {{ course.credits }}</label>
+                                                                    <br>
+                                                                    <!--<v-row>
+                                                                        <v-col cols="auto">
+                                                                            <label style="position:relative;top:16px;">Grade:</label>
+                                                                        </v-col>
+                                                                        <v-col cols="4">
+                                                                            <v-select
+                                                                                class="grade-select"
+                                                                                clearable
+                                                                                density="compact"
+                                                                                label="Select your course grade"
+                                                                                :items="grades.map(item => item.grade)"
+                                                                                v-model="course.letterGrade"
+                                                                                @change="course.changed = true"
+                                                                            ></v-select>
+                                                                        </v-col>
+                                                                    </v-row>-->
+                                                                    <div>
+                                                                        <label style="position:relative;top:-19px;">Your Rating:</label>
+                                                                        <v-rating
+                                                                            v-model="course.studentRating"
+                                                                            :length="5"
+                                                                            color="yellow darken-3"
+                                                                            background-color="grey lighten-1"
+                                                                            empty-icon="$ratingEmpty"
+                                                                            hover
+                                                                            :readonly="course.studentRating > 0"
+                                                                            @input="course.changed = true"
+                                                                            ></v-rating>
+                                                                        <br>
+
+                                                                        <label>Tags:</label>
+                                                                        <div class="tag-container">
+                                                                            <span
+                                                                                v-for="(tag, tagIndex) in availableTags"
+                                                                                :key="tagIndex"
+                                                                                class="tag"
+                                                                                :class="{ selected: isTagSelected(course, tag), disabled: course.tags.length === 4 && !isTagSelected(course, tag) }"
+                                                                                @click="toggleTag(course, tag)"
+                                                                            >
+                                                                                {{ tag.name }}
+                                                                            </span>
+
+                                                                        </div>
+
+                                                                    </div>
+                                                                    <br>
+                                                                    <!--<p v-if="course.review">Your Review: {{ course.review }}</p>-->
+                                                                    <v-textarea
+                                                                    v-model="course.review"
+                                                                    label="Your Thoughts"
+                                                                    placeholder="Enter your review for this course"
                                                                     @input="course.changed = true"
-                                                                    ></v-rating>
-                                                                <br>
-
-                                                                <label>Tags:</label>
-                                                                <div class="tag-container">
-                                                                    <span
-                                                                        v-for="(tag, tagIndex) in availableTags"
-                                                                        :key="tagIndex"
-                                                                        class="tag"
-                                                                        :class="{ selected: isTagSelected(course, tag), disabled: course.tags.length === 4 && !isTagSelected(course, tag) }"
-                                                                        @click="toggleTag(course, tag)"
-                                                                    >
-                                                                        {{ tag.name }}
-                                                                    </span>
-
-                                                                </div>
-
-                                                            </div>
-                                                            <br>
-                                                            <!--<p v-if="course.review">Your Review: {{ course.review }}</p>-->
-                                                            <v-textarea
-                                                            v-model="course.review"
-                                                            label="Your Thoughts"
-                                                            placeholder="Enter your review for this course"
-                                                            @input="course.changed = true"
-                                                            ></v-textarea>
-                                                        </v-expansion-panel-text>
-                                                    </v-expansion-panel>
-                                                </v-expansion-panels>
+                                                                    ></v-textarea>
+                                                                </v-expansion-panel-text>
+                                                            </v-expansion-panel>
+                                                        </v-expansion-panels>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+
 
                     <v-dialog v-model="confirmationDialog" max-width="500" style="font-family: Poppins;">
                       <v-card>
@@ -177,13 +179,16 @@
                             </div>
                         </div>
                     </div>
-                    <br>
+                    </v-card-text>
+                </v-card>
                 </div>
 
 
                 <div class="calculators-page" v-if="this.calculators === true">
-                    <br>
-                    <v-container class="gpa-calculator">
+                    <v-card style="border-radius: 0px;">
+                        <v-card-title style="font-family:Poppins; font-size: 26px;">Calculators</v-card-title>
+                        <v-card-text>
+                        <v-container class="gpa-calculator">
                         <v-row>
                             <h1 class="calculator-heading">GPA Calculator</h1>
                         </v-row>
@@ -272,10 +277,44 @@
                             </v-row>
                         </v-container>
                         <br>
+                        </v-card-text>
+                    </v-card>
                 </div>
 
                 <div class="analytics-page" v-if="this.analytics === true">
-
+                    <v-card style="border-radius: 0px;">
+                        <v-card-title style="font-family:Poppins; font-size: 26px;">Grade Distributions
+                        </v-card-title>
+                        <v-card-text>
+                            <v-select
+                                v-model="selectedCourse"
+                                :items="schedule.map(item => item.course)"
+                                label="Select Course"
+                                variant="outlined"
+                            ></v-select>
+                                <v-sparkline
+                                    :key="sparklineKey"
+                                    :auto-line-width="false"
+                                    :gradient="['#da4d4d', '#51da6e']"
+                                    :gradient-direction="'left'"
+                                    :line-width="'10'"
+                                    :smooth="0"
+                                    :model-value="gradeAnalytics"
+                                    :padding="'5'"
+                                    :type="'bar'"
+                                    auto-draw
+                                    style="font-family: Poppins;"
+                                >
+                                <template v-slot:label="item">
+                                    {{ grades[grades.length - 1 - item.index].grade }}: {{ item.value }}
+                                </template>
+                                </v-sparkline>
+                            <v-divider></v-divider>
+                            <p>Average Grade Distribution: {{courseGradeAverage}}</p>
+                            <br>
+                            <p>S/U Grade Distribution: {{ tallyS }}/{{ tallyU }}</p>
+                    </v-card-text>
+                    </v-card>
                 </div>
 
             </v-col>
@@ -291,6 +330,8 @@
     export default {
         data() {
             return {
+                schedule: [],
+                courseNames: [],
                 confirmationDialog: false,
                 tab: 'progress',
                 progress: true,
@@ -347,6 +388,11 @@
                 ],
 
                 GPA: 0,
+                gradeAnalytics: [0, 0, 2, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 10], //U S F D- D D+ C- C C+ B- B B+ A- A
+                courseGradeAverage: 0,
+                tallyS: 0,
+                tallyU: 0,
+                selectedCourse: '',
 
                 //Final Grade Calculator
                 currentGrade: null,
@@ -560,6 +606,19 @@
                     return course.tags && course.tags.some(t => t.id === tag.id);
                 }
             },
+            async fetchEnrolledCourses() {
+                try {
+                    const response = await axios.get('http://127.0.0.1:5000/getEnrolledCourses', {
+                        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                    });
+                    this.schedule = response.data.enrolledCourses.map(course => ({
+                        ...course,
+                        scheduleID: course.scheduleID
+                    }));
+                } catch (error) {
+                    console.error("Error fetching enrolled courses:", error);
+                }
+            },
         },
     
         created() {
@@ -568,12 +627,14 @@
             this.fetchTags();
             this.fetchCareerProgress();
             this.fetchUserCourseTags();
+            this.fetchEnrolledCourses(); //enrolled courses data
         },
 
         computed: {
             filteredMajors() {
                 return this.majors.filter((major) => major.name === this.user.major);
             },
+
             progressPercentage() {
                 const selectedMajorCourses = this.majors.find((major) => major.name === this.user.major).courses;
                 let completedUnits = 0;
@@ -625,7 +686,7 @@
 
     .calculator-heading{
         font-family: Poppins;
-        font-size: 25px;
+        font-size: 20px;
         margin-left: 9px;
     }
 
@@ -669,6 +730,7 @@
     h2 {
         font-family: Poppins;
         text-align: left;
+        font-size: 20px;
     }
 
     h1{
@@ -760,9 +822,7 @@
         font-family: Poppins;
         max-width: 30%;
         background-color: #51da6e;
-        margin-left: auto;
         margin-left: 0;
-        margin-top: 16px;
     }
 
     .tag-container {
@@ -814,5 +874,9 @@
         justify-content: center;
         align-items: center;
         height: 50vh;
+    }
+
+    .analytics-page{
+        border-left: 1px solid black;
     }
 </style>
