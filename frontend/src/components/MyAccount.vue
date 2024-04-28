@@ -2,6 +2,7 @@
 <!-- This is the Account page for Course Compass -->
 
 <template>
+<div v-if="userType !== ''">
     <div class="settings-container">
 
         <div class="container-fluid mt-3">
@@ -31,7 +32,7 @@
                                 <p><strong>Last Name:</strong> {{ user.lastname }}</p>
                                 <p><strong>Email:</strong> {{ user.email }}</p>
                                 <p><strong>Birthdate:</strong> {{ user.dob }}</p>
-                                <p v-if="user.role !== 'Instructor'"><strong>Major:</strong> {{ user.major }}</p>
+                                <p v-if="user.role === 'Student'"><strong>Major:</strong> {{ user.major }}</p>
                             </v-col>
                             <v-col cols="4">
                                 <v-card class="buttons-container">
@@ -55,7 +56,7 @@
                                                         <v-text-field v-model="editData.firstName" label="First Name"></v-text-field>
                                                         <v-text-field v-model="editData.lastName" label="Last Name"></v-text-field>
                                                         <!--<v-select v-model="editData.major" :items="majorOptions" label="Major"></v-select> -->
-                                                        <v-select v-if="user.role !== 'Instructor'" v-model="editData.selectedMajor" :items="majors" item-text="major" item-value="majorID" label="Select your major" return-object required>
+                                                        <v-select v-if="user.role === 'Student'" v-model="editData.selectedMajor" :items="majors" item-text="major" item-value="majorID" label="Select your major" return-object required>
                                                             <option value="" disabled>Select your major</option>
                                                             <option v-for="major in majors" :key="major" :value="major">{{ major }}</option>
                                                         </v-select>
@@ -121,12 +122,33 @@
             </div>
         </div>
     </div>
+</div> 
+<div v-else>
+<v-container fluid fill-height>
+    <v-row align="center" justify="center">
+      <v-col cols="12" sm="8" md="6">
+        <img src="../assets/course compass logo.png" alt="Course Compass Logo" class="mx-auto d-block" style="width: 225px; height:auto;">
+        <br>
+        <h1 class="text-center" style="font-family: Coolvetica;">You are unauthorized to view this page.</h1>
+        <p class="text-center">
+            <br>
+            Redirect back to <router-link to="/" >Home</router-link> page.
+        </p>
+      </v-col>
+    </v-row>
+  </v-container>
+</div>
 </template>
-
 <script>
     import axios from 'axios';
     
     export default {
+        props:{
+            userType:{
+                type: String,
+                required: '',
+            }
+        },
         data() {
             return {
                 user: {
