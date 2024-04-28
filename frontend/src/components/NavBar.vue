@@ -3,7 +3,10 @@
 <!-- There are 5 buttons, and one is a drop down menu that directs the user to log in, sign up, or check their profile settings-->
 
 <template>
-    <v-banner v-if="isBannerVisible" color="grey-darken-1" icon="mdi-account-box" lines="two">
+    <v-banner v-if="isBannerVisible" color="grey-darken-1" lines="two">
+        <div class="loading" v-if="upcomingNotification === null">
+            <v-progress-linear color="white" indeterminate :height="5" rounded></v-progress-linear>
+        </div>
         <template v-slot:prepend>
             <span class="material-icons" style="color:white; margin-top:5px;">notifications</span>
         </template>
@@ -290,4 +293,12 @@
         transform: translate(-15px, -22px);
     }
 
+    .loading{
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 88%;
+        margin-bottom: 12px;
+    }
 </style>
