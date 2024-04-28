@@ -1938,34 +1938,6 @@ def unassign_instructor():
     finally:
         cursor.close()
         connection.close()
-        
-        
-# LV
-# @app.route('/send-email', methods=['POST'])
-# def send_email():
-#     data = request.json
-#     user_type = data['userType']
-#     email_body = data['emailBody']
-#     subject = data['emailSubject']
-    
-#     recipients = []
-#     if user_type == 'All':
-#         recipients = [user.Email for user in User.query.all()]
-#     elif user_type == 'Instructors':
-#         recipients = [user.Email for user in User.query.filter(User.role == 'Instructor')]
-#     elif user_type == 'Students':
-#         recipients = [user.Email for user in User.query.filter(User.role == 'Student')]
-        
-#     if recipients:
-#         msg = Message(subject, sender='coursecompassunr@gmail.com', recipients=recipients)
-#         msg.body = email_body
-#         try:
-#             mail.send(msg)
-#             return jsonify({"message": "Emails sent successfully"}), 200
-#         except Exception as exc:
-#             return jsonify({"error": str(exc)}), 500
-#     else:
-#         return jsonify({"message": "No recipients found"}), 404
 
 
 # LV
@@ -1980,6 +1952,9 @@ def send_email():
     try:
         connection = connectToDB()
         cursor = connection.cursor(dictionary=True)
+        
+        cursor.execute("INSERT INTO tblOutboundEmails (subject, recipient_group, content) VALUES (%s, %s, %s)", (subject, recipient_group, content))
+        connection.commit()
         
         if recipient_group == 'All Users':
             cursor.execute("SELECT Email FROM tblUser")
@@ -2002,6 +1977,23 @@ def send_email():
     except Exception as exc:
         print(exc)
         return jsonify({"message": "Failed to send emails."}), 500
+    finally:
+        cursor.close()
+        connection.close()
+        
+        
+# LV
+@app.route('/outbound-emails', methods=['GET'])
+def get_outbound_emails():
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT emailID, subject, recipient_group, content, sent_date FROM tblOutboundEmails ORDER BY sent_date DESC")
+        emails = cursor.fetchall()
+        return jsonify(emails), 200
+    except Exception as exc:
+        print(exc)
+        return jsonify({"message": "Failed to retrieve emails."}), 500
     finally:
         cursor.close()
         connection.close()

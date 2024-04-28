@@ -168,15 +168,15 @@
                                                         <v-expansion-panel>
                                                             <v-expansion-panel-title>
                                                                     <v-row no-gutters>
-                                                                        <v-col class="d-flex justify-start" cols="4">
-                                                                            Outbound Emails ({{emailSent.length}})
+                                                                        <v-col class="d-flex justify-start" cols="6">
+                                                                            Outbound Emails ({{outboundEmails.length}})
                                                                         </v-col>
                                                                     </v-row>
                                                             </v-expansion-panel-title>
                                                             <v-expansion-panel-text>
-                                                                <v-row  no-gutters v-for="(email, index) in emailSent" :key="index">
+                                                                <v-row  no-gutters v-for="email in outboundEmails" :key="email.emailID">
                                                                     <v-col cols="11">
-                                                                        <p class="row-text"><strong>{{emailSent[index].date}}</strong> {{emailSent[index].subject}}</p>
+                                                                        <p class="row-text"><strong>{{ email.sent_date }}</strong> {{ email.content }}</p>
                                                                     </v-col>
                                                                     <v-col cols="1">
                                                                         <v-dialog v-model="removeEmailDialog[index]" max-width="800" style="font-family: Poppins;">
@@ -191,8 +191,8 @@
                                                                             <v-card title="Email Details">
                                                                                 <v-card-text>
                                                                                     <br>
-                                                                                    <p>Sent to  - {{emailSent[index].to}}</p>
-                                                                                    <p>Email Content - {{emailSent[index].content}}</p>
+                                                                                    <p>Sent to  - {{ email.recipient_group }}</p>
+                                                                                    <p>Email Content - {{ email.content }}</p>
                                                                                 </v-card-text> 
                                                                                 <v-card-actions>
                                                                                     <v-spacer></v-spacer>
@@ -670,6 +670,8 @@
                 ],
 
                 selectedInstructorEmail: '',
+                
+                outboundEmails: [],
             };
         },
 
@@ -938,6 +940,16 @@
                         console.error("Error removing instructor: ", error);
                         this.removeDialog[index] = false;
                     });
+            },
+
+            fetchOutboundEmails() {
+                axios.get('http://127.0.0.1:5000/outbound-emails')
+                    .then(response => {
+                        this.outboundEmails = response.data;
+                    })
+                    .catch(error => {
+                        console.error("Error fetching outbound emails:", error)
+                    });
             }
         },
 
@@ -947,8 +959,8 @@
             this.fetchPendingInstructors(); // Fetches pending instructors for admin to accept
             this.fetchApprovedInstructors(); // ya ya ya fetch approved instructors
             this.fetchArchivedInstructors(); // archived instructors
+            this.fetchOutboundEmails();
         },
-    
 
         computed: {
             

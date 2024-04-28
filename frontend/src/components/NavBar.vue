@@ -40,7 +40,7 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <!-- right-aligned menu items -->
-                        <li class="nav-item" @click="dashboardRefresh">
+                        <li class="nav-item" @click="dashboardRefresh" v-if="!isAdminDashboard">
                             <a class="nav-link" style="cursor:pointer;">{{this.userType}} Dashboard</a>
                         </li>
                         <li class="nav-item">
@@ -50,12 +50,12 @@
                             <router-link to="/schedule" class = "nav-link">Schedule</router-link>
                         </li>
                         <li class="nav-item" v-if="this.userType === 'Student'">
-                            <router-link to="/progress" class = "nav-link">Progress</router-link>
+                            <router-link to="/progress" class = "nav-link" v-if="!isAdminDashboard">Progress</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link to="/about" class = "nav-link">About</router-link>
+                            <router-link to="/about" class = "nav-link" v-if="!isAdminDashboard">About</router-link>
                         </li>
-                        <li class="nav-item dropdown">
+                        <li class="nav-item dropdown" v-if="!isAdminDashboard">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Account
                             </a>
@@ -120,6 +120,12 @@
                 isBannerVisible: true,
                 upcomingNotification: null,
             };
+        },
+
+        computed: {
+            isAdminDashboard() {
+                return this.$route.path === '/admin-dashboard';
+            }
         },
 
         /*computed:{
