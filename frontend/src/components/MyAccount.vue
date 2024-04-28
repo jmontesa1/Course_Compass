@@ -38,7 +38,7 @@
                                         <v-text-field v-model="editData.firstName" label="First Name"></v-text-field>
                                         <v-text-field v-model="editData.lastName" label="Last Name"></v-text-field>
                                         <!--<v-select v-model="editData.major" :items="majorOptions" label="Major"></v-select> -->
-                                        <v-select v-if="user.role !== 'Instructor'" v-model="editData.major_name" id="major" required>
+                                        <v-select v-if="user.role !== 'Instructor'" v-model="editData.selectedMajor" :items="majors" item-text="major" item-value="majorID" label="Select your major" return-object required>
                                             <option value="" disabled>Select your major</option>
                                             <option v-for="major in majors" :key="major" :value="major">{{ major }}</option>
                                         </v-select>
@@ -89,7 +89,7 @@
                 editData: {
                     firstName: '',
                     lastName: '',
-                    major_name: '',
+                    selectedMajor: '',
                 },
                 dialog: false,
                 majors: [],
@@ -102,7 +102,7 @@
                 if (newVal) {
                     this.editData.firstName = this.user.firstname;
                     this.editData.lastName = this.user.lastname;
-                    this.editData.major_name = this.user.major;
+                    this.editData.selectedMajor = this.user.major;
                 }
             },
         },
@@ -143,7 +143,7 @@
                     lastname: this.editData.lastName,
                 };
                 if (this.user.role !== 'Instructor') {
-                    updatedInfo.major = this.editData.major_name;
+                    updatedInfo.majorID = this.editData.selectedMajor
                 }
                 axios.post('http://127.0.0.1:5000/editprofile', updatedInfo, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                 .then(response => {

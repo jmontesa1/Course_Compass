@@ -1095,16 +1095,17 @@ def editProfile():
         if 'lastname' in data:
             updates.append("u.Lname = %s")
             params.append(data['lastname'])
-        if 'major' in data and user_role != 'Instructor':
-            cursor.execute("SELECT majorID, majorName FROM tblMajor WHERE majorName = %s", (data['major'],))
-            maj_result = cursor.fetchone()
-            majorName = maj_result['majorName']
-            print("Fetch result:", maj_result)
-            if maj_result:
-                updates.append("s.majorName = %s")
-                params.append(majorName)
-            # updates.append("majorName = %s")
-            # params.append(data['major'])
+        if 'majorID' in data and user_role != 'Instructor':
+            cursor.execute("SELECT majorID, majorName FROM tblMajor WHERE majorName = %s", (data['majorID'],))
+            major = cursor.fetchone()
+            major_id = major['majorID']
+            major_name = major['majorName']
+            updates.append("s.majorID = %s")
+            updates.append("s.majorName = %s")
+            params.append(major_id)
+            params.append(major_name)
+            print("MAJOR ID MAJOR ID MAJOR ID", data['majorID'])
+            print("MAJOR ID NUM NUM NUM", major_id)
         
         if updates:
             if user_role == 'Instructor':
@@ -1129,10 +1130,6 @@ def editProfile():
             print("With params:", params)    
             cursor.execute(query, params)
             connection.commit()
-            # query = f"UPDATE tblUser SET {', '.join(updates)} WHERE Email = %s"
-            # params.append(current_user_email)
-            # cursor.execute(query, params)
-            # connection.commit()
 
         return jsonify({"message": "Profile updated successfully"}), 200
     except Error as err:
