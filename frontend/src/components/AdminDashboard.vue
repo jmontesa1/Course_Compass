@@ -174,7 +174,7 @@
                                                                     </v-row>
                                                             </v-expansion-panel-title>
                                                             <v-expansion-panel-text>
-                                                                <v-row  no-gutters v-for="email in outboundEmails" :key="email.emailID">
+                                                                <v-row  no-gutters v-for="(email, index) in outboundEmails" :key="email.emailID">
                                                                     <v-col cols="11">
                                                                         <p class="row-text"><strong>{{ email.sent_date }}</strong> {{ email.content }}</p>
                                                                     </v-col>
