@@ -815,9 +815,47 @@
                         ...course,
                         scheduleID: course.scheduleID
                     }));
+
+                    //fetch enrolled students for each course
+                    for (const course of this.instructorSchedule) {
+                        const studentsResponse = await axios.get(`http://127.0.0.1:5000/getEnrolledStudents/${course.scheduleID}`, {
+                            headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                        });
+                        course.students = studentsResponse.data.enrolledStudents;
+                    }
                 } catch (error) {
                     console.error("Error fetching enrolled courses:", error);
                 }
+            },
+
+            async saveStudentGrade(index) {
+                const student = this.instructorSchedule[this.tab].students[index];
+
+                try {
+                    const response = await axios.post('http://127.0.0.1:5000/saveStudentGrade', {
+                        studentID: student.studentID,
+                        scheduleID: this.instructorSchedule[this.tab].scheduleID,
+                        grade: this.studentGradeSelection[index]
+                    }, {
+                        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                    });
+
+                    if (response.status === 200) {
+                        student.courseGrade = this.studentGradeSelection[index];
+                        this.$emit("show-toast", { message: "Grade saved successfully!", color: '#51da6e' });
+                    }
+                } catch (error) {
+                    console.error("Error saving student grade:", error);
+                    let errorMessage = "Failed to save student grade.";
+                    if (error.response && error.response.data && error.response.data.message) {
+                        errorMessage = error.response.data.message;
+                    }
+                    this.$emit("show-toast", { message: errorMessage, color: '#da5151' });
+                }
+
+                this.studentGradeSelection[index] = '';
+                this.studentGradeDialog[index] = false;
+                this.getGradeAnalytics();
             },
 
             chooseTab(index){
