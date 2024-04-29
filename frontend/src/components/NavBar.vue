@@ -10,8 +10,8 @@
         <template v-slot:prepend>
             <span class="material-icons" style="color:white; margin-top:5px;">notifications</span>
         </template>
-        <v-banner-text class="notification-text" v-if="upcomingNotification">
-            <b> {{ upcomingNotification.announceDate }} </b> {{ upcomingNotification.source }} - {{ upcomingNotification.message }}
+        <v-banner-text class="notification-text" v-if="notifications.length > 0">
+            <b> {{ formatDate(notifications[currentNotificationIndex].announceDate) }} </b> {{ notifications[currentNotificationIndex].source }} - {{ notifications[currentNotificationIndex].message }}
         </v-banner-text>
 
         <v-banner-actions class="notification-actions">
@@ -20,16 +20,6 @@
             </v-btn>
         </v-banner-actions>
     </v-banner>
-
-    <!--<div v-if="$route.path === '/admin-dashboard'">
-        <nav class="navbar navbar-expand-lg bg-body-tertiary">
-            <div class="container-fluid">
-                <router-link to="/" class="navbar-brand">
-                    <img src="../assets/course compass logo.png" alt="Course Compass Logo">
-                </router-link>
-            </div>
-        </nav>
-    </div>-->
 
     <div v-if="isLoggedIn">
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -107,7 +97,6 @@
     import axios from 'axios';
 
     export default{
-
         props:{
             isLoggedIn: {
                 type: Boolean,
@@ -119,21 +108,16 @@
                 required: '',
             }
         },
+        emits: ['logout'],
         data(){
             return{
                 isBannerVisible: true,
-                upcomingNotification: null,
+                notifications: [],
+                currentNotificationIndex: 0,
+                notificationDisplayInterval: null,
+                upcomingNotificatins: null,
             };
         },
-
-        /*computed:{
-             upcomingNotification(){
-                //this.currentDate = new Date('2024-03-03'); //USE THIS AS A TEST CASE TO CHECK DIFFERENT DAYS, THIS SHOWS IT WORKS WHEN A DAY PASSES FOR A NOTIF
-                this.currentDate = new Date(); //get current day
-                const upcomingNotifications = this.notifications.filter(notification => new Date(notification.date) > this.currentDate).sort((a, b) => new Date(a.date) - new Date(b.date));
-                return upcomingNotifications.length > 0 ? upcomingNotifications[0] : null;
-            }, 
-        },*/
 
         created() {
             this.fetchNotifications();
@@ -141,19 +125,30 @@
 
         methods:{
             fetchNotifications() {
-                axios.get('http://localhost:5000/notifications')
-                    .then(response => { 
-                    if (response.status === 200) {
-                        this.upcomingNotification = response.data;
+                axios.get('http://127.0.0.1:5000/active-notifications', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
+                .then(response => { 
+                    if (response.status === 200 && response.data.length > 0) {
+                        this.notifications = response.data;
+                        this.setUpNotificationRotation();
                     } else {
-                        console.error('Failed to fetch notifications:', response.status);
+                        console.error('No active notifications');
+                        this.isBannerVisible = false; 
                     }
-                    })
-                    .catch(error => {
+                })
+                .catch(error => {
                     console.error('Error fetching notifications:', error);
-                    });
+                    this.isBannerVisible = false; 
+                });
             },
 
+            setUpNotificationRotation() {
+                if(this.notifications.length > 1) {
+                    this.notificationDisplayInterval = setInterval(() => {
+                        this.currentNotificationIndex = (this.currentNotificationIndex + 1) % this.notifications.length;
+                        this.upcomingNotification = this.notifications[this.currentNotificationIndex];
+                    }, 10000); 
+                }
+            },
 
             dashboardRefresh() {
                 if (this.$route.path === '/dashboard' && this.userType === 'Student') {
@@ -178,6 +173,7 @@
 
             dismissBanner(){
                 this.isBannerVisible = false;
+                clearInterval(this.notificationDisplayInterval);
             },
             
             handleLogout() {
@@ -202,24 +198,13 @@
                 const options = { year: 'numeric', month: 'long', day: 'numeric' };
                 return new Date(dateString).toLocaleDateString(undefined, options);
             },
-
-            /*checkLoginStatus() {
-                axios.get('http://127.0.0.1:5000/check_login', { withCredentials: true })
-                    .then(response => {
-                        if (response.status === 200) {
-                            this.isLoggedIn = response.data.logged_in;
-                            console.log('User is logged in');
-                        } else if (response.status === 401) {
-                            this.isLoggedIn = false;
-                            console.log('User is not logged in');
-                        }
-                    })
-                    .catch(error => {
-                        console.error("Check login error: ", error);
-                    });
-                },*/
         },
 
+        beforeDestroy() {
+            if (this.notificationDisplayInterval) {
+                clearInterval(this.notificationDisplayInterval);
+            }
+        },
     };
 </script>
 

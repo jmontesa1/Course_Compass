@@ -2028,9 +2028,10 @@ def get_instructor_courses(email):
         instructor_name = cursor.fetchone()['name']
         
         cursor.execute("""
-            SELECT courseCode, courseName, days, department
+            SELECT MAX(courseCode) AS courseCode, courseName, MAX(days) AS days, MAX(department) AS department, Section
             FROM vwCourseDetails
             WHERE professors = %s
+            GROUP BY courseName, Section
             """, (instructor_name,))
         courses = cursor.fetchall()
         return jsonify(courses), 200
@@ -2136,6 +2137,28 @@ def remove_active_notif():
         connection.rollback()
         print(err)
         return jsonify({"message": "Error removing admin notification"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+        
+
+# LV
+# for sending active notifications to banner
+@app.route('/active-notifications', methods=['GET'])
+def get_active_notifications():
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary=True)
+        query = """
+        SELECT * FROM tblNotifications
+        WHERE active = 1
+        """
+        cursor.execute(query)
+        notifications = cursor.fetchall()
+        return jsonify(notifications), 200
+    except Error as err:
+        print(err)
+        return jsonify({"message": "Error while fetching notifications"}), 500
     finally:
         cursor.close()
         connection.close()
