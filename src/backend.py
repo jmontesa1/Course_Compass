@@ -11,6 +11,7 @@ import logging, json
 from urllib.parse import unquote
 from flask_mail import Mail, Message
 from functools import wraps
+import pytz
 
 
 app = Flask(__name__, template_folder='templates')
@@ -2280,11 +2281,12 @@ def get_active_notifications():
     try:
         connection = connectToDB()
         cursor = connection.cursor(dictionary=True)
+        today_date = datetime.now(pytz.timezone('America/Los_Angeles')).strftime('%Y-%m-%d')
         query = """
         SELECT * FROM tblNotifications
-        WHERE active = 1
+        WHERE active = 1 AND DATE(announceDate) >= %s
         """
-        cursor.execute(query)
+        cursor.execute(query, (today_date,))
         notifications = cursor.fetchall()
         return jsonify(notifications), 200
     except Error as err:
