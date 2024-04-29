@@ -254,13 +254,14 @@
                                                         </v-row>
                                                 </v-expansion-panel-title>
                                                 <v-expansion-panel-text>
-                                                    <v-row  no-gutters v-for="(student, index) in retrieveCourseStudents" :key="index">
-                                                        <v-col cols="11">
-                                                            <p class="row-text"><strong>{{ student.name }}</strong>: 
-                                                            <span v-if="student.isGraded === false" style="color:#da4d4d;">No grade</span>
-                                                            <span v-if="student.isGraded === true" style="color:#51da6e;">Grade: {{student.courseGrade}}</span>
-                                                            </p>
-                                                        </v-col>
+                                                <v-row no-gutters v-for="(student, index) in instructorSchedule[tab].students" :key="index">
+                                                    <v-col cols="11">
+                                                    <p class="row-text">
+                                                        <strong>{{ student.firstName }} {{ student.lastName }}</strong>: 
+                                                        <span v-if="!student.isGraded" style="color:#da4d4d;">No grade</span>
+                                                        <span v-if="student.isGraded" style="color:#51da6e;">Grade: {{student.courseGrade}}</span>
+                                                    </p>
+                                                    </v-col>
                                                         <v-col cols="1">
                                                             <v-dialog v-model="studentDialog[index]" max-width="500" style="font-family: Poppins;">
                                                                 <template v-slot:activator="{ props: activatorProps }">
@@ -588,6 +589,7 @@
                 const selectedLocation = this.selectedFilters.find(filter => /^(?:SEM|WPEB|AB|MS|DMSC|PSAC|SLH)$/.test(filter));
                 const selectedTerm = this.selectedFilters.find(filter => /^(?:Fall|Winter|Spring|Summer)$/.test(filter));
                 const selectedRating = this.selectedFilters.find(filter => /^\d+\+\sStars$/.test(filter));
+                const selectedKeywords = this.selectedFilters.filter(filter => /^(?:Interactive Lessons|Real-World Applications|Critical Thinking Emphasis|Innovative Approach|Flexible Deadlines|Collaborative Environment|Extra Credit|Group Projects|Engaging Lectures|Clear Grading Criteria|Overwhelming Workload|Lots Of Homework|Beware Of Pop Quizzes|So Many Papers|Lecture Heavy|Test Heavy|Limited Feedback)$/.test(filter));
 
                 if (selectedLevel) {
                     queryParts.push(`level=${encodeURIComponent(selectedLevel)}`);
@@ -617,6 +619,10 @@
                 if (selectedTerm) {
                     const currentYear = new Date().getFullYear();
                     queryParts.push(`term=${encodeURIComponent(`${currentYear} ${selectedTerm}`)}`);
+                }
+
+                if (selectedKeywords.length > 0) {
+                    queryParts.push(`keywords=${encodeURIComponent(selectedKeywords.join(','))}`);
                 }
 
                 let url = queryParts.length > 0 ? `${baseUrl}?${queryParts.join('&')}` : baseUrl;
