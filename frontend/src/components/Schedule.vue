@@ -416,7 +416,7 @@
                             </v-row>
                         </v-card-text>
                         <v-card-actions>
-                            <v-btn text="Export Calendar" color="success" @click="generateAllICSEvents" variant="tonal"></v-btn>
+                            <v-btn text="Export Calendar" color="success" @click="generateAllICSEvents" variant="tonal" :disabled="events.length === 0"></v-btn>
                             <v-spacer></v-spacer>
                             <v-btn text="Close" variant="plain" @click="dialog_events = false"></v-btn>
                         </v-card-actions>

@@ -250,12 +250,12 @@
                                             <p class="row-text">{{ instructor.name }} - {{ instructor.email }}</p>
                                         </v-col>
                                         <v-col cols="1">
-                                            <v-btn icon @click="confirmRejectInstructor(instructor)">
+                                            <v-btn variant="plain" size="small" @click="confirmRejectInstructor(instructor)">
                                                 <span class="material-symbols-outlined">block</span>
                                             </v-btn>
                                         </v-col>
                                         <v-col cols="1">
-                                            <v-btn icon @click="confirmApproveInstructor(instructor)">
+                                            <v-btn variant="plain" size="small" @click="confirmApproveInstructor(instructor)">
                                                 <span class="material-symbols-outlined">check_circle</span>
                                             </v-btn>
                                         </v-col>
@@ -265,8 +265,9 @@
                                                 <v-card-title>Confirm Approval</v-card-title>
                                                 <v-card-text>Are you sure you want to approve {{ currentInstructor ? currentInstructor.name : '' }}?</v-card-text>
                                                 <v-card-actions>
-                                                    <v-btn color="primary" text @click="approveInstructor">Approve</v-btn>
-                                                    <v-btn color="primary" text @click="approveDialog = false">Cancel</v-btn>
+                                                    <v-spacer></v-spacer>
+                                                    <v-btn text @click="approveDialog = false">Cancel</v-btn>
+                                                    <v-btn color="success" variant="tonal" text @click="approveInstructor">Approve</v-btn>
                                                 </v-card-actions>
                                             </v-card>
                                         </v-dialog>
@@ -275,8 +276,9 @@
                                                 <v-card-title>Confirm Rejection</v-card-title>
                                                 <v-card-text>Are you sure you want to reject {{ currentInstructor ? currentInstructor.name : '' }}?</v-card-text>
                                                 <v-card-actions>
-                                                    <v-btn color="red" text @click="rejectInstructor">Reject</v-btn>
-                                                    <v-btn text @click="rejectDialog = false">Cancel</v-btn>
+                                                    <v-spacer></v-spacer>
+                                                    <v-btn text @click="rejectDialog = false">Close</v-btn>
+                                                    <v-btn color="red" variant="tonal" text @click="rejectInstructor">Reject</v-btn>
                                                 </v-card-actions>
                                             </v-card>
                                         </v-dialog>
@@ -304,7 +306,7 @@
                                         <v-col cols="1">
                                             <v-dialog v-model="instructorDialog[index]" max-width="700" style="font-family: Poppins;">
                                                 <template v-slot:activator="{ props: activatorProps }">
-                                                    <v-btn v-bind="activatorProps" variant="plain">
+                                                    <v-btn v-bind="activatorProps" variant="plain" @click="showInstructorDetails(instructor)">
                                                         <span class="material-symbols-outlined">
                                                             more_horiz
                                                         </span>
@@ -340,44 +342,48 @@
                                                         </v-row>
                                                         <br>Courses Taught:
                                                         <v-container>
-                                                            <v-btn @click="showInstructorDetails(instructor)">
-                                                                Show Details
-                                                            </v-btn>
-                                                            <!-- PUT v-if="approvedInstructors[index].courses.length === 0"-->
-                                                            <v-list lines="auto" style="font-family: Poppins;">                                        
-                                                                <v-list-item v-for="course in currentInstructorCourses" :key="course.courseCode">
-
-                                                                        <!--Example, find vinh le's index, then the courses he is enrolled in, then the course code is displayed-->
-                                                                        <v-row>
-                                                                            <v-col cols="10">
-                                                                            {{ course.courseCode }}.{{ course.Section }} - {{ course.courseName }}
-                                                                            </v-col>
-                                                                            <v-col cols="2">
-                                                                                <v-dialog v-model="unenrollDialog[index]" max-width="500" style="font-family: Poppins;">
-                                                                                    <template v-slot:activator="{ props: activatorProps }">
-                                                                                        <v-btn v-bind="activatorProps" variant="plain">
-                                                                                            <span class="material-symbols-outlined">
-                                                                                            remove
-                                                                                            </span>
-                                                                                        </v-btn>
-                                                                                    </template>
-                                                                                    <!--Pop up -->
-                                                                                    <v-card title="Are you sure you want to unenroll:">
-                                                                                        <v-card-text>
-                                                                                            <strong>{{approvedInstructors[index].name}}</strong> from {{ course.courseName }}
-                                                                                        </v-card-text> 
-                                                                                        <v-card-actions>
-                                                                                            <v-spacer></v-spacer>
-                                                                                            <v-btn text="Cancel" variant="plain" @click="unenrollDialog[index] = false"></v-btn>
-                                                                                            <v-btn color="red" text="Unenroll" variant="tonal" @click="unenrollCourse(index)"></v-btn>
-                                                                                        </v-card-actions>
-                                                                                    </v-card>
-                                                                                </v-dialog>
+                                                        <v-expansion-panels>
+                                                            <v-expansion-panel>
+                                                                <v-expansion-panel-title>
+                                                                        <v-row no-gutters>
+                                                                            <v-col class="d-flex justify-start" cols="4">
+                                                                            Enrolled Courses ({{currentInstructorCourses.length}})
                                                                             </v-col>
                                                                         </v-row>
-                                                                    <v-divider></v-divider>
-                                                                </v-list-item>
-                                                            </v-list>
+                                                                </v-expansion-panel-title>
+                                                                <v-expansion-panel-text>
+                                                                    <v-row no-gutters v-for="(course, index) in currentInstructorCourses" :key="index">
+                                                                        <v-col cols="10">
+                                                                            <p class="row-text">{{ course.courseCode }}.{{ course.Section }} - {{ course.courseName }}</p>
+                                                                        </v-col>
+                                                                        <v-col cols="2">
+                                                                            <v-dialog v-model="unenrollDialog[index]" max-width="500" style="font-family: Poppins;">
+                                                                                <template v-slot:activator="{ props: activatorProps }">
+                                                                                    <v-btn v-bind="activatorProps" variant="plain">
+                                                                                        <span class="material-symbols-outlined">
+                                                                                        remove
+                                                                                        </span>
+                                                                                    </v-btn>
+                                                                                </template>
+                                                                                <!--Pop up -->
+                                                                                <v-card title="Are you sure you want to unenroll:">
+                                                                                    <v-card-text>
+                                                                                        <strong>{{instructor.name}}</strong> from {{ course.courseCode }}.{{ course.Section }} - {{ course.courseName }}
+                                                                                    </v-card-text> 
+                                                                                    <v-card-actions>
+                                                                                        <v-spacer></v-spacer>
+                                                                                        <v-btn text="Cancel" variant="plain" @click="unenrollDialog[index] = false"></v-btn>
+                                                                                        <v-btn color="red" text="Unenroll" variant="tonal" @click="unenrollCourse(index)"></v-btn>
+                                                                                    </v-card-actions>
+                                                                                </v-card>
+                                                                            </v-dialog>
+                                                                        </v-col>
+
+                                                                        <v-divider class="instructor-divider"></v-divider>
+                                                                    </v-row>
+                                                                </v-expansion-panel-text>
+                                                            </v-expansion-panel>
+                                                        </v-expansion-panels>
                                                         </v-container>
                                                         <br>
                                                         </p>
@@ -442,8 +448,8 @@
                                                     </v-card-text> 
                                                     <v-card-actions>
                                                         <v-spacer></v-spacer>
-                                                        <v-btn text="No" variant="plain" @click="removeDialog[index] = false"></v-btn>
-                                                        <v-btn color="primary" text="Yes" variant="tonal" @click="removeInstructor(archivedInstructors[index].email, index)"></v-btn>
+                                                        <v-btn text="Close" variant="plain" @click="removeDialog[index] = false"></v-btn>
+                                                        <v-btn color="red" text="Remove" variant="tonal" @click="removeInstructor(archivedInstructors[index].email, index)"></v-btn>
                                                     </v-card-actions>
                                                 </v-card>
                                             </v-dialog> 
@@ -465,8 +471,8 @@
                                                     </v-card-text> 
                                                     <v-card-actions>
                                                         <v-spacer></v-spacer>
-                                                        <v-btn text="No" variant="plain" @click="unarchiveDialog[index] = false"></v-btn>
-                                                        <v-btn color="primary" text="Yes" variant="tonal" @click="unarchiveInstructor(archivedInstructors[index].email, index)"></v-btn>
+                                                        <v-btn text="Close" variant="plain" @click="unarchiveDialog[index] = false"></v-btn>
+                                                        <v-btn color="success" text="Unarchive" variant="tonal" @click="unarchiveInstructor(archivedInstructors[index].email, index)"></v-btn>
                                                     </v-card-actions>
                                                 </v-card>
                                             </v-dialog> 

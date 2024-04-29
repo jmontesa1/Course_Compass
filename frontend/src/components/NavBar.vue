@@ -4,7 +4,7 @@
 
 <template>
     <v-banner v-if="isBannerVisible" color="grey-darken-1" lines="two">
-        <div class="loading" v-if="upcomingNotification === null">
+        <div class="loading" v-if="notifications.length === 0">
             <v-progress-linear color="white" indeterminate :height="5" rounded></v-progress-linear>
         </div>
         <template v-slot:prepend>
