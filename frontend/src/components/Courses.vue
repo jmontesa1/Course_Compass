@@ -329,7 +329,7 @@
                                                                                 <v-card-actions>
                                                                                     <v-spacer></v-spacer>
                                                                                     <v-btn text="Cancel" variant="plain" @click="studentRemoveDialog[index] = false"></v-btn>
-                                                                                    <v-btn text="Remove" variant="tonal" color="#da4d4d" @click="studentRemoveDialog[index] = false"></v-btn>
+                                                                                    <v-btn text="Remove" variant="tonal" color="#da4d4d" @click="removeStudent(index)"></v-btn>
                                                                                 </v-card-actions>
                                                                             </v-card>
                                                                         </v-dialog>
@@ -818,6 +818,13 @@
                 } catch (error) {
                     console.error("Error fetching enrolled courses:", error);
                 }
+            },
+            
+            removeStudent(index){
+                this.courseStudents[this.tab].students.splice(index,1);
+                this.studentDialog[index] = false;
+                this.studentRemoveDialog[index] = false;
+                this.getGradeAnalytics();
             },
 
             chooseTab(index){
