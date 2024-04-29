@@ -2052,7 +2052,96 @@ def update_office_hours():
     finally:
         cursor.close()
         connection.close()
-        
+
+#retrieve students enrolled in a course
+@app.route('/getEnrolledStudents/<int:scheduleID>', methods=['GET'])
+@jwt_required()
+@role_required(['Instructor', 'Admin'])
+def get_enrolled_students(scheduleID):
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            SELECT s.studentID, u.Fname, u.Lname, us.enrollmentID
+            FROM tblUserSchedule us
+            JOIN tblStudents s ON us.studentID = s.studentID
+            JOIN tblUser u ON s.userID = u.userID
+            WHERE us.scheduleID = %s
+        """, (scheduleID,))
+
+        enrolled_students = cursor.fetchall()
+
+        students = []
+        for student in enrolled_students:
+            student_data = {
+                'studentID': student[0],
+                'firstName': student[1],
+                'lastName': student[2],
+                'enrollmentID': student[3]
+            }
+            students.append(student_data)
+
+        return jsonify({'enrolledStudents': students}), 200
+
+    except Error as e:
+        print(e)
+        return jsonify({"message": "Error fetching enrolled students"}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
+
+#instructor enters grade for a student 
+@app.route('/saveStudentGrade', methods=['POST'])
+@jwt_required()
+@role_required(['Instructor'])
+def save_student_grade():
+    try:
+        current_user_email = get_jwt_identity()['email']
+        user = User.get_user_by_email(current_user_email)
+        if not user or not user.instructorID:
+            return jsonify({"message": "User not found or not an instructor"}), 400
+
+        data = request.get_json()
+        student_id = data.get('studentID')
+        schedule_id = data.get('scheduleID')
+        grade = data.get('grade')
+
+        if not student_id or not schedule_id or not grade:
+            return jsonify({"message": "Missing studentID, scheduleID, or grade"}), 400
+
+        connection = connectToDB()
+        cursor = connection.cursor()
+
+        #check if the instructor is assigned to the course schedule
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM tblCourseInstructors
+            WHERE scheduleID = %s AND instructorID = %s
+        """, (schedule_id, user.instructorID))
+        is_assigned = cursor.fetchone()[0]
+
+        if not is_assigned:
+            return jsonify({"message": "Instructor is not assigned to the course"}), 403
+
+        #insert the grade into the tblGrades table
+        cursor.execute("""
+            INSERT INTO tblGrades (studentID, scheduleID, grade, instructorID)
+            VALUES (%s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE grade = %s
+        """, (student_id, schedule_id, grade, user.instructorID, grade))
+        connection.commit()
+
+        return jsonify({"message": "Grade saved successfully"}), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error saving student grade"}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
         
 # LV
 @app.route('/instructor-courses/<email>', methods=['GET'])
