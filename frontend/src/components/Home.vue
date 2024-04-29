@@ -38,7 +38,7 @@
             </div>
             <br>
             <p>Enroll in classes from your university and view schedules based on your courses. Receive messages and alerts from the school and your professors.
-                Fine tune your enrollment by filtering classes specific to your needs. Utilize scheduling, progress trackers, and to-do lists to meet deadlines and
+                Fine tune your enrollment by filtering classes specific to your needs. Utilize scheduling, progress trackers, and lists to meet deadlines to
                 visualize your success.
             </p>
         </div>
@@ -50,8 +50,8 @@
                 <h1 class="hero2">Professors</h1>
             </div>
             <br>
-            <p>Send alerts and messages to students enrolled in your classes. Advertise your office hours and personal website to your students.
-                Stay on top of your schedule and receive feedback from courses you are teaching. Utilize a to-do list to track your work and deadlines.
+            <p>Send alerts and messages to students enrolled in your classes. Advertise your office hours to your students.
+                Stay on top of your schedule and receive feedback from courses you are teaching. Utilize notifcations lists to track your work and deadlines.
             </p>
         </div>
 
