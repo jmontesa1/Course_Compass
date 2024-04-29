@@ -78,7 +78,7 @@
                                             </div>
                                                 <div v-for="(course, index) in filteredCourses" :key="index">
                                                     <div class="course-container">
-                                                        <input type="checkbox" v-model="course.completed" @change="course.changed = true" :disabled="isCourseSaved(course)" />
+                                                        <input type="checkbox" :checked="course.saved" disabled />
                                                         <v-expansion-panels>
                                                             <v-expansion-panel>
                                                                 <v-expansion-panel-title>
@@ -112,9 +112,9 @@
                                                                             background-color="grey lighten-1"
                                                                             empty-icon="$ratingEmpty"
                                                                             hover
-                                                                            :readonly="course.studentRating > 0"
+                                                                            :readonly="course.saved"
                                                                             @input="course.changed = true"
-                                                                            ></v-rating>
+                                                                        ></v-rating>
                                                                         <br>
 
                                                                         <label>Tags:</label>
@@ -499,24 +499,25 @@
             async fetchUserCourses() {
                 try {
                     const response = await axios.get('http://127.0.0.1:5000/getCourseProgress', {
-                        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                    headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
                     });
 
                     let majorToUpdate = this.majors.find(major => major.name === this.user.major);
+                    this.majorName = response.data.majorName;
 
                     if (majorToUpdate) {
-                        majorToUpdate.courses = response.data.user_courses.map(course => ({
-                            name: `${course.courseCode}: ${course.courseName}`,
-                            completed: course.isCompleted === 1,
-                            changed: false,
-                            credits: course.credits,
-                            review: course.review || '',
-                            saved: course.isCompleted === 1,
-                            tags: course.tags || [], //empty array of tags
-                            studentRating: course.rating || 0, // Use the rating value from the backend
-                        }));
+                    majorToUpdate.courses = response.data.user_courses.map(course => ({
+                        name: `${course.courseCode}: ${course.courseName}`,
+                        completed: course.isCompleted === 1,
+                        changed: false,
+                        credits: course.credits,
+                        review: course.review || '',
+                        saved: course.isCompleted === 1,
+                        tags: course.tags || [],
+                        studentRating: Number(course.studentRating) || 0, // Cast to number
+                    }));
 
-                        majorToUpdate.units = response.data.totalCreditsReq;
+                    majorToUpdate.units = response.data.totalCreditsReq;
                     }
                     this.dataLoaded = true;
                 } catch (error) {
@@ -525,30 +526,30 @@
             },
 
             async fetchUserCourseTags() {
-            try {
-                const response = await axios.get('http://127.0.0.1:5000/getUserCourseTags', {
-                headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
-                });
-                this.userCourseTags = {};
+                try {
+                    const response = await axios.get('http://127.0.0.1:5000/getUserCourseTags', {
+                        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
+                    });
+                    this.userCourseTags = {};
 
-                // Restructure the userCourseTags object
-                for (const courseCode in response.data.tags_by_course) {
-                this.userCourseTags[courseCode] = response.data.tags_by_course[courseCode].tags;
-                }
-
-                // Update the courses with the retrieved ratings
-                this.majors.forEach(major => {
-                major.courses.forEach(course => {
-                    const courseCode = course.name.split(':')[0].trim();
-                    const courseData = response.data.tags_by_course[courseCode];
-                    if (courseData) {
-                    course.studentRating = courseData.rating;
+                    // Restructure the userCourseTags object
+                    for (const courseCode in response.data.tags_by_course) {
+                        this.userCourseTags[courseCode] = response.data.tags_by_course[courseCode].tags;
                     }
-                });
-                });
-            } catch (error) {
-                console.error('Error fetching user course tags:', error);
-            }
+
+                    // Update the courses with the retrieved ratings
+                    this.majors.forEach(major => {
+                        major.courses.forEach(course => {
+                            const courseCode = course.name.split(':')[0].trim();
+                            const courseData = response.data.tags_by_course[courseCode];
+                            if (courseData) {
+                                course.studentRating = courseData.rating;
+                            }
+                        });
+                    });
+                } catch (error) {
+                    console.error('Error fetching user course tags:', error);
+                }
             },
 
             async fetchCareerProgress() {
@@ -556,7 +557,7 @@
                     const response = await axios.get('http://127.0.0.1:5000/getCareerProgress', {
                     headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
                     });
-                    this.majorName = response.data.majorName;
+                    //this.majorName = response.data.majorName;
                     this.currentTerm = response.data.Term;
                     this.currentCredits = response.data.totalCredits;
                     this.currentGPA = response.data.cumulativeGPA;
@@ -566,9 +567,23 @@
             },
 
             async saveAllChanges() {
+                //check if any course has been changed and not saved yet.
+                const unsavedCourses = this.majors.flatMap(major => 
+                    major.courses.filter(course => course.changed)
+                );
+
+                this.confirmationDialog = false;
+
+                if (unsavedCourses.length === 0) {
+                    this.$emit('show-toast', { message: 'No changes to save.', color: '#da6e51' });
+                    return;
+                }
+
+                const unsavedReviewedCourses = unsavedCourses.filter(course => course.review || course.studentRating > 0);
+
                 const updatePromises = this.majors.flatMap(major =>
                     major.courses.filter(course => course.changed).map(course => {
-                        course.saved = course.completed;
+                        course.saved = true;
                         return axios.post('http://127.0.0.1:5000/markCourseCompleted', {
                             courseCode: course.name.split(':')[0],
                             completed: course.completed ? 1 : 0,
@@ -670,7 +685,7 @@
 
                 const totalUnits = this.majors.find((major) => major.name === this.user.major).units;
                 this.unitsCompleted = completedUnits;
-                return (completedUnits / totalUnits) * 100;
+                return Math.min((completedUnits / totalUnits) * 100, 100);
             },
 
             isCourseSaved() {

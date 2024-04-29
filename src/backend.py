@@ -412,24 +412,38 @@ def user_schedule():
     try:
         identity = get_jwt_identity()
         current_user_email = identity.get('email')
+        current_user_role = identity.get('role')
 
-        if not current_user_email:
-            logging.warning("JWT identity does not contain email.")
+        if not current_user_email or not current_user_role:
+            logging.warning("JWT identity does not contain email or role.")
             return jsonify({"error": "Authentication information is incomplete."}), 400
 
-        logging.info(f"Current user email: {current_user_email}") 
+        logging.info(f"Current user email: {current_user_email}, role: {current_user_role}")
 
-        return fetch_user_schedule(current_user_email)
+        if current_user_role == 'Admin':
+            return jsonify({"message": "Admins do not have courses taken or taught."}), 400
+
+        return fetch_user_schedule(current_user_email, current_user_role)
     except Exception as e:
         logging.error(f"An unexpected error occurred while fetching the user schedule: {e}")
         return jsonify({"error": "An unexpected error occurred."}), 500
-    
 
-def fetch_user_schedule(email):
+def fetch_user_schedule(email, role):
     try:
         with connectToDB() as connection:
             with connection.cursor() as cursor:
-                user_schedule = user_schedule_stored_procedure(cursor, email)
+                if role == 'Student':
+                    user_schedule = user_schedule_stored_procedure(cursor, email)
+                elif role == 'Instructor':
+                    user = User.get_user_by_email(email)
+                    if not user or not user.instructorID:
+                        logging.warning(f"User not found or not an instructor: {email}")
+                        return jsonify({"error": "User not found or not an instructor"}), 400
+                    user_schedule = instructor_schedule_stored_procedure(cursor, user.instructorID)
+                else:
+                    logging.warning(f"Invalid user role: {role}")
+                    return jsonify({"error": "Invalid user role"}), 400
+
                 if user_schedule is not None:
                     return jsonify({"user_schedule": user_schedule}), 200
                 else:
@@ -438,6 +452,33 @@ def fetch_user_schedule(email):
     except Exception as e:
         logging.error(f"Error fetching user schedule for {email}: {e}", exc_info=True)
         return jsonify({"error": "An error occurred while fetching the user schedule"}), 500
+
+def instructor_schedule_stored_procedure(cursor, instructor_id):
+    try:
+        cursor.callproc('GetInstructorSchedule', [instructor_id])
+
+        instructor_schedule = []
+        for result in cursor.stored_results():
+            instructor_schedule = result.fetchall()
+
+        schedule_list = []
+        for schedule in instructor_schedule:
+            schedule_dict = {
+                "courseCode": schedule[0],
+                "meetingDays": schedule[1],
+                "meetingTimes": schedule[2],
+                "startTime": str(schedule[3]),
+                "endTime": str(schedule[4]),
+                "Location": schedule[5],
+                "Term": schedule[6],
+                "Credits": schedule[7]
+            }
+            schedule_list.append(schedule_dict)
+
+        return schedule_list
+    except Error as err:
+        print("Error while fetching instructor schedule:", err)
+        return None
     
 
 def user_schedule_stored_procedure(cursor, email):
@@ -475,8 +516,8 @@ def create_custom_schedule():
     try:
         current_user_email = get_jwt_identity()['email']
         user = User.get_user_by_email(current_user_email)
-        if not user or not user.studentID:
-            return jsonify({"message": "User not found or not a student"}), 400
+        if not user:
+            return jsonify({"message": "User not found"}), 400
 
         data = request.get_json()
         title = data['title']
@@ -485,8 +526,8 @@ def create_custom_schedule():
         # Insert the new custom schedule into the database
         connection = connectToDB()
         cursor = connection.cursor()
-        cursor.execute("INSERT INTO tblCustomSchedules (studentID, title, scheduleOption) VALUES (%s, %s, %s)",
-                       (user.studentID, title, option))
+        cursor.execute("INSERT INTO tblCustomSchedules (userID, title, scheduleOption) VALUES (%s, %s, %s)",
+                       (user.userID, title, option))
         connection.commit()
 
         # Retrieve the newly created custom schedule from the database
@@ -516,8 +557,8 @@ def create_custom_event():
     try:
         current_user_email = get_jwt_identity()['email']
         user = User.get_user_by_email(current_user_email)
-        if not user or not user.studentID:
-            return jsonify({"message": "User not found or not a student"}), 400
+        if not user:
+            return jsonify({"message": "User not found"}), 400
 
         data = request.get_json()
         description = data['description']
@@ -550,8 +591,8 @@ def get_custom_schedules():
     try:
         current_user_email = get_jwt_identity()['email']
         user = User.get_user_by_email(current_user_email)
-        if not user or not user.studentID:
-            return jsonify({"message": "User not found or not a student"}), 400
+        if not user:
+            return jsonify({"message": "User not found"}), 400
 
         connection = connectToDB()
         cursor = connection.cursor()
@@ -560,8 +601,8 @@ def get_custom_schedules():
             SELECT cs.scheduleID, cs.title, cs.scheduleOption, ce.eventID, ce.description, ce.color, ce.startTime, ce.endTime, ce.daysOfWeek
             FROM cs425.tblCustomSchedules cs
             LEFT JOIN cs425.tblCustomEvents ce ON cs.scheduleID = ce.scheduleID
-            WHERE cs.studentID = %s
-        """, (user.studentID,))
+            WHERE cs.userID = %s
+        """, (user.userID,))
 
         results = cursor.fetchall()
         custom_schedules = {}
@@ -605,8 +646,8 @@ def delete_custom_schedule(schedule_id):
     try:
         current_user_email = get_jwt_identity()['email']
         user = User.get_user_by_email(current_user_email)
-        if not user or not user.studentID:
-            return jsonify({"message": "User not found or not a student"}), 400
+        if not user:
+            return jsonify({"message": "User not found"}), 400
 
         connection = connectToDB()
         cursor = connection.cursor()
@@ -615,7 +656,7 @@ def delete_custom_schedule(schedule_id):
         cursor.execute("DELETE FROM tblCustomEvents WHERE scheduleID = %s", (schedule_id,))
 
         # Delete the custom schedule
-        cursor.execute("DELETE FROM tblCustomSchedules WHERE scheduleID = %s AND studentID = %s", (schedule_id, user.studentID))
+        cursor.execute("DELETE FROM tblCustomSchedules WHERE scheduleID = %s AND userID = %s", (schedule_id, user.userID))
         connection.commit()
 
         if cursor.rowcount > 0:
@@ -637,8 +678,9 @@ def delete_custom_event(event_id):
     try:
         current_user_email = get_jwt_identity()['email']
         user = User.get_user_by_email(current_user_email)
-        if not user or not user.studentID:
-            return jsonify({"message": "User not found or not a student"}), 400
+        if not user:
+            return jsonify({"message": "User not found"}), 400
+
 
         connection = connectToDB()
         cursor = connection.cursor()
@@ -661,7 +703,6 @@ def delete_custom_event(event_id):
         connection.close()
 
 
-#get user enrolled courses
 #get user enrolled courses
 @app.route('/getEnrolledCourses', methods=['GET'])
 @jwt_required()
@@ -861,7 +902,7 @@ def mark_course_completed_endpoint():
             app.logger.warning(error_message)
             return jsonify({"error": error_message}), 400
 
-        success, message = mark_course_completed(user_email, course_code, completed, review, tags, student_rating, letter_grade)
+        success, message = mark_course_completed(user_email, course_code, review, tags, student_rating, letter_grade)
         if success:
             return jsonify({"message": message}), 200
         else:
@@ -871,15 +912,16 @@ def mark_course_completed_endpoint():
         return jsonify({"error": "An internal server error occurred"}), 500
     
 
-def mark_course_completed(user_email, course_code, completed, review, tags, student_rating, letter_grade):
+def mark_course_completed(user_email, course_code, review, tags, student_rating, letter_grade):
     try:
         connection = connectToDB()
         if not connection:
             return False, "DB connection failed"
 
         cursor = connection.cursor()
-        cursor.callproc('MarkCourseCompleted', [user_email, course_code, completed, review, json.dumps(tags), student_rating, letter_grade])
+        cursor.callproc('MarkCourseCompleted', [user_email, course_code, review, json.dumps(tags), student_rating, letter_grade])
         connection.commit()
+
         return True, "Course marked as completed successfully"
     except Error as err:
         app.logger.error(f"Error in mark_course_completed: {str(err)}")
@@ -1210,7 +1252,7 @@ def courses_for_progress_page():
 
 
             return jsonify({
-                #"majorName": user.majorName,
+                "majorName": user.majorName,
                 "totalCreditsReq": total_credits_req,
                 "user_courses": course_list
             }), 200
@@ -1285,7 +1327,7 @@ def get_career_progress():
             if result:
                 total_credits, term, cumulative_gpa = result
                 return jsonify({
-                    "majorName": user.majorName,
+                    #"majorName": user.majorName,
                     "totalCredits": total_credits,
                     "Term": term,
                     "cumulativeGPA": cumulative_gpa if cumulative_gpa is not None else 0.00
