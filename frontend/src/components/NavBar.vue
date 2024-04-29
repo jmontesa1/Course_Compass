@@ -299,6 +299,6 @@
         justify-content: center;
         align-items: center;
         width: 88%;
-        margin-bottom: 12px;
+        margin-bottom: -41px;
     }
 </style>

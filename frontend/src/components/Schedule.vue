@@ -358,11 +358,11 @@
                                             </v-expansion-panel-title>
                                             <v-expansion-panel-text>
                                                 <v-row no-gutters v-for="(event, index) in events" :key="index">
-                                                    <v-col cols="11">
+                                                    <v-col cols="10">
                                                         <p><strong>{{events[index].title}}</strong> (<em>{{events[index].date}}</em>) - {{events[index].description}}</p>
                                                     </v-col>
                                                     <v-col cols="1">
-                                                        <v-dialog v-model="dialog_events_remove[index]" max-width="600" style="font-family: Poppins;">
+                                                        <v-dialog v-model="dialog_events_remove[index]" max-width="500" style="font-family: Poppins;">
                                                             <template v-slot:activator="{ props: activatorProps }">
                                                                 <v-btn v-bind="activatorProps" icon="$close" variant="plain">
                                                                     <span class="material-symbols-outlined">
@@ -384,6 +384,29 @@
                                                             </v-card>
                                                         </v-dialog> 
                                                     </v-col>
+                                                    <v-col cols="1">
+                                                        <v-dialog v-model="dialog_events_share[index]" max-width="500" style="font-family: Poppins;">
+                                                            <template v-slot:activator="{ props: activatorProps }">
+                                                                <v-btn v-bind="activatorProps" icon="$close" variant="plain">
+                                                                    <span class="material-symbols-outlined">
+                                                                        share
+                                                                    </span>
+                                                                </v-btn>
+                                                            </template>
+                                                            <!--Pop up -->
+                                                            <v-card title="Are you sure you want to export event:">
+                                                                <v-card-text>
+                                                                    <br>
+                                                                    <p><strong>{{events[index].title}}</strong> (<em>{{events[index].date}}</em>) - {{events[index].description}}</p>
+                                                                </v-card-text> 
+                                                                <v-card-actions>
+                                                                    <v-spacer></v-spacer>
+                                                                    <v-btn text="Close" variant="plain" @click="dialog_events_share[index] = false"></v-btn>
+                                                                    <v-btn color="primary" text="Export" variant="tonal" @click="generateSingleICSEvent(index)"></v-btn>
+                                                                </v-card-actions>
+                                                            </v-card>
+                                                        </v-dialog> 
+                                                    </v-col>
                                                     <v-divider class="instructor-divider"></v-divider>
                                                 </v-row>
                                             </v-expansion-panel-text>
@@ -393,6 +416,7 @@
                             </v-row>
                         </v-card-text>
                         <v-card-actions>
+                            <v-btn text="Export Calendar" color="success" @click="generateAllICSEvents" variant="tonal"></v-btn>
                             <v-spacer></v-spacer>
                             <v-btn text="Close" variant="plain" @click="dialog_events = false"></v-btn>
                         </v-card-actions>
@@ -467,6 +491,7 @@
     import axios from 'axios';
     import { useDate } from 'vuetify';
     import { ref } from 'vue';
+    import { createEvent } from 'ics';
 
     export default {
         props:{
@@ -493,6 +518,7 @@
                 dialog: false,
                 dialog_events: false,
                 dialog_events_remove: [],
+                dialog_events_share: [],
                 dialog_event: false,
                 dialog_weekdaysevent: false,
                 dialog_delete_schedule: false,
@@ -929,6 +955,80 @@
             getEventColor (event) {
                 return event.color
             },
+
+            generateSingleICSEvent(index) {
+                const eventExport = this.events[index];
+
+                const startDate = new Date(eventExport.start);
+                const endDate = new Date(eventExport.end);
+                endDate.setHours(endDate.getHours() + 1);
+
+                const event = {
+                    start: [startDate.getFullYear(), startDate.getMonth() + 1, startDate.getDate(), startDate.getHours(), startDate.getMinutes()],
+                    end: [endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), endDate.getHours(), endDate.getMinutes()],
+                    title: eventExport.title,
+                    description: eventExport.description,
+                    location: '', 
+                    categories: ['Course Compass'],
+                };
+
+                createEvent(event, (error, value) => {
+                    if (error) {
+                        console.error(error);
+                        return;
+                    }
+                    const blob = new Blob([value], { type: 'text/calendar;charset=utf-8' });
+
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.setAttribute('download', eventExport.title + ' Event.ics');
+                    document.body.appendChild(link);
+                    link.click();
+
+                    document.body.removeChild(link);
+                });
+                this.dialog_events_share = false;
+            },
+
+            generateAllICSEvents() {
+                const icsData = [];
+
+                this.events.forEach(eventExport => {
+                    const startDate = new Date(eventExport.start);
+                    const endDate = new Date(eventExport.end);
+                    endDate.setHours(endDate.getHours() + 1);
+
+                    const event = {
+                        start: [startDate.getFullYear(), startDate.getMonth() + 1, startDate.getDate(), startDate.getHours(), startDate.getMinutes()],
+                        end: [endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), endDate.getHours(), endDate.getMinutes()],
+                        title: eventExport.title,
+                        description: eventExport.description,
+                        location: '', 
+                        categories: ['Course Compass'],
+                    };
+
+                    createEvent(event, (error, value) => {
+                        if (error) {
+                            console.error(error);
+                            return;
+                        }
+                        icsData.push(value);
+                    });
+                });
+
+                const allEventsICS = icsData.join('\r\n');
+
+                const blob = new Blob([allEventsICS], { type: 'text/calendar;charset=utf-8' });
+
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.setAttribute('download', 'Course Compass Calendar.ics');
+                document.body.appendChild(link);
+                link.click();
+
+                document.body.removeChild(link);
+            },
+
             newEvent(){
                 const reformatDate = new Date(this.eventDate).toLocaleDateString('en-US', {
                     month: 'long',
@@ -945,6 +1045,7 @@
                     allDay: this.allDay,
                     date: reformatDate,
                 };
+
                 this.events.push(newEvent);
                 this.dialog = false;
                 this.eventDate = new Date();
@@ -989,7 +1090,7 @@
                 } catch (error) {
                     console.error('Error creating custom schedule:', error);
                 }
-            },
+            }, //-- end
 
             async createCustomEvent() {
                 const selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
