@@ -350,7 +350,7 @@
                                                                         <!--Example, find vinh le's index, then the courses he is enrolled in, then the course code is displayed-->
                                                                         <v-row>
                                                                             <v-col cols="10">
-                                                                            {{ course.courseName }} - {{ course.department }}
+                                                                            {{ course.courseCode }}.{{ course.Section }} - {{ course.courseName }}
                                                                             </v-col>
                                                                             <v-col cols="2">
                                                                                 <v-dialog v-model="unenrollDialog[index]" max-width="500" style="font-family: Poppins;">
@@ -364,7 +364,7 @@
                                                                                     <!--Pop up -->
                                                                                     <v-card title="Are you sure you want to unenroll:">
                                                                                         <v-card-text>
-                                                                                            Unenroll <strong>{{approvedInstructors[index].name}}</strong> from approvedInstructors[index].courses[indexCourses].course.code?
+                                                                                            <strong>{{approvedInstructors[index].name}}</strong> from {{ course.courseName }}
                                                                                         </v-card-text> 
                                                                                         <v-card-actions>
                                                                                             <v-spacer></v-spacer>
