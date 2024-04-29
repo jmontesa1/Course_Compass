@@ -297,7 +297,7 @@ def signup():
                 cursor.execute("INSERT INTO tblStudents (userID, Email, majorName, majorID) VALUES (%s, %s, %s, %s)", (new_user['userID'], email,majorName, majorID))
                 connection.commit()
             elif userType == 'Instructor':
-                cursor.execute("INSERT INTO tblInstructor (userID, Email, approval_status) VALUES (%s, %s, %s)", (new_user['userID'], email, 'pending'))
+                cursor.execute("INSERT INTO tblInstructor (userID, Email, FirstName, LastName, approval_status) VALUES (%s, %s, %s, %s, %s)", (new_user['userID'], email, fname, lname, 'pending'))
                 connection.commit()
                 # cursor.execute("INSERT INTO tblInstructor (userID, Email) VALUES (%s, %s)", (new_user['userID'], email))
                 # connection.commit()
@@ -892,6 +892,7 @@ def mark_course_completed_endpoint():
         student_rating = data.get('studentRating')
         tags = data.get('tags')
         letter_grade = data.get('letterGrade')
+        keywords_param = request.args.get('keywords', '')
 
         app.logger.info(f"Received tags from frontend: {tags}")  #log the received tags
         app.logger.info(f"Received letter grade from frontend: {letter_grade}")  #log the received letter grade
@@ -1355,6 +1356,7 @@ def search_departments():
     location_param = request.args.get('location', None)
     term_param = request.args.get('term', None)
     rating_param = request.args.get('rating', None)
+    keywords_param = request.args.get('keywords', '')
     
     connection = connectToDB()
     if connection:
@@ -1434,6 +1436,15 @@ def search_departments():
             if 'rating' in request.args and rating_param:
                 query += " AND averageRating >= %s"
                 params.append(float(rating_param))
+                filters_applied = True
+            
+            if 'keywords' in request.args and keywords_param:
+                keywords = keywords_param.split(',')
+                keyword_conditions = []
+                for keyword in keywords:
+                    keyword_conditions.append(f"FIND_IN_SET(%s, frequentTags)")
+                    params.append(keyword)
+                query += f" AND ({' OR '.join(keyword_conditions)})"
                 filters_applied = True
             
             query += " ORDER BY courseLevel, courseCode;"
