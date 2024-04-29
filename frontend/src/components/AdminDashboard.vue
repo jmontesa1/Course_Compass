@@ -340,13 +340,17 @@
                                                         </v-row>
                                                         <br>Courses Taught:
                                                         <v-container>
-                                                            <p><br>Not enrolled in any courses</p><!-- PUT v-if="approvedInstructors[index].courses.length === 0"-->
+                                                            <v-btn @click="showInstructorDetails(instructor)">
+                                                                Show Details
+                                                            </v-btn>
+                                                            <!-- PUT v-if="approvedInstructors[index].courses.length === 0"-->
                                                             <v-list lines="auto" style="font-family: Poppins;">                                        
-                                                                <v-list-item v-for="(courses ,indexCourses) in approvedInstructors" :key="indexCourses">
+                                                                <v-list-item v-for="course in currentInstructorCourses" :key="course.courseCode">
+
                                                                         <!--Example, find vinh le's index, then the courses he is enrolled in, then the course code is displayed-->
                                                                         <v-row>
                                                                             <v-col cols="10">
-                                                                            approvedInstructors[index].courses[indexCourses].course.code
+                                                                            {{ course.courseName }} - {{ course.department }}
                                                                             </v-col>
                                                                             <v-col cols="2">
                                                                                 <v-dialog v-model="unenrollDialog[index]" max-width="500" style="font-family: Poppins;">
@@ -733,6 +737,8 @@
                 selectedInstructorEmail: '',
                 
                 outboundEmails: [],
+
+                currentInstructorCourses: [],
             };
         },
 
@@ -1063,6 +1069,21 @@
                     .catch(error => {
                         console.error("Error fetching active notifs:", error)
                     });
+            },
+
+            fetchInstructorCourses(email) {
+                axios.get(`http://127.0.0.1:5000/instructor-courses/${email}`)
+                    .then(response => {
+                        this.currentInstructorCourses = response.data;
+                    })
+                    .catch(error => {
+                        console.error("Error fetching instructor courses: ", error);
+                    });
+            },
+
+            showInstructorDetails(instructor) {
+                this.currentInstructor = instructor;
+                this.fetchInstructorCourses(instructor.email);
             },
             
             async unenrollCourse(index) {
