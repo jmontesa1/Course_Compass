@@ -651,6 +651,14 @@
                         this.user.firstname = response.data.Fname;
                         this.user.lastname = response.data.Lname;
                         this.user.major = response.data.majorName;
+
+                        //check the user's role
+                        if (response.data.role === 'Admin') {
+                            this.calendar = true;
+                            this.classSchedule = false;
+                        } else {
+                            this.fetchUserSchedule(); //if the user is not an admin, fetch the user schedule
+                        }
                     }
                 } catch (error) {
                     console.error("Error fetching info: ", error);
@@ -1083,6 +1091,7 @@
                     });
                     if (response.status === 200) {
                         const newSchedule = response.data.schedule;
+                        newSchedule.title = this.scheduleTitle;
                         this.userSchedules.push(newSchedule);
                         this.dialog = false;
                         this.scheduleTitle = '';
