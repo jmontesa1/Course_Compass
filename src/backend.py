@@ -1629,7 +1629,6 @@ def delete_account():
 
 # LV
 @app.route('/analytics/counts', methods=['GET'])
-@jwt_required()
 def get_counts():
     connection = connectToDB()
     cursor = connection.cursor(dictionary=True)
@@ -1653,7 +1652,6 @@ def get_counts():
 
 # LV
 @app.route('/analytics/stored-data-counts', methods=['GET'])
-@jwt_required()
 def get_stored_data_counts():
     connection = connectToDB()
     cursor = connection.cursor(dictionary=True)
@@ -1681,7 +1679,7 @@ def get_stored_data_counts():
         connection.close()
         
 
-# LV    
+# LV
 @app.route('/pending-instructors', methods=['GET'])
 def get_pending_instructors():
     try:
@@ -1734,7 +1732,7 @@ def get_archived_instructors():
         connection = connectToDB()
         cursor = connection.cursor(dictionary=True)
         query = """
-        SELECT i.Email, CONCAT(u.Fname, ' ', u.LName) AS name, i.approval_status
+        SELECT i.Email, CONCAT(u.Fname, ' ', u.Lname) AS name, i.approval_status
         FROM tblInstructor AS i
         JOIN tblUser AS u ON i.userID = u.userID
         WHERE i.approval_status = %s
@@ -2012,6 +2010,37 @@ def update_office_hours():
     finally:
         cursor.close()
         connection.close()
+        
+        
+# LV
+@app.route('/instructor-courses/<email>', methods=['GET'])
+def get_instructor_courses(email):
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary=True)
+        
+        cursor.execute("""
+            SELECT CONCAT(u.Fname, ' ', u.Lname) AS name
+            FROM tblInstructor AS i
+            JOIN tblUser AS u ON i.userID = u.userID
+            WHERE i.Email = %s
+            """, (email,))
+        instructor_name = cursor.fetchone()['name']
+        
+        cursor.execute("""
+            SELECT courseCode, courseName, days, department
+            FROM vwCourseDetails
+            WHERE professors = %s
+            """, (instructor_name,))
+        courses = cursor.fetchall()
+        return jsonify(courses), 200
+    except Error as err:
+        print(err)
+        return jsonify({"message": "Error while fetching courses"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
 
 # LV
 @app.route('/send-email', methods=['POST'])
