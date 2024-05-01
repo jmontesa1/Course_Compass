@@ -53,7 +53,7 @@
         open:['Filters'],
         //The different filters that the user can use to filter classes
           menuItems: [
-              { label: 'Level', children: [{ label: '< 100' }, { label: '100' }, { label: '200' },
+              { label: 'Level', children: [{ label: '100' }, { label: '200' },
                                           { label: '300' }, { label: '400' }, { label: '500' }, { label: '600' },
                                           { label: '700' }] },
               { label: 'Start Time', children: [{ label: '8-9 AM' }, { label: '10-11 AM' }, { label: '12-1 PM' },

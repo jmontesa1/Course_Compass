@@ -305,15 +305,16 @@
                                     :type="'bar'"
                                     auto-draw
                                     style="font-family: Poppins;"
+                                    v-if="selectedCourse !== ''"
                                 >
                                 <template v-slot:label="item">
                                     {{ grades[grades.length - 1 - item.index].grade }}: {{ item.value }}
                                 </template>
                                 </v-sparkline>
                             <v-divider></v-divider>
-                            <p>Average Grade Distribution: {{courseGradeAverage}}</p>
+                            <p v-if="selectedCourse !== ''">Average Grade Distribution: {{courseGradeAverage}}</p>
                             <br>
-                            <p>S/U Grade Distribution: {{ tallyS }}/{{ tallyU }}</p>
+                            <p v-if="selectedCourse !== ''">S/U Grade Distribution: {{ tallyS }}/{{ tallyU }}</p>
                     </v-card-text>
                     </v-card>
                 </div>
@@ -349,6 +350,13 @@
             userType:{
                 type: String,
                 required: '',
+            }
+        },
+        watch: {
+            // Watch for changes in selectedCourse
+            selectedCourse: {
+                handler: 'handleSelectedCourseChange', // Call the method when selectedCourse changes
+                immediate: true // Call the handler immediately after component initialization
             }
         },
         data() {
@@ -411,11 +419,12 @@
                 ],
 
                 GPA: 0,
-                gradeAnalytics: [0, 0, 2, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 10], //U S F D- D D+ C- C C+ B- B B+ A- A
+                gradeAnalytics: [0,0,0,0,0,0,0,0,0,0,0,0,0,0], //U S F D- D D+ C- C C+ B- B B+ A- A
                 courseGradeAverage: 0,
                 tallyS: 0,
                 tallyU: 0,
                 selectedCourse: '',
+                sparklineKey: 0,
 
                 //Final Grade Calculator
                 currentGrade: null,
@@ -430,6 +439,10 @@
         },
 
         methods:{
+            
+            handleSelectedCourseChange() {
+                this.getGradeAnalytics(); 
+            },
             handleToast(toastData) {
 
             console.log(toastData.message);
@@ -485,6 +498,92 @@
                 } else {
                     this.GPA = 0;
                 }
+            },
+            shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            },
+
+            getGradeAnalytics(){
+                let tallyGrades = [0, 4, 2, 2, 6, 1, 5, 5, 12, 8, 8, 1, 9, 10]; //U S F D- D D+ C- C C+ B- B B+ A- A
+                tallyGrades = this.shuffleArray(tallyGrades);
+
+                let tally = 0;
+                let sCount = 0;
+                let uCount = 0;
+                let totalWeight = 0;
+
+                tallyGrades.forEach((count, index) => {
+                        switch (index) {
+                            case 0: // U
+                                uCount += count;
+                                break;
+                            case 1: // S
+                                sCount += count;
+                                break;
+                            case 2: // F
+                                tally += count;
+                                break;
+                            case 3: // D-
+                                tally += count;
+                                totalWeight += count * 0.67;
+                                break;
+                            case 4: // D
+                                tally += count;
+                                totalWeight += count * 1.0;
+                                break;
+                            case 5: // D+
+                                tally += count;
+                                totalWeight += count * 1.33;
+                                break;
+                            case 6: // C-
+                                tally += count;
+                                totalWeight += count * 1.67;
+                                break;
+                            case 7: // C
+                                tally += count;
+                                totalWeight += count * 2.0;
+                                break;
+                            case 8: // C+
+                                tally += count;
+                                totalWeight += count * 2.33;
+                                break;
+                            case 9: // B-
+                                tally += count;
+                                totalWeight += count * 2.67;
+                                break;
+                            case 10: // B
+                                tally += count;
+                                totalWeight += count * 3.0;
+                                break;
+                            case 11: // B+
+                                tally += count;
+                                totalWeight += count * 3.33;
+                                break;
+                            case 12: // A-
+                                tally += count;
+                                totalWeight += count * 3.67;
+                                break;
+                            case 13: // A
+                                tally += count;
+                                totalWeight += count * 4.0;
+                                break;
+                            }
+                    });
+
+                if(tally!=0){
+                    this.courseGradeAverage = (totalWeight/tally).toFixed(2);
+                }
+                else{
+                    this.courseGradeAverage = 0;
+                }
+                this.tallyS = sCount;
+                this.tallyU = uCount;
+                this.gradeAnalytics = tallyGrades;
+                this.sparklineKey++;
             },
 
             calculateFinalGrade(){

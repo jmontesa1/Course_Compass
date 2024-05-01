@@ -68,6 +68,7 @@
         </div>
 
         <div class="row">
+            <div class="col-sm-2 d-flex flex-column"></div>
             <div class="col d-flex flex-column">
                 <div class="filter-row">
                     <div class="filter-chips-container">
@@ -457,6 +458,47 @@
                     {course: 'COURSE 2', students:[
                         { name: 'Miah Serrano', isGraded: false, courseGrade: null },
                         { name: 'Jesse Cook', isGraded: false, courseGrade: null },
+                        { name: 'Zohaib Dominguez', isGraded: true, courseGrade: 'B-' },
+                        { name: 'Ana Carver', isGraded: false, courseGrade: null },
+                        { name: 'Jennifer Shepard', isGraded: false, courseGrade: null },
+                        { name: 'Mathilda Quinn', isGraded: false, courseGrade: null },
+                        { name: 'Keiran Ford', isGraded: false, courseGrade: null },
+                        { name: 'Ahmad Lara', isGraded: false, courseGrade: null },
+                        { name: 'Brenda Hartman', isGraded: false, courseGrade: null },
+                        { name: 'Kathleen Mayo', isGraded: false, courseGrade: null }
+                        ],
+                        reviews: [
+                            { text: 'Great course content, very informative!', date: 'Apr 9th, 2017' },
+                            { text: 'Enjoyed the interactive lessons and quizzes.', date: 'Jan 4th, 2022' },
+                            { text: 'Highly recommend for anyone new to the subject.', date: 'Jul 18th, 2019' },
+                            { text: 'Excellent instructors, clear explanations.', date: 'Oct 25th, 2016' },
+                            { text: 'Practical exercises were really helpful.', date: 'Mar 8th, 2020' }
+                        ],
+                    },
+                    {course: 'COURSE 3', students: [
+                        { name: 'Liam Smith', isGraded: true, courseGrade: 'A'},
+                        { name: 'Olivia Johnson', isGraded: true, courseGrade: 'A-' },
+                        { name: 'Ethan Williams', isGraded: true, courseGrade: 'A' },
+                        { name: 'Ava Brown', isGraded: true, courseGrade: 'B' },
+                        { name: 'Noah Jones', isGraded: true, courseGrade: 'C+' },
+                        { name: 'Emma Garcia', isGraded: true, courseGrade: 'C' },
+                        { name: 'William  Bond', isGraded: true, courseGrade: 'C+' },
+                        { name: 'Davis Gomez', isGraded: true, courseGrade: 'A' },
+                        { name: 'James  Flynn', isGraded: true, courseGrade: 'D' },
+                        { name: 'Isabella Richards', isGraded: true, courseGrade: 'B-' }
+                        ],
+                        reviews: [
+                            { text: 'The course content was incredibly engaging and informative. I learned a lot and would highly recommend it to others.', date: 'Jan 15th, 2019' },
+                            { text: 'The lectures were confusing and poorly structured.', date: 'Mar 23rd, 2015' },
+                            { text: 'The course material was well-organized and easy to follow. I appreciated the interactive elements that kept me engaged throughout.', date: 'Apr 7th, 2023' },
+                            { text: 'The content was too basic and not worth the price.', date: 'May 17th, 2012' },
+                            { text: 'The course structure was logical and easy to navigate. The quizzes and assessments helped reinforce my understanding of the material.', date: 'Apr 29th, 2024' }
+                        ],
+                    },
+
+                    {course: 'COURSE 4', students:[
+                        { name: 'Miah Serrano', isGraded: false, courseGrade: null },
+                        { name: 'Jesse Cook', isGraded: false, courseGrade: null },
                         { name: 'Zohaib Dominguez', isGraded: false, courseGrade: null },
                         { name: 'Ana Carver', isGraded: false, courseGrade: null },
                         { name: 'Jennifer Shepard', isGraded: false, courseGrade: null },
@@ -746,8 +788,10 @@
                 const index = this.selectedFilters.indexOf(filter);
                 if (index !== -1) {
                     this.selectedFilters.splice(index, 1);
+                    this.currentPage = 1;
                 } else {
                     this.selectedFilters.push(filter);
+                    this.currentPage = 1;
                 }
             },
 
