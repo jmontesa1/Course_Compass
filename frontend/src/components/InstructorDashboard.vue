@@ -187,7 +187,7 @@
                                             <v-card-actions>
                                                 <v-spacer></v-spacer>
                                                 <v-btn text="Cancel" variant="plain" @click="deleteNotificationDialog[index] = false"></v-btn>
-                                                <v-btn color="red" text="Delete" variant="tonal" @click="deleteNotification(index)"></v-btn>
+                                                <v-btn color="red" text="Delete" variant="tonal" @click="deleteAnnouncement(instructorNotifications[index]); deleteNotificationDialog[index] = false"></v-btn>
                                             </v-card-actions>
                                         </v-card>
                                     </v-dialog> 
@@ -215,7 +215,7 @@
                                 <v-row dense>
                                     <v-col cols = "12" md="6">  
                                         <br>
-                                        <p>Choose courses to send to:</p>
+                                        <p>Choose courses to send to: All</p> <!-- 'all' placeholder for time being -->
                                         <div class="checkboxes-container">
                                             <v-checkbox v-for="(course, index) in schedule" :key="index" :label="course.course" v-model="chosenCourses[index]" style="margin-bottom: -35px;"></v-checkbox>
                                         </div>
@@ -441,7 +441,7 @@
                 notificationDate: new Date(),
                 notificationDeadline: false,
                 notificationDescription: '',
-                instructorNotifications:[],
+                instructorNotifications: [], // announcements
 
                 notifications: [
                     {date: '5/15/2024', source: 'UNR', message: 'Instruction Ends'},
@@ -503,6 +503,24 @@
         methods: {
             formatDays(days){
                 return days.map(day => day.slice(0,3)).join('');
+            },
+
+            fetchAnnouncements() {
+                axios.get('http://127.0.0.1:5000/get-announcements', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                }).then(response => {
+                    this.instructorNotifications = response.data.map(announcement => ({
+                        date: new Date(announcement.Date).toLocaleDateString('en-US', {
+                            month: 'long',
+                            day: 'numeric',
+                            year: 'numeric',
+                        }),
+                        source: 'You',
+                        description: announcement.Content,
+                        courses: announcement.Courses,
+                    }));
+                }).catch(error => {
+                    console.error("Error fetching announcements: ", error);
+                });
             },
 
             fetchDashboardData() {
@@ -608,15 +626,49 @@
             },
 
             sendNotification(){
-                //Month Date, Year
-                const reformatDate = new Date(this.notificationDate).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric',
-                });
+            //     //Month Date, Year
+            //     const reformatDate = new Date(this.notificationDate).toLocaleDateString('en-US', {
+            //         month: 'long',
+            //         day: 'numeric',
+            //         year: 'numeric',
+            //     });
 
-                //Month/Date/Year
-                const reformatDate2 = new Date(this.notificationDate).toLocaleDateString('en-US', {
+            //     //Month/Date/Year
+            //     const reformatDate2 = new Date(this.notificationDate).toLocaleDateString('en-US', {
+            //         month: 'numeric',
+            //         day: 'numeric',
+            //         year: 'numeric',
+            //     });
+            //     const selectedCourses = this.schedule.filter((course, index) => this.chosenCourses[index]);
+            //     const reformatCourses = selectedCourses.map(course => course.course).join(', ');
+
+            //     const notification = {
+            //         date: reformatDate,
+            //         source: this.source,
+            //         description: this.user.firstname + ' ' + this.user.lastname + ' - ' + this.notificationDescription,
+            //         courses: reformatCourses,
+            //         deadline: this.notificationDeadline,
+            //     };
+
+            //     if(this.notificationDeadline === true){
+            //         const notification2 = {
+            //             date: reformatDate2,
+            //             source: this.source,
+            //             message: this.user.firstname + ' ' + this.user.lastname + ' - ' + this.notificationDescription,
+            //         }
+
+            //         this.notifications.push(notification2);
+            //     }
+
+            //     this.instructorNotifications.push(notification);
+
+            //     this.notificationDate = new Date();
+            //     this.notificationDescription ='';
+            //     this.chosenCourses = [];
+            //     this.notificationDeadline = false;
+            //     this.notificationDialog = false;
+            // },
+                const reformatDate = new Date(this.notificationDate).toLocaleDateString('en-US', {
                     month: 'numeric',
                     day: 'numeric',
                     year: 'numeric',
@@ -626,29 +678,38 @@
 
                 const notification = {
                     date: reformatDate,
-                    source: this.source,
-                    description: this.user.firstname + ' ' + this.user.lastname + ' - ' + this.notificationDescription,
+                    content: this.notificationDescription,
                     courses: reformatCourses,
-                    deadline: this.notificationDeadline,
                 };
 
-                if(this.notificationDeadline === true){
-                    const notification2 = {
-                        date: reformatDate2,
-                        source: this.source,
-                        message: this.user.firstname + ' ' + this.user.lastname + ' - ' + this.notificationDescription,
-                    }
+                axios.post('http://127.0.0.1:5000/save-announcement', notification, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                }).then(response => {
+                    console.log("Announcement sent successfully");
+                    this.notificationDialog = false;
+                    this.notificationDate = new Date();
+                    this.notificationDescription = '';
+                    this.chosenCourses = [];
+                    this.notificationDialog = false;
+                    this.fetchAnnouncements();
+                }).catch(error => {
+                    console.error("Failed to send announcement: ", error);
+                });
+            },
 
-                    this.notifications.push(notification2);
-                }
-
-                this.instructorNotifications.push(notification);
-
-                this.notificationDate = new Date();
-                this.notificationDescription ='';
-                this.chosenCourses = [];
-                this.notificationDeadline = false;
-                this.notificationDialog = false;
+            deleteAnnouncement(notification) {
+                const formattedDate = new Date(notification.date).toISOString().split('T')[0];
+                axios.post('http://127.0.0.1:5000/delete-announcement', {
+                    date: formattedDate,
+                    content: notification.description,
+                    email: this.user.email
+                }, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                }).then(response => {
+                    this.fetchAnnouncements();
+                }).catch(error => {
+                    console.error("Failed to delete announcement: ", error);
+                });
             },
 
             deleteNotification(index){
@@ -854,6 +915,8 @@
 
         mounted(){
             this.dialog = new Array(this.schedule.length).fill(false);
+
+            this.fetchAnnouncements();
 
             if (!localStorage.getItem('access_token')) {
                 this.$router.push('/login');
