@@ -2306,12 +2306,16 @@ def save_announcement():
         user_email = get_jwt_identity()['email']
         print("829 EMAIL ***********:", user_email)
         data = request.json
+        announcement_date = datetime.strptime(data['date'], '%Y-%m-%d').date()
+        announcement_date += timedelta(days=1)
+        content = data['content']
+        courses = data['courses']
         connection = connectToDB()
         cursor = connection.cursor()
         query = """
         INSERT INTO tblAnnouncements (Email, Date, Content, Courses) VALUES (%s, %s, %s, %s)
         """
-        cursor.execute(query, (user_email, data['date'], data['content'], data['courses']))
+        cursor.execute(query, (user_email, announcement_date, content, courses))
         connection.commit()
         return jsonify({"message": "Announcement saved successfully"}), 200
     except Exception as exc:
