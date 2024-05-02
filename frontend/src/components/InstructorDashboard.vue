@@ -668,16 +668,12 @@
             //     this.notificationDeadline = false;
             //     this.notificationDialog = false;
             // },
-                const reformatDate = new Date(this.notificationDate).toLocaleDateString('en-US', {
-                    month: 'numeric',
-                    day: 'numeric',
-                    year: 'numeric',
-                });
+                const formattedDate = this.notificationDate.toISOString().split('T')[0];
                 const selectedCourses = this.schedule.filter((course, index) => this.chosenCourses[index]);
                 const reformatCourses = selectedCourses.map(course => course.course).join(', ');
 
                 const notification = {
-                    date: reformatDate,
+                    date: formattedDate,
                     content: this.notificationDescription,
                     courses: reformatCourses,
                 };
@@ -686,12 +682,10 @@
                     headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
                 }).then(response => {
                     console.log("Announcement sent successfully");
+                    this.fetchAnnouncements();
                     this.notificationDialog = false;
-                    this.notificationDate = new Date();
                     this.notificationDescription = '';
                     this.chosenCourses = [];
-                    this.notificationDialog = false;
-                    this.fetchAnnouncements();
                 }).catch(error => {
                     console.error("Failed to send announcement: ", error);
                 });
