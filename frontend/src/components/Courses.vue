@@ -405,8 +405,8 @@
             },
             
             courseSearch() {
-                this.fetchCourseCodes();
-            }
+                this.fetchDepartments();
+            },
         },
         data() {
             return {
@@ -623,6 +623,14 @@
 
                 if (selectedKeywords.length > 0) {
                     queryParts.push(`keywords=${encodeURIComponent(selectedKeywords.join(','))}`);
+                }
+
+                if (this.professorSearch.trim() !== '') {
+                    queryParts.push(`professor=${encodeURIComponent(this.professorSearch.trim())}`);
+                }
+
+                if (this.courseSearch.trim() !== '') {
+                    queryParts.push(`courseName=${encodeURIComponent(this.courseSearch.trim())}`);
                 }
 
                 let url = queryParts.length > 0 ? `${baseUrl}?${queryParts.join('&')}` : baseUrl;
@@ -998,6 +1006,7 @@
 
             this.fetchDepartments();
             this.fetchEnrolledCourses(); //enrolled courses data
+            this.fetchProfessors();
         },
     }
 </script>

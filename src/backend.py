@@ -232,7 +232,7 @@ def login_verify():
         return jsonify({"message": "Invalid request"}), 400
    
             
-# LV
+# LV/JU
 # Signup functionality for backend
 # Check backend development notes (Lucas)
 # Included print statements for terminal reference
@@ -405,7 +405,7 @@ def getUserInfo():
     else:
         return jsonify({"error": "User not logged in"}), 401
     
-
+#JU
 # Retrive user schedule
 @app.route('/getUserSchedule', methods=['GET'])
 @jwt_required()
@@ -509,7 +509,7 @@ def user_schedule_stored_procedure(cursor, email):
         print("Error while fetching user schedule:", err)
         return None
     
-
+#JU
 #create a custom schedule
 @app.route('/createCustomSchedule', methods=['POST'])
 @jwt_required()
@@ -551,6 +551,7 @@ def create_custom_schedule():
         cursor.close()
         connection.close()
 
+#JU
 #add event to custom schedule
 @app.route('/createCustomEvent', methods=['POST'])
 @jwt_required()
@@ -585,6 +586,7 @@ def create_custom_event():
         cursor.close()
         connection.close()
 
+#JU
 #retrieve user created schedules
 @app.route('/getCustomSchedules', methods=['GET'])
 @jwt_required()
@@ -639,7 +641,7 @@ def get_custom_schedules():
         cursor.close()
         connection.close()
 
-
+#JU
 #delete custom created schedules
 @app.route('/deleteCustomSchedule/<int:schedule_id>', methods=['DELETE'])
 @jwt_required()
@@ -672,6 +674,7 @@ def delete_custom_schedule(schedule_id):
         cursor.close()
         connection.close()
 
+#JU
 #delete event from custom schedule
 @app.route('/deleteCustomEvent/<int:event_id>', methods=['DELETE'])
 @jwt_required()
@@ -703,7 +706,7 @@ def delete_custom_event(event_id):
         cursor.close()
         connection.close()
 
-
+#JU
 #get user enrolled courses
 @app.route('/getEnrolledCourses', methods=['GET'])
 @jwt_required()
@@ -823,8 +826,8 @@ def get_enrolled_courses():
         cursor.close()
         connection.close()
 
-
-#  unenroll from course
+#JU
+#unenroll from course
 @app.route('/unenrollCourse', methods=['POST'])
 @jwt_required()
 def unenroll_course():
@@ -855,7 +858,7 @@ def unenroll_course():
         if 'connection' in locals():
             connection.close()
             
-
+#JU
 #get review tags
 @app.route('/getTags', methods=['GET'])
 def get_tags():
@@ -877,7 +880,7 @@ def get_tags():
         cursor.close()
         connection.close()
 
-
+#JU
 #mark a course as completed
 @app.route('/markCourseCompleted', methods=['POST'])
 @jwt_required()
@@ -919,16 +922,50 @@ def mark_course_completed(user_email, course_code, review, tags, student_rating,
         connection = connectToDB()
         if not connection:
             return False, "DB connection failed"
-
+        
         cursor = connection.cursor()
+        
+        #get the total required credits for the student's major
+        cursor.execute("""
+            SELECT m.creditsReq
+            FROM tblStudents s
+            JOIN tblMajor m ON s.majorID = m.majorID
+            JOIN tblUser u ON s.Email = u.Email
+            WHERE u.Email = %s
+        """, (user_email,))
+        total_required_credits = cursor.fetchone()[0]
+        
+        #calculate the total completed credits for the student
+        cursor.execute("""
+            SELECT SUM(c.Credits)
+            FROM tblUserCompletedCourses ucc
+            JOIN tblCourses c ON ucc.courseID = c.courseID
+            WHERE ucc.Email = %s
+        """, (user_email,))
+        total_completed_credits = cursor.fetchone()[0] or 0
+        
+        #credits for the current course
+        cursor.execute("""
+            SELECT Credits
+            FROM tblCourses
+            WHERE courseCode = %s
+        """, (course_code,))
+        course_credits = cursor.fetchone()[0]
+        
+        #check if completing current course would exceed 100% of credits
+        if total_completed_credits + course_credits > total_required_credits:
+            return False, "100% of required credits already met"
+        
         cursor.callproc('MarkCourseCompleted', [user_email, course_code, review, json.dumps(tags), student_rating, letter_grade])
         connection.commit()
-
+        
         return True, "Course marked as completed successfully"
+    
     except Error as err:
         app.logger.error(f"Error in mark_course_completed: {str(err)}")
         connection.rollback()
         return False, f"Error marking course as completed: {str(err)}"
+    
     finally:
         cursor.close()
         connection.close()
@@ -960,6 +997,7 @@ def is_course_reviewed(user_email, course_code):
         cursor.close()
         connection.close()
 
+#JU
 #get tags for reviewed courses
 @app.route('/getUserCourseTags', methods=['GET'])
 @jwt_required()
@@ -1025,7 +1063,7 @@ def fetch_user_course_tags(email):
         return None
 
 
-# LV
+# LV/JU
 # Retrieve majors
 @app.route('/majors', methods=['GET'])
 def get_majors():
@@ -1045,7 +1083,7 @@ def get_majors():
         return jsonify({"error": "DB connection failed"}), 500
    
     
-# LV
+# LV/JU
 # Logout route
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -1219,7 +1257,7 @@ def changePassword():
         if 'connection' in locals():
             connection.close()
 
-
+#JU
 #retrieve courses with completion status
 @app.route('/getCourseProgress', methods=['GET'])
 @jwt_required()
@@ -1266,7 +1304,7 @@ def courses_for_progress_page():
     else:
         return jsonify({"error": "DB connection failed"}), 500
     
-
+#JU
 #get career variables for progress page (left hand side of page)
 @app.route('/getCareerProgress', methods=['GET'])
 @jwt_required()
@@ -1357,6 +1395,8 @@ def search_departments():
     term_param = request.args.get('term', None)
     rating_param = request.args.get('rating', None)
     keywords_param = request.args.get('keywords', '')
+    professor_param = request.args.get('professor', '')
+    course_name_param = request.args.get('courseName', '')
     
     connection = connectToDB()
     if connection:
@@ -1446,7 +1486,25 @@ def search_departments():
                     params.append(keyword)
                 query += f" AND ({' OR '.join(keyword_conditions)})"
                 filters_applied = True
+
+            if 'professor' in request.args and professor_param:
+                query += " AND professors LIKE %s"
+                params.append(f"%{professor_param}%")
+                filters_applied = True
             
+            if 'courseName' in request.args and course_name_param:
+                query += " AND courseName LIKE %s"
+                params.append(f"%{course_name_param}%")
+                filters_applied = True
+
+            if 'showCoursesFromMajor' in request.args and request.args.get('showCoursesFromMajor') == 'true':
+                user_email = get_jwt_identity()['email']  # Assuming the user's email is stored in the JWT identity
+                user = User.get_user_by_email(user_email)
+                if user and user.majorID:
+                    query += " AND majorID = %s"
+                    params.append(user.majorID)
+                    filters_applied = True
+
             query += " ORDER BY courseLevel, courseCode;"
             
             print("Query Parameters:", params)
@@ -1480,7 +1538,7 @@ def search_departments():
     else:
         return jsonify({"message": "Failed to connect to database"}), 500
     
-# LV
+# LV/JU
 # Add courses to user schedule
 @app.route('/enrollCourses', methods=['POST'])
 @jwt_required()
@@ -1506,6 +1564,14 @@ def enroll_courses():
         try:
             cursor.execute("START TRANSACTION")
 
+            #get the semesterID of the first course
+            cursor.execute("""
+                SELECT semesterID
+                FROM tblcourseSchedule
+                WHERE scheduleID = %s
+            """, (schedule_ids[0],))
+            first_semester_id = cursor.fetchone()[0]
+
             for schedule_id in schedule_ids:
                 cursor.execute("""
                     SELECT cs.availableSeats, cs.courseCode, cs.startTime, cs.endTime, cs.meetingDays,cs.semesterID
@@ -1518,6 +1584,9 @@ def enroll_courses():
 
                 if result:
                     availableSeats, course_code, startTime, endTime, meetingDays, semesterID = result
+
+                    if semesterID != first_semester_id:
+                        raise Exception("All courses must be from the same semester")
 
                     if availableSeats <= 0:
                         raise Exception(f"Course {course_code} has no available seats")
@@ -1585,6 +1654,7 @@ def enroll_courses():
         connection.close()
 
 
+#JU
 #retrieve notifications for banner
 @app.route('/notifications', methods=['GET'])
 def get_today_notification():
@@ -1904,6 +1974,7 @@ def remove_instructor():
         cursor.close()
         connection.close()
 
+#JU
 #fetch CS instructors for Admin to enroll in course page 
 @app.route('/getInstructors', methods=['GET'])
 @jwt_required()
@@ -1936,6 +2007,7 @@ def get_instructors():
         cursor.close()
         connection.close()
 
+#JU
 #Admin assign instructors to courses
 @app.route('/assignInstructors', methods=['POST'])
 @jwt_required()
@@ -2000,6 +2072,7 @@ def assign_instructors():
         cursor.close()
         connection.close()
 
+#JU
 #Admin unassign instructor from course
 @app.route('/unassignInstructor', methods=['POST'])
 @jwt_required()
@@ -2039,6 +2112,7 @@ def unassign_instructor():
         cursor.close()
         connection.close()
 
+#JU
 #change instructor office hours
 @app.route('/updateOfficeHours', methods=['POST'])
 @jwt_required()
@@ -2065,6 +2139,7 @@ def update_office_hours():
         cursor.close()
         connection.close()
 
+#JU
 #retrieve students enrolled in a course
 @app.route('/getEnrolledStudents/<int:scheduleID>', methods=['GET'])
 @jwt_required()
@@ -2079,6 +2154,11 @@ def get_enrolled_students(scheduleID):
             FROM tblUserSchedule us
             JOIN tblStudents s ON us.studentID = s.studentID
             JOIN tblUser u ON s.userID = u.userID
+            LEFT JOIN (
+                SELECT DISTINCT studentID, scheduleID, grade
+                FROM tblGrades
+                WHERE scheduleID = %s
+            ) g ON us.studentID = g.studentID AND us.scheduleID = g.scheduleID
             WHERE us.scheduleID = %s
         """, (scheduleID,))
 
@@ -2090,7 +2170,9 @@ def get_enrolled_students(scheduleID):
                 'studentID': student[0],
                 'firstName': student[1],
                 'lastName': student[2],
-                'enrollmentID': student[3]
+                'enrollmentID': student[3],
+                'isGraded': student[4] != 'NA',
+                'courseGrade': student[4] if student[4] != 'NA' else None
             }
             students.append(student_data)
 
@@ -2103,7 +2185,7 @@ def get_enrolled_students(scheduleID):
     finally:
         cursor.close()
         connection.close()
-
+#JU
 #instructor enters grade for a student 
 @app.route('/saveStudentGrade', methods=['POST'])
 @jwt_required()
