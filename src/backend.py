@@ -2295,7 +2295,80 @@ def get_active_notifications():
     finally:
         cursor.close()
         connection.close()
+        
+        
+# LV
+# handles instructor announcements
+@app.route('/save-announcement', methods=['POST'])
+@jwt_required()
+def save_announcement():
+    try:
+        user_email = get_jwt_identity()['email']
+        print("829 EMAIL ***********:", user_email)
+        data = request.json
+        connection = connectToDB()
+        cursor = connection.cursor()
+        query = """
+        INSERT INTO tblAnnouncements (Email, Date, Content, Courses) VALUES (%s, %s, %s, %s)
+        """
+        cursor.execute(query, (user_email, data['date'], data['content'], data['courses']))
+        connection.commit()
+        return jsonify({"message": "Announcement saved successfully"}), 200
+    except Exception as exc:
+        connection.rollback()
+        print(exc)
+        return jsonify({"message": "Error saving announcement"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+        
 
+# LV
+# gets active announcements for corresponding instructor
+@app.route('/get-announcements', methods=['GET'])
+@jwt_required()
+def get_announcements():
+    user_email = get_jwt_identity()['email']
+    print("GET ANNOUNCEMENTS EMAIL:", user_email)
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor(dictionary=True)
+        query = "SELECT Date, Content, Courses FROM tblAnnouncements WHERE Email = %s ORDER BY Date DESC"
+        cursor.execute(query, (user_email,))
+        announcements = cursor.fetchall()
+        return jsonify(announcements), 200
+    except Exception as exc:
+        print(exc)
+        return jsonify({"message": "Error fetching announcements"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+        
+        
+# LV
+# deletes instructor announcents
+@app.route('/delete-announcement', methods=['POST'])
+@jwt_required()
+def delete_announcement():
+    user_email = get_jwt_identity()['email']
+    data = request.json
+    date = data['date']
+    print(date, user_email)
+    try:
+        connection = connectToDB()
+        cursor = connection.cursor()
+        query = "DELETE FROM tblAnnouncements WHERE Email = %s AND Content = %s"
+        cursor.execute(query, (user_email, data['content']))
+        connection.commit()
+        return jsonify({"message": "Announcement deleted."}), 200
+    except Exception as exc:
+        connection.rollback()
+        print(exc)
+        return jsonify({"message": "Error deleting announccement"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+        
 
 # LV
 # Connect to database
