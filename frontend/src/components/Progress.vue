@@ -62,7 +62,17 @@
                                             </p>
                                             <p><strong>Academic Standing:</strong> Good Standing</p>
                                             <p><strong>Credits Completed:</strong> {{ unitsCompleted }}/{{ major.units }}</p>
-                                            <p><v-btn class="save-changes-btn" @click="confirmationDialog = true" size="small">Save</v-btn></p>
+                                            <p>
+                                            <v-btn
+                                            class="save-changes-btn"
+                                            @click="confirmationDialog = true"
+                                            size="small"
+                                            :disabled="!hasUnsavedChanges"
+                                            :class="{ 'green-btn': hasUnsavedChanges }"
+                                            >
+                                            Save
+                                            </v-btn>
+                                            </p>
                                         </div>
                                         
                                         <div class="col-md-8 d-flex flex-column">
@@ -113,7 +123,7 @@
                                                                             empty-icon="$ratingEmpty"
                                                                             hover
                                                                             :readonly="course.saved"
-                                                                            @input="course.changed = true"
+                                                                            @input="course.changed = true; if (!course.saved) hasUnsavedChanges = true"
                                                                         ></v-rating>
                                                                         <br>
 
@@ -138,7 +148,7 @@
                                                                     v-model="course.review"
                                                                     label="Your Thoughts"
                                                                     placeholder="Enter your review for this course"
-                                                                    @input="course.changed = true"
+                                                                    @input="course.changed = true; if (!course.saved) hasUnsavedChanges = true"
                                                                     ></v-textarea>
                                                                 </v-expansion-panel-text>
                                                             </v-expansion-panel>
@@ -369,6 +379,7 @@
                 courseGrade: [],
                 courseSearch: '',
                 userCourseTags: {},
+                hasUnsavedChanges: false,
 
                 unitsCompleted: 0,
                 user: {
@@ -600,6 +611,7 @@
                     console.log('All changes saved successfully');
                     this.$emit('show-toast', { message: 'Progress saved.', color: '#51da6e' });
                     this.confirmationDialog = false;
+                    this.hasUnsavedChanges = false;
                 } catch (error) {
                     console.error('Error saving changes:', error);
                     let errorMessage = 'Error saving progress. Please try again.'; //default message
@@ -615,10 +627,16 @@
                 if (index > -1) {
                     course.tags.splice(index, 1);
                     course.changed = true;
+                    if (!course.saved) {
+                    this.hasUnsavedChanges = true;
+                    }
                 } else {
                     if (course.tags.length < 4) {
                         course.tags.push({ id: tag.id });
                         course.changed = true;
+                        if (!course.saved) {
+                            this.hasUnsavedChanges = true;
+                        }
                     }
                 }
             },
@@ -861,6 +879,11 @@
         max-width: 30%;
         background-color: #51da6e;
         margin-left: 0;
+    }
+
+    .green-btn {
+    background-color: #51da6e !important;
+    color: white !important;
     }
 
     .tag-container {
