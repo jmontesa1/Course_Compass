@@ -1006,7 +1006,6 @@
 
             this.fetchDepartments();
             this.fetchEnrolledCourses(); //enrolled courses data
-            this.fetchProfessors();
         },
     }
 </script>

@@ -2150,7 +2150,12 @@ def get_enrolled_students(scheduleID):
         cursor = connection.cursor()
 
         cursor.execute("""
-            SELECT s.studentID, u.Fname, u.Lname, us.enrollmentID
+            SELECT 
+                s.studentID, 
+                u.Fname, 
+                u.Lname, 
+                us.enrollmentID,
+                COALESCE(g.grade, 'NA') as grade
             FROM tblUserSchedule us
             JOIN tblStudents s ON us.studentID = s.studentID
             JOIN tblUser u ON s.userID = u.userID
@@ -2160,8 +2165,7 @@ def get_enrolled_students(scheduleID):
                 WHERE scheduleID = %s
             ) g ON us.studentID = g.studentID AND us.scheduleID = g.scheduleID
             WHERE us.scheduleID = %s
-        """, (scheduleID,))
-
+        """, (scheduleID, scheduleID))
         enrolled_students = cursor.fetchall()
 
         students = []
@@ -2185,6 +2189,7 @@ def get_enrolled_students(scheduleID):
     finally:
         cursor.close()
         connection.close()
+        
 #JU
 #instructor enters grade for a student 
 @app.route('/saveStudentGrade', methods=['POST'])
