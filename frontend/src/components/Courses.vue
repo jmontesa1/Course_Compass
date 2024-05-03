@@ -87,10 +87,10 @@
                 <FilterMenu v-model:selectedFilters="selectedFilters" @itemSelected="handleFilterSelected" :open="filterMenuOpen" ></FilterMenu>
 
                 <div class="form-check mb-3" v-if="userType === 'Student'">
-                    <label class="form-check-label" for="sortMajorRequirements">
-                        <span class="ml-1">Show Courses from Major</span>
-                    </label>
-                    <input class="form-check-input" type="checkbox" v-model="sortByMajorRequirements" @change="handleFilterSelected('Show Courses from Major')" id="sortMajorRequirements"/>
+                <label class="form-check-label" for="showCoursesFromMajor">
+                    <span class="ml-1">Show Courses from Major</span>
+                </label>
+                <input class="form-check-input" type="checkbox" v-model="showCoursesFromMajor" @change="handleFilterSelected('Show Courses from Major'); fetchDepartments()" id="showCoursesFromMajor">
                 </div>
             </div>
 
@@ -117,6 +117,9 @@
                         style="margin-top: 10px; color: black; font-family: Poppins;"
                     ></v-select>
                     <p style="font-size: 16px">Cart:</p>
+                    <div v-if="selectedTerm" class="term-reminder">
+                    <p>Enrolling for: {{ selectedTerm }}</p>
+                    </div>
                     <v-chip class="form-control" v-for="course in schedule" :key="course.id" color="darkgrey">
                             <div class="chip-text">{{ course.name }}</div>
                             <v-btn size="extra-small" @click="removeFromSchedule(course)" variant="plain" style="position: relative;">
@@ -198,7 +201,7 @@
                                                 :gradient="['#da4d4d', '#51da6e']"
                                                 :gradient-direction="'left'"
                                                 :line-width="'10'"
-                                                :smooth="0"
+                                                :smooth="false"
                                                 :model-value="gradeAnalytics"
                                                 :padding="'5'"
                                                 :type="'bar'"
@@ -224,7 +227,8 @@
                                         <v-divider></v-divider>
                                         <v-list lines="auto" style="font-family: Poppins;">
                                             <v-list-header>{{instructorSchedule[this.tab].course}}</v-list-header>
-                                            <v-list-item v-for="(review,index) in courseStudents[this.tab].reviews" :key="index">
+                                            <v-list-item v-for="(review, index) in (courseStudents[this.tab] && courseStudents[this.tab].reviews || [])" 
+                                            :key="index">
                                                 <template v-slot:title>
                                                     {{courseStudents[this.tab].reviews[index].date}}
                                                 </template>
@@ -287,7 +291,7 @@
                                                                                     clearable
                                                                                     density="compact"
                                                                                     label="Select grade"
-                                                                                    v-model="studentGradeSelection"
+                                                                                    v-model="studentGradeSelections[index]"
                                                                                     :items="grades.map(item => item.grade)"
                                                                                 ></v-select>
                                                                             </v-col>
@@ -303,13 +307,13 @@
                                                                                     <!--Pop up -->
                                                                                     <v-card title="Save grade">
                                                                                         <v-card-text>
-                                                                                            Are you sure you want to save <strong>{{student.name}}'s</strong> grade as <strong>{{this.studentGradeSelection}}</strong>?
+                                                                                            Are you sure you want to save <strong>{{ instructorSchedule[tab].students[index].firstName }} {{ instructorSchedule[tab].students[index].lastName }}'s</strong> grade as <strong>{{ studentGradeSelections[index] }}</strong>
                                                                                             <br>
                                                                                         </v-card-text> 
                                                                                         <v-card-actions>
                                                                                             <v-spacer></v-spacer>
                                                                                             <v-btn text="Cancel" variant="plain" @click="studentGradeDialog[index] = false"></v-btn>
-                                                                                            <v-btn text="Save" variant="tonal" color="#51da6e" @click="saveStudentGrade(index)"></v-btn>
+                                                                                            <v-btn text="Save" variant="tonal" color="#51da6e" @click.prevent="saveStudentGrade(index)"></v-btn>
                                                                                         </v-card-actions>
                                                                                     </v-card>
                                                                                 </v-dialog>
@@ -325,7 +329,7 @@
                                                                             <!--Pop up -->
                                                                             <v-card title="Remove student">
                                                                                 <v-card-text>
-                                                                                    Are you sure you want to remove <strong>{{student.name}}</strong> from <strong>{{instructorSchedule[this.tab].course}}</strong>?
+                                                                                    Are you sure you want to remove <strong>{{ instructorSchedule[tab].students[index].firstName }} {{ instructorSchedule[tab].students[index].lastName }}</strong> from <strong>{{ instructorSchedule[tab].course }}</strong>?
                                                                                     <br>
                                                                                 </v-card-text> 
                                                                                 <v-card-actions>
@@ -406,8 +410,12 @@
             },
             
             courseSearch() {
-                this.fetchCourseCodes();
-            }
+                this.fetchDepartments();
+            },
+
+            professorSearch() {
+                this.fetchDepartments();
+            },
         },
         data() {
             return {
@@ -420,6 +428,7 @@
                 selectedFilters: [],
                 filterMenuOpen: ['Filters'],
                 dialog: false,
+                showCoursesFromMajor: false,
 
                 //pagination
                 currentPage: 1,
@@ -432,7 +441,7 @@
                 studentDialog: [],
                 studentGradeDialog: [],
                 studentRemoveDialog: [],
-                studentGradeSelection: '',
+                studentGradeSelections: [],
                 courseStudents: [
                     {course: 'COURSE 1', students: [
                         { name: 'Rhys Little', isGraded: false, courseGrade: null },
@@ -589,6 +598,10 @@
                 const retrieveStudents = this.courseStudents[this.tab].students;
                 return retrieveStudents;
             },
+
+            selectedTerm() {
+                return this.selectedFilters.find(filter => /^(?:Fall|Winter|Spring|Summer)$/.test(filter));
+            },
         },
 
         created() {
@@ -665,6 +678,18 @@
 
                 if (selectedKeywords.length > 0) {
                     queryParts.push(`keywords=${encodeURIComponent(selectedKeywords.join(','))}`);
+                }
+
+                if (this.professorSearch.trim() !== '') {
+                    queryParts.push(`professor=${encodeURIComponent(this.professorSearch.trim())}`);
+                }
+
+                if (this.courseSearch.trim() !== '') {
+                    queryParts.push(`courseName=${encodeURIComponent(this.courseSearch.trim())}`);
+                }
+
+                if (this.showCoursesFromMajor) {
+                    queryParts.push('showCoursesFromMajor=true');
                 }
 
                 let url = queryParts.length > 0 ? `${baseUrl}?${queryParts.join('&')}` : baseUrl;
@@ -873,60 +898,114 @@
                         });
                         course.students = studentsResponse.data.enrolledStudents;
                     }
+
+                    //update the courseStudents data property with hardcoded reviews
+                    this.courseStudents = this.instructorSchedule.map((course, index) => ({
+                    course: course.course,
+                    students: course.students.map(student => ({
+                        name: `${student.firstName} ${student.lastName}`,
+                        isGraded: student.isGraded,
+                        courseGrade: student.courseGrade
+                    })),
+                    reviews: index === 0 ? [
+                        { text: 'The course material was outdated and not helpful.', date: 'Jan 12th, 2016' },
+                        { text: 'The lectures were confusing and poorly structured.', date: 'Feb 23rd, 2015' },
+                        { text: 'Didn\'t find the course engaging or informative.', date: 'Aug 7th, 2023' },
+                        { text: 'The content was too basic and not worth the price.', date: 'May 15th, 2018' },
+                        { text: 'I expected more from the course but was disappointed.', date: 'Apr 29th, 2024' }
+                    ] : [
+                        { text: 'Great course content, very informative!', date: 'Apr 9th, 2017' },
+                        { text: 'Enjoyed the interactive lessons and quizzes.', date: 'Jan 4th, 2022' },
+                        { text: 'Highly recommend for anyone new to the subject.', date: 'Jul 18th, 2019' },
+                        { text: 'Excellent instructors, clear explanations.', date: 'Oct 25th, 2016' },
+                        { text: 'Practical exercises were really helpful.', date: 'Mar 8th, 2020' }
+                    ]
+                    }));
                 } catch (error) {
                     console.error("Error fetching enrolled courses:", error);
                 }
             },
             
-            removeStudent(index){
-                this.courseStudents[this.tab].students.splice(index,1);
+            async removeStudent(index) {
+                const student = this.instructorSchedule[this.tab].students[index];
+                try {
+                    const response = await axios.post('http://127.0.0.1:5000/removeStudent', {
+                        studentID: student.studentID,
+                        scheduleID: this.instructorSchedule[this.tab].scheduleID
+                    }, {
+                        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+                    });
+
+                    if (response.status === 200) {
+                        this.instructorSchedule[this.tab].students.splice(index, 1);
+                        const studentIndex = this.courseStudents[this.tab].students.findIndex(
+                            s => s.name === `${student.firstName} ${student.lastName}`
+                        );
+                        if (studentIndex !== -1) {
+                            this.courseStudents[this.tab].students.splice(studentIndex, 1);
+                        }
+                        this.getGradeAnalytics();  //recalculate grade analytics
+                        this.$emit("show-toast", { message: "Student removed successfully!", color: '#51da6e' });
+                    } else {
+                        throw new Error("Unexpected response status: " + response.status);
+                    }
+                } catch (error) {
+                    console.error("Error removing student:", error);
+                    let errorMessage = "Failed to remove student.";
+                    if (error.response && error.response.data && error.response.data.message) {
+                        errorMessage = error.response.data.message;
+                    }
+                    this.$emit("show-toast", { message: errorMessage, color: '#da5151' });
+                }
                 this.studentDialog[index] = false;
                 this.studentRemoveDialog[index] = false;
-                this.getGradeAnalytics();
             },
 
             async saveStudentGrade(index) {
+                //console.log('saveStudentGrade called with index:', index);
                 const student = this.instructorSchedule[this.tab].students[index];
 
                 try {
                     const response = await axios.post('http://127.0.0.1:5000/saveStudentGrade', {
                         studentID: student.studentID,
                         scheduleID: this.instructorSchedule[this.tab].scheduleID,
-                        grade: this.studentGradeSelection[index]
+                        grade: this.studentGradeSelections[index]
                     }, {
                         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
                     });
 
                     if (response.status === 200) {
-                        student.courseGrade = this.studentGradeSelection[index];
+                        student.courseGrade = this.studentGradeSelections[index];
+                        student.isGraded = true;
+
+                        const studentIndex = this.courseStudents[this.tab].students.findIndex(
+                            student => student.name === `${this.instructorSchedule[this.tab].students[index].firstName} ${this.instructorSchedule[this.tab].students[index].lastName}`
+                        );
+                        if (studentIndex !== -1) {
+                            this.courseStudents[this.tab].students[studentIndex].courseGrade = this.studentGradeSelections[index];
+                            this.courseStudents[this.tab].students[studentIndex].isGraded = true;
+                        }
+
                         this.$emit("show-toast", { message: "Grade saved successfully!", color: '#51da6e' });
                     }
                 } catch (error) {
                     console.error("Error saving student grade:", error);
                     let errorMessage = "Failed to save student grade.";
                     if (error.response && error.response.data && error.response.data.message) {
-                        errorMessage = error.response.data.message;
+                    errorMessage = error.response.data.message;
                     }
                     this.$emit("show-toast", { message: errorMessage, color: '#da5151' });
                 }
 
-                this.studentGradeSelection[index] = '';
+                this.studentGradeSelections[index] = null;
                 this.studentGradeDialog[index] = false;
+                this.studentDialog[index] = false;
                 this.getGradeAnalytics();
             },
 
             chooseTab(index){
                 this.tab = index;
                 this.coursePage[this.tab] = true;
-                this.getGradeAnalytics();
-            },
-
-            saveStudentGrade(index){
-                this.courseStudents[this.tab].students[index].isGraded = true;
-                this.courseStudents[this.tab].students[index].courseGrade = this.studentGradeSelection;
-
-                this.studentGradeSelection = '';
-                this.studentGradeDialog[index] = false;
                 this.getGradeAnalytics();
             },
 
@@ -1047,6 +1126,13 @@
 </script>
 
 <style scoped>
+
+    .term-reminder {
+        background-color: #f0f0f0;
+        padding: 8px;
+        border-radius: 4px;
+        margin-bottom: 16px;
+    }
 
     .coursepage-container{
         position: relative;
