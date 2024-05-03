@@ -86,10 +86,10 @@
                 <FilterMenu v-model:selectedFilters="selectedFilters" @itemSelected="handleFilterSelected" :open="filterMenuOpen" ></FilterMenu>
 
                 <div class="form-check mb-3" v-if="userType === 'Student'">
-                    <label class="form-check-label" for="sortMajorRequirements">
-                        <span class="ml-1">Show Courses from Major</span>
-                    </label>
-                    <input class="form-check-input" type="checkbox" v-model="sortByMajorRequirements" @change="handleFilterSelected('Show Courses from Major')" id="sortMajorRequirements"/>
+                <label class="form-check-label" for="showCoursesFromMajor">
+                    <span class="ml-1">Show Courses from Major</span>
+                </label>
+                <input class="form-check-input" type="checkbox" v-model="showCoursesFromMajor" @change="handleFilterSelected('Show Courses from Major'); fetchDepartments()" id="showCoursesFromMajor">
                 </div>
             </div>
 
@@ -116,6 +116,9 @@
                         style="margin-top: 10px; color: black; font-family: Poppins;"
                     ></v-select>
                     <p style="font-size: 16px">Cart:</p>
+                    <div v-if="selectedTerm" class="term-reminder">
+                    <p>Enrolling for: {{ selectedTerm }}</p>
+                    </div>
                     <v-chip class="form-control" v-for="course in schedule" :key="course.id" color="darkgrey">
                             <div class="chip-text">{{ course.name }}</div>
                             <v-btn size="extra-small" @click="removeFromSchedule(course)" variant="plain" style="position: relative;">
@@ -408,6 +411,10 @@
             courseSearch() {
                 this.fetchDepartments();
             },
+
+            professorSearch() {
+                this.fetchDepartments();
+            },
         },
         data() {
             return {
@@ -420,6 +427,7 @@
                 selectedFilters: [],
                 filterMenuOpen: ['Filters'],
                 dialog: false,
+                showCoursesFromMajor: false,
 
                 //pagination
                 currentPage: 1,
@@ -548,6 +556,10 @@
                 const retrieveStudents = this.courseStudents[this.tab].students;
                 return retrieveStudents;
             },
+
+            selectedTerm() {
+                return this.selectedFilters.find(filter => /^(?:Fall|Winter|Spring|Summer)$/.test(filter));
+            },
         },
 
         created() {
@@ -632,6 +644,10 @@
 
                 if (this.courseSearch.trim() !== '') {
                     queryParts.push(`courseName=${encodeURIComponent(this.courseSearch.trim())}`);
+                }
+
+                if (this.showCoursesFromMajor) {
+                    queryParts.push('showCoursesFromMajor=true');
                 }
 
                 let url = queryParts.length > 0 ? `${baseUrl}?${queryParts.join('&')}` : baseUrl;
@@ -1066,6 +1082,13 @@
 </script>
 
 <style scoped>
+
+    .term-reminder {
+        background-color: #f0f0f0;
+        padding: 8px;
+        border-radius: 4px;
+        margin-bottom: 16px;
+    }
 
     .coursepage-container{
         position: relative;
