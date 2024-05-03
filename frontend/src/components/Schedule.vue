@@ -1095,9 +1095,16 @@
                         this.userSchedules.push(newSchedule);
                         this.dialog = false;
                         this.scheduleTitle = '';
+                        await this.fetchCustomSchedules();
+                        //this.selectedScheduleTitle = newSchedule.title; //set the selected schedule to the new schedule
                     }
                 } catch (error) {
+                    if (error.response && error.response.data && error.response.data.error) {
+                    this.$emit('show-toast', { message: error.response.data.error, color: '#da6e51' });
+                    } else {
                     console.error('Error creating custom schedule:', error);
+                    this.$toast.error('An error occurred while creating the custom schedule. Please try again.');
+                    }
                 }
             }, //-- end
 
