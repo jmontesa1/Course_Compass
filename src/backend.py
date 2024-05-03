@@ -1433,13 +1433,10 @@ def search_departments():
                 averageRating,
                 courseLevel,
                 frequentTags
-            FROM (
-                SELECT *,
-                    ROW_NUMBER() OVER (PARTITION BY courseCode, term ORDER BY scheduleID) AS rn
-                FROM vwCourseDetails
-                WHERE 1=1
-            ) t
-            WHERE rn = 1
+            FROM 
+                vwCourseDetails
+            WHERE 
+                1=1
             """
             
             params = []
