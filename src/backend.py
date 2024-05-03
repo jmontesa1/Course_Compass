@@ -524,9 +524,19 @@ def create_custom_schedule():
         title = data['title']
         option = data['option']
 
-        # Insert the new custom schedule into the database
+        #check if a schedule with the same title already exists for the user
         connection = connectToDB()
         cursor = connection.cursor()
+        cursor.execute("SELECT COUNT(*) FROM tblCustomSchedules WHERE userID = %s AND title = %s",
+                       (user.userID, title))
+        count = cursor.fetchone()[0]
+
+        if count > 0:
+            error_message = f"A schedule titled '{title}' already exists. Please choose a different name."
+            print(error_message)  # Print the error message to the console
+            return jsonify({"error": error_message}), 400
+
+        # Insert the new custom schedule into the database
         cursor.execute("INSERT INTO tblCustomSchedules (userID, title, scheduleOption) VALUES (%s, %s, %s)",
                        (user.userID, title, option))
         connection.commit()
@@ -1498,7 +1508,7 @@ def search_departments():
                 filters_applied = True
 
             if 'showCoursesFromMajor' in request.args and request.args.get('showCoursesFromMajor') == 'true':
-                user_email = get_jwt_identity()['email']  # Assuming the user's email is stored in the JWT identity
+                user_email = get_jwt_identity()['email']
                 user = User.get_user_by_email(user_email)
                 if user and user.majorID:
                     query += " AND majorID = %s"
@@ -2191,7 +2201,7 @@ def get_enrolled_students(scheduleID):
         connection.close()
         
 #JU
-#instructor enters grade for a student 
+#post student's grade
 @app.route('/saveStudentGrade', methods=['POST'])
 @jwt_required()
 @role_required(['Instructor'])
@@ -2224,7 +2234,17 @@ def save_student_grade():
         if not is_assigned:
             return jsonify({"message": "Instructor is not assigned to the course"}), 403
 
-        #insert the grade into the tblGrades table
+        #check if the student already has the same grade for the course
+        cursor.execute("""
+            SELECT grade FROM tblGrades
+            WHERE studentID = %s AND scheduleID = %s
+        """, (student_id, schedule_id))
+        existing_grade = cursor.fetchone()
+
+        if existing_grade and existing_grade[0] == grade:
+            return jsonify({"message": "Student already has the grade you are trying to submit"}), 400
+
+        #insert or update the grade in the tblGrades table
         cursor.execute("""
             INSERT INTO tblGrades (studentID, scheduleID, grade, instructorID)
             VALUES (%s, %s, %s, %s)
@@ -2237,6 +2257,60 @@ def save_student_grade():
     except Exception as e:
         print(e)
         return jsonify({"message": "Error saving student grade"}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
+
+#JU
+#remove a student and their grade from a course
+@app.route('/removeStudent', methods=['POST'])
+@jwt_required()
+@role_required(['Instructor'])
+def remove_student():
+    try:
+        current_user_email = get_jwt_identity()['email']
+        user = User.get_user_by_email(current_user_email)
+        if not user or not user.instructorID:
+            return jsonify({"message": "User not found or not an instructor"}), 400
+
+        data = request.get_json()
+        student_id = data.get('studentID')
+        schedule_id = data.get('scheduleID')
+
+        if not student_id or not schedule_id:
+            return jsonify({"message": "Missing studentID or scheduleID"}), 400
+
+        connection = connectToDB()
+        cursor = connection.cursor()
+
+        #check if the instructor is assigned to the course schedule
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM tblCourseInstructors
+            WHERE scheduleID = %s AND instructorID = %s
+        """, (schedule_id, user.instructorID))
+
+        is_assigned = cursor.fetchone()[0]
+        if not is_assigned:
+            return jsonify({"message": "Instructor is not assigned to the course"}), 403
+
+        #call the UnenrollCourse stored procedure to remove the student and update enrollment details
+        cursor.callproc('UnenrollCourse', [student_id, schedule_id])
+
+        #delete the student's grade from the tblGrades table
+        cursor.execute("""
+            DELETE FROM tblGrades
+            WHERE studentID = %s AND scheduleID = %s
+        """, (student_id, schedule_id))
+
+        connection.commit()
+
+        return jsonify({"message": "Student removed successfully"}), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error removing student"}), 500
 
     finally:
         cursor.close()
