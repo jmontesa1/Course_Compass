@@ -1,6 +1,7 @@
 <!--Created by: John Montesa-->
 <!-- This is the page after registering for Course Compass -->
 <!-- This page will prompt the user for the next step in the sign up process -->
+<!-- They can resend confirmation email if needed -->
 
 <template>
   <v-container fluid fill-height>
@@ -59,6 +60,7 @@
             };
         },
         methods: {
+            //resend confirmation email
             resendEmail() {
                 axios.post('http://127.0.0.1:5000/resend_confirmation_email', { email: this.email })
                     .then(response => {

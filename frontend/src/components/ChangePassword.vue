@@ -1,5 +1,6 @@
 <!--Created by: John Montesa-->
 <!-- This is the Change Password page for Course Compass -->
+<!-- Utilizes specific checks to confirm passwords are the same and allows for password visibility -->
 
 <template>
 <div v-if="userType !== ''">
@@ -30,6 +31,7 @@
     </div>
 </div> 
 <div v-else>
+<!-- If the user is not an authorized user type, this will be displayed showing they are unauthorized and redirects them to the home page--> 
 <v-container fluid fill-height>
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="6">
@@ -66,6 +68,7 @@ export default {
         };
     },
     methods: {
+        //Visibility toggle for passwords
         toggleVisibility(refName) {
             const inputField = this.$refs[refName];
             if (inputField) {
@@ -79,6 +82,7 @@ export default {
             }
         },
 
+        //Icon switch when visibility is toggled
         eyeIcon(refName) {
             return refName === 'passwordInput'
                 ? this.passwordVis
@@ -89,6 +93,7 @@ export default {
                 : require('../assets/eye.png');
         },
 
+        //Password is changed, requirements must be met
         changePassword() {
             if (this.password !== this.passwordConfirm) {
                 this.$emit("show-toast", { message: "Passwords do not match."});
@@ -96,7 +101,7 @@ export default {
             }
             const passwordPattern = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}/;
             if (!passwordPattern.test(this.password)) {
-                this.$emit("show-toast", { message: "Password does not the requirements."}); // may have to remove, check frontend 
+                this.$emit("show-toast", { message: "Password does not the requirements."}); 
                 return;
             }
             axios.post('http://127.0.0.1:5000/changepassword', {

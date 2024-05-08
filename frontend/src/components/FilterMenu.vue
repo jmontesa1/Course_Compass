@@ -1,16 +1,17 @@
 <!-- Created by: John Montesa -->
-<!-- This component creates the filter menu that the user will interact with -->
+<!-- This component creates the filter menu that the user will interact with. Shows filters and handles filters selected. Filters are showed as checkboxes-->
 
 <template>
   <!--<p>Applied Filters: {{ selected }}</p>-->
   <v-card class="menu">
+    <!--Filter list and menu-->
     <v-list v-model:opened="open">
       <v-list-item v-for="(menuItem, index) in menuItems" :key="index">
         <v-list-group :value="menuItem.label">
           <template v-slot:activator="{ props }">
             <v-list-item class="label" v-bind="props" :title="menuItem.label"></v-list-item>
           </template>
-
+          <!--Checkbox for filters-->
           <v-list-item v-for="(childItem, childIndex) in menuItem.children" :key="childIndex">
             <v-checkbox class="child-checkbox" :checked="isChecked(childItem.label)"  :label="childItem.label" :value="childItem.label" @change="handleCheckboxChange(childItem.label)"></v-checkbox>
           </v-list-item>
@@ -21,6 +22,7 @@
 </template>
 
 <script setup>
+//Handles selected filters and brings them into the components used for course filtering
   import { ref, defineEmits, defineProps } from 'vue';
   
   const { selectedFilters } = defineProps(['selectedFilters']);
@@ -101,6 +103,4 @@
       color: black;
       height: 45px;
     }
-    
-
 </style>

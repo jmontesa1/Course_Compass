@@ -5,10 +5,11 @@
 
 
 <template>
-    <!-- Display the courses in a list -->
+    <!--Loading animation-->
     <div class="loading" v-if="courses.length === 0">
         <v-progress-circular indeterminate :width="5"></v-progress-circular>
     </div>
+    <!-- Display the courses in a list -->
     <div class="course-list">
         <v-dialog v-model="dialog" max-width="1000">
             <template v-slot:activator="{ props: activatorProps }">
@@ -17,7 +18,7 @@
                     <span class="material-icons" style="color:black;">north_east</span>
                 </div>
             </template>
-            <!--Pop up -->
+            <!--Pop up pulled from CourseDetailsPopup component-->
             <CourseDetailsPopup :userType="userType" v-if="selectedCourse" :course="selectedCourse" @close="closePopup" @addToSchedule="addToSchedule" /> 
         </v-dialog>
     </div>
@@ -25,7 +26,6 @@
 
 <script>
     import CourseDetailsPopup from '@/components/CourseDetailsPopup.vue';
-
     export default {
         //the courses are passed in as a prop array
         props: {
@@ -34,7 +34,6 @@
                 type: String,
                 required: '',
             },
-
         },
         data() {
             return {
@@ -45,16 +44,19 @@
             };
         },
         methods: {
+            //Chooses selected course
             handleCourseClick(course) {
                 this.selectedCourse = course;
             },
             
+            //handles popup closing
             closePopup() {
                 this.selectedCourse = null;
                 this.notification = null;
                 this.dialog = false;
             },
 
+            //Adds course to user schedule
             addToSchedule(course) {
                 this.$emit("addToSchedule", course);
                 if (!this.schedule.some((c) => c.name === course.name)) {
@@ -65,6 +67,7 @@
                 this.dialog = false;
             },
             
+            //Shows popup
             showNotification(message, isError = false) {
                 this.notification = {
                     message,
@@ -72,6 +75,7 @@
                 };
             },
 
+            //Closes popup
             clearNotification() {
                 this.notification = null;
             },

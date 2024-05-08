@@ -88,6 +88,7 @@
             };
         },
         mounted() {
+            //verified email checks
             if (this.$route.query.verified === 'true') {
                 this.isVerified = true;
                 this.$emit("show-toast", { message: "Your account has been verified. You may now log in.", color: '#51da6e' });
@@ -108,6 +109,7 @@
             this.handleLogin = this.determineLoginHandler();
         },
         methods:{
+            //toggle password visibility
             toggleVisibility(){
                 const passwordInput = this.$refs.passwordInput;
                 if (passwordInput) {
@@ -115,10 +117,12 @@
                     passwordInput.type = this.passwordVis ? 'text' : 'password';
                 }
             },
+            //switch eye icon based on visibility
             eyeIcon(){
                 return this.passwordVis ? require('../assets/eyeclose.png') : require('../assets/eye.png');
             },
 
+            //determine if user is verified
             determineLoginHandler() {
                 const tag = this.$route.params.tag;
                 if (tag === 'verified=true') {
@@ -127,6 +131,7 @@
                 return this.handleDefaultLogin;
             },
 
+            //log in user
             handleDefaultLogin(){
                 const loginData = {
                     email: this.email,
@@ -179,6 +184,7 @@
                     });
             },
 
+            //login user if verified
             handleLoginVerify(){
                 const loginData = {
                     email: this.email,
@@ -226,6 +232,7 @@
                     });
             },
 
+            //sends an email of your password if you forgot your password
             sendEmail(){
                 const newDate = new Date().toLocaleDateString('en-US', {
                     month: 'long',

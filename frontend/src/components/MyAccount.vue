@@ -1,27 +1,29 @@
 <!--Created by: John Montesa-->
 <!-- This is the Account page for Course Compass -->
+<!-- Users can see their basic account information, edit profile information, change password, and delete account -->
+<!-- if the user changes password, they will receive an email that contains a link to change their password -->
 
 <template>
 <div v-if="userType !== ''">
     <div class="settings-container">
-
         <div class="container-fluid mt-3">
             <div class="row">
-                <!--LEFT SIDE OF PAGE-->
+                <!--LEFT SIDE OF PAGE, shows gear icon-->
                 <div class="col-sm-1 d-flex flex-column align-items-center" style="border-top: 1px solid black;">
                     <span class="material-symbols-outlined" style="font-size: 60px; margin-top: 15px;">
                         settings
                     </span>
                 </div>
-                <!--RIGHT SIDE OF PAGE-->
+                <!--RIGHT SIDE OF PAGE shows account information-->
                 <div class="col d-flex flex-column">
                     <div class="loading-container" v-if="loading">
-                        <!-- loading anim -->
+                        <!-- loading animation -->
                         <v-progress-circular indeterminate :width="5"></v-progress-circular>
                     </div>
 
                     <div style="padding: 10px;" v-else>
                         <v-row>
+                            <!-- Account Details -->
                             <v-col cols="8">
                                 <h2 style="margin-left: -8px;">Account Details</h2>
                                 <p v-if="user.role == 'Instructor'" style="font-size: 17px;"><strong><i>Instructor</i></strong></p>
@@ -36,10 +38,12 @@
                             </v-col>
                             <v-col cols="4">
                                 <v-card class="buttons-container">
+                                    <!-- Account Management options and buttons -->
                                     <v-card-title>
                                         Options
                                     </v-card-title>
                                     <v-card-text>
+                                        <!-- Edit Profile button and pop up -->
                                         <v-dialog v-model="dialog" max-width="500" style="font-family: Poppins;">
                                             <template v-slot:activator="{ props: activatorProps }">
                                                 <v-btn v-bind="activatorProps" stacked variant="outlined" style="width:100%;">
@@ -70,6 +74,7 @@
                                             </v-card>
                                         </v-dialog>
                                         <br><br>
+                                        <!-- Change Password button and pop up -->
                                         <v-dialog v-model="changePasswordDialog" max-width="500" style="font-family: Poppins;">
                                             <template v-slot:activator="{ props: activatorProps }">
                                                 <v-btn v-bind="activatorProps" stacked variant="outlined" style="width:100%;" @click="sendEmail">
@@ -91,6 +96,7 @@
                                             </v-card>
                                         </v-dialog>                                        
                                         <br><br><br><br><br><br><br><br>
+                                        <!-- Delete Account button and confirmations -->
                                         <v-dialog v-model="deleteDialog" max-width="500" style="font-family: Poppins;">
                                             <template v-slot:activator="{ props: activatorProps }">
                                                 <v-btn color="red" v-bind="activatorProps" stacked variant="tonal" style="width:100%;border: 1px solid black;">
@@ -124,6 +130,7 @@
     </div>
 </div> 
 <div v-else>
+<!-- Displays if the user is unathorized -->
 <v-container fluid fill-height>
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="6">
@@ -151,6 +158,7 @@
         },
         data() {
             return {
+                //user information
                 user: {
                     firstname: '',
                     lastname: '',
@@ -160,11 +168,13 @@
                     profilePicture: require('../assets/profile-picture.jpg'),
                     role: '',
                 },
+                //edit profile information
                 editData: {
                     firstName: '',
                     lastName: '',
                     selectedMajor: '',
                 },
+                //variables for profile editing
                 dialog: false,
                 changePasswordDialog: false,
                 deleteDialog: false,
@@ -174,6 +184,7 @@
             };
         },
         watch: {
+            //watch for edit profile changes
             dialog(newVal) {
                 if (newVal) {
                     this.editData.firstName = this.user.firstname;
@@ -185,6 +196,7 @@
         created() {
             this.fetchUserInfo();
         },
+        //get majors
         mounted() {
             axios.get('http://127.0.0.1:5000/majors')
                 .then(response => {
@@ -195,6 +207,7 @@
                 });
         },
         methods: {
+            //get user information from DB
             fetchUserInfo() {
                 this.loading = true;
                 axios.get('http://127.0.0.1:5000/myaccount', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
@@ -213,6 +226,7 @@
                     this.loading = false;
                 });        
             },
+            //update Profile to Database
             updateProfile() {
                 const updatedInfo = {
                     firstname: this.editData.firstName,
@@ -231,9 +245,11 @@
                     console.error("Error updating profile", error);
                 });
             },
+            //change password router
             navigateToChangePassword() {
                 this.$router.push('/changepassword');
             },
+            //delete account from DB
             deleteAccount() {
                 if (confirm("Are you sure you would like to delete your account? This cannot be undone.")) {
                     axios.delete('http://127.0.0.1:5000/delete-account', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
@@ -260,6 +276,7 @@
                         });
                 }
             },
+            //send change password email
             sendEmail(){
                 const newDate = new Date().toLocaleDateString('en-US', {
                     month: 'long',

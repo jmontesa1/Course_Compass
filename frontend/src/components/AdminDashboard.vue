@@ -1,9 +1,13 @@
 <!--Admin Dashboard Page-->
 <!-- Created by: John Montesa -->
+<!-- This page holds the admin dashboard that with different options they can use. They can send site wide notifications, send site wide emails
+and manage notifications and see outbound emails. They can manage instructors, which includes approving, freezing enrolled instructor, archiving/deleting
+instructors, and unenrolling instructors into classes. Admins can view analytics based on the page -->
 
 <template>
-<div v-if="userType === 'Admin'">
+<div v-if="userType === 'Admin'"> <!--UserType Check-->
     <v-row no-gutters>
+            <!--This column tag is the left hand side menu selection-->
             <v-col cols="2">
                 <h2 class="welcome-text">
                     Welcome
@@ -31,15 +35,16 @@
                 </v-tabs>
             </v-col>
 
-
+            <!--If the user selects the dashboard page, the main dashboard page is shown, this is built of the three main functionalities for admins -->
             <v-col>
-                <div class="dashboard-page" v-if="this.dashboard === true">
+                <div class="dashboard-page" v-if="this.dashboard === true"> <!--The main dashboard page -->
                     <div class="dashboard-container">
                         <h3 class="admin-text">Admin Options</h3>
 
                         <v-container>
                             <v-row>
                                 <v-col cols="4" class="d-flex justify-center align-center">
+                                    <!--Send a Site Wide Notification button and pop up dialog -->
                                     <v-dialog v-model="notificationDialog" max-width="1000" style="font-family: Poppins;">
                                         <template v-slot:activator="{ props: activatorProps }">
                                             <v-btn v-bind="activatorProps" stacked variant="outlined" style="height:150px; width:350px;">
@@ -76,6 +81,7 @@
 
                                 </v-col>
                                 <v-col cols="4" class="d-flex justify-center align-center">
+                                    <!--Send site wide email button and pop up dialog -->
                                     <v-dialog v-model="emailDialog" max-width="1000" style="font-family: Poppins;">
                                         <template v-slot:activator="{ props: activatorProps }">
                                             <v-btn v-bind="activatorProps" stacked variant="outlined" style="height:150px; width:350px;">
@@ -110,6 +116,7 @@
                                 </v-col>
 
                                 <v-col cols="4" class="d-flex justify-center align-center">
+                                    <!--Admin settings button and pop up dialog -->
                                     <v-dialog v-model="settingsDialog" max-width="1000" style="font-family: Poppins;">
                                         <template v-slot:activator="{ props: activatorProps }">
                                             <v-btn v-bind="activatorProps" stacked variant="outlined" style="height:150px; width:350px;">
@@ -125,6 +132,7 @@
                                             <v-card-text>
                                                 <v-row dense>
                                                     <v-expansion-panels>
+                                                        <!--View active admin notifications -->
                                                         <v-expansion-panel>
                                                             <v-expansion-panel-title>
                                                                     <v-row no-gutters>
@@ -139,6 +147,7 @@
                                                                         <p class="row-text"><strong>{{notif.announceDate}}</strong> {{notif.source}} - {{notif.message}}<br></p>
                                                                     </v-col>
                                                                     <v-col cols="1">
+                                                                        <!--Delete notification button and confirmation dialog -->
                                                                         <v-dialog v-model="removeNotificationDialog[index]" max-width="500" style="font-family: Poppins;">
                                                                             <template v-slot:activator="{ props: activatorProps }">
                                                                                 <v-btn v-bind="activatorProps" icon="$close" variant="plain">
@@ -166,6 +175,7 @@
                                                             </v-expansion-panel-text>
                                                         </v-expansion-panel>
 
+                                                        <!--View outbound emails expanion panel -->
                                                         <v-expansion-panel>
                                                             <v-expansion-panel-title>
                                                                     <v-row no-gutters>
@@ -180,6 +190,7 @@
                                                                         <p class="row-text"><strong>{{ email.sent_date }}</strong> {{ email.content }}</p>
                                                                     </v-col>
                                                                     <v-col cols="1">
+                                                                        <!--View email button and details dialog -->
                                                                         <v-dialog v-model="removeEmailDialog[index]" max-width="800" style="font-family: Poppins;">
                                                                             <template v-slot:activator="{ props: activatorProps }">
                                                                                 <v-btn v-bind="activatorProps" icon="$close" variant="plain">
@@ -221,6 +232,7 @@
                             <v-row>
                                 <v-col cols="4"></v-col>
                                 <v-col cols="4"></v-col>
+                                <!--Log out button under the main admin dashboard buttons -->
                                 <v-col cols="4" class="d-flex justify-end align-center" style="margin-left:-12px;">
                                     <v-btn variant="outlined" @click.prevent="handleLogout">
                                         Log Out
@@ -231,11 +243,14 @@
                     </div>
                 </div>
 
+                <!--Page that appears when Manage Instructors tab is selected. This is where admins can approve/disapprove instructors,
+                manage them by freezing and unenrolling courses for them, and finally archiving/unarchiving them-->
                 <div class="instructors-page" v-if="this.instructors === true">
                     <h3 class="admin-text">Manage Instructors</h3>
                     <div class="instructors-container">
                         <v-container class="panel-container">
                         <v-expansion-panels>
+                            <!--Pending Instructors Panel -->
                             <v-expansion-panel>
                                 <v-expansion-panel-title>
                                         <v-row no-gutters>
@@ -245,6 +260,7 @@
                                         </v-row>
                                 </v-expansion-panel-title>
                                 <v-expansion-panel-text>
+                                    <!--Instructors Display and buttons -->
                                     <v-row no-gutters v-for="(instructor, index) in pendingInstructors" :key="index">
                                         <v-col cols="10">
                                             <p class="row-text">{{ instructor.name }} - {{ instructor.email }}</p>
@@ -260,6 +276,7 @@
                                             </v-btn>
                                         </v-col>
 
+                                        <!--Approve Instructors Button and Dialog -->
                                         <v-dialog v-model="approveDialog" max-width="500" style="font-family: Poppins;" persistent>
                                             <v-card>
                                                 <v-card-title>Confirm Approval</v-card-title>
@@ -271,6 +288,7 @@
                                                 </v-card-actions>
                                             </v-card>
                                         </v-dialog>
+                                        <!--Reject Instructors Button and Dialog -->
                                         <v-dialog v-model="rejectDialog" max-width="500" style="font-family: Poppins;" persistent>
                                             <v-card>
                                                 <v-card-title>Confirm Rejection</v-card-title>
@@ -287,6 +305,7 @@
                                 </v-expansion-panel-text>
                             </v-expansion-panel>
                             
+                            <!--Approved Instructors Panels -->
                             <v-expansion-panel>
                                 <v-expansion-panel-title>
                                         <v-row no-gutters>
@@ -299,11 +318,13 @@
                                 </v-expansion-panel-title>
                                 <v-expansion-panel-text>
                                     <v-row no-gutters v-for="(instructor, index) in approvedInstructors" :key="index">
+                                        <!--If instructor is on hold, it will be displayed with the reason -->
                                         <v-col cols="11">
                                             <p class="row-text" :style="approvedInstructors[index].onHold ? { color: 'grey' } : {}">{{approvedInstructors[index].name}} - {{approvedInstructors[index].email}}
                                                 <span v-if="approvedInstructors[index].onHold === true"><em><br> On Administrative Hold</em> - {{approvedInstructors[index].holdReason}}</span></p>
                                         </v-col>
                                         <v-col cols="1">
+                                            <!--Instructor Details button and dialog popup -->
                                             <v-dialog v-model="instructorDialog[index]" max-width="700" style="font-family: Poppins;">
                                                 <template v-slot:activator="{ props: activatorProps }">
                                                     <v-btn v-bind="activatorProps" variant="plain" @click="showInstructorDetails(instructor)">
@@ -343,6 +364,7 @@
                                                         <br>Courses Taught:
                                                         <v-container>
                                                         <v-expansion-panels>
+                                                            <!--Courses a teacher is enrolled in -->
                                                             <v-expansion-panel>
                                                                 <v-expansion-panel-title>
                                                                         <v-row no-gutters>
@@ -357,6 +379,7 @@
                                                                             <p class="row-text">{{ course.courseCode }}.{{ course.Section }} - {{ course.courseName }}</p>
                                                                         </v-col>
                                                                         <v-col cols="2">
+                                                                            <!--Remove Instructors From class Button and Dialog -->
                                                                             <v-dialog v-model="unenrollDialog[index]" max-width="500" style="font-family: Poppins;">
                                                                                 <template v-slot:activator="{ props: activatorProps }">
                                                                                     <v-btn v-bind="activatorProps" variant="plain">
@@ -389,6 +412,7 @@
                                                         </p>
                                                     </v-card-text> 
                                                     <v-card-actions>
+                                                        <!--Archive Instructors Button and Confirmation -->
                                                         <v-dialog v-model="archiveDialog[index]" max-width="500" style="font-family: Poppins;">
                                                             <template v-slot:activator="{ props: activatorProps }">
                                                                 <v-btn v-bind="activatorProps" text="Archive Instructor" variant="tonal" color="red"></v-btn>
@@ -417,7 +441,7 @@
                                 </v-expansion-panel-text>
                             </v-expansion-panel>
 
-                            <!--archived-->
+                            <!--Archived instructors panel-->
                             <v-expansion-panel>
                                 <v-expansion-panel-title>
                                         <v-row no-gutters>
@@ -432,6 +456,7 @@
                                             <p class="row-text">{{archivedInstructors[index].name}} - {{archivedInstructors[index].email}}</p>
                                         </v-col>
                                         <v-col cols="1">
+                                            <!--Remove Instructors Button and Confirmation -->
                                             <v-dialog v-model="removeDialog[index]" max-width="500" style="font-family: Poppins;">
                                                 <template v-slot:activator="{ props: activatorProps }">
                                                     <v-btn v-bind="activatorProps" variant="plain">
@@ -455,6 +480,7 @@
                                             </v-dialog> 
                                         </v-col>
                                         <v-col cols="1">
+                                            <!--Unarchive Instructors Button and Confirmation -->
                                             <v-dialog v-model="unarchiveDialog[index]" max-width="500" style="font-family: Poppins;">
                                                 <template v-slot:activator="{ props: activatorProps }">
                                                     <v-btn v-bind="activatorProps" variant="plain">
@@ -488,11 +514,12 @@
 
 
 
-
+                <!--Analytics Page if the analytic tab is selected-->
                 <div class="analytics-page" v-if="this.analytics === true">
                     <h3 class="admin-text">Site Analytics</h3>
                     <v-container>
                         <v-row>
+                        <!--Registered users analytics and chart -->
                         <v-col cols="6">
                             <v-card style="border: 1px solid black; height: 420px;">
                             <v-card-title style="font-family:Poppins;">Registered Users</v-card-title>
@@ -532,6 +559,7 @@
                             </v-card>
                         </v-col>
 
+                        <!--General Users analytics and chart -->
                         <v-col cols="6">
                             <v-card style="border: 1px solid black; height: 420px;">
                                 <v-card-title style="font-family:Poppins;">User Analytics</v-card-title>
@@ -591,6 +619,7 @@
                             </v-col>
                         </v-row>
 
+                        <!--Stored data on website analytics and graph shown-->
                         <v-row>
                             <v-col cols="12">
                             <v-card style="border: 1px solid black;">
@@ -647,7 +676,8 @@
     </v-row>
     
     
-</div> 
+</div>
+<!-- If the user is not an authorized user type, this will be displayed showing they are unauthorized and redirects them to the home page--> 
 <div v-else>
 <v-container fluid fill-height>
     <v-row align="center" justify="center">
@@ -694,6 +724,7 @@
                 archivedInstructors: [],
                 pendingInstructors: [],
                 
+                // Dialogs
                 notificationDialog: false,
                 settingsDialog: false,
                 emailDialog: false,
@@ -708,6 +739,7 @@
                 unarchiveDialog: [],
                 unenrollDialog: [],
             
+                //Data for notifications
                 sources: ['Admin', 'UNR'],
                 selectedSource: '',
                 notificationDescription: '',
@@ -719,12 +751,15 @@
                 adminNotifications:[],
                 activeNotifs: [],
 
+                //Data for Emails
                 to:['All Users', 'Admins', 'Instructors', 'Students'],
                 emailSubject: '',
                 emailTo: '',
                 emailContent: '',
                 emailSent: [],
+                outboundEmails: [],
 
+                //Analytics Information
                 userAnalytics:[
                     {label: 'Students', count: 0}, 
                     {label: 'Instructors', count: 0}, 
@@ -740,15 +775,14 @@
                     {label: 'TBA', count: 0},
                 ],
 
+                //instructor information
                 selectedInstructorEmail: '',
-                
-                outboundEmails: [],
-
                 currentInstructorCourses: [],
             };
         },
 
         methods:{
+            //Logs the user out
             handleLogout() {
                 axios.post('http://127.0.0.1:5000/logout', {}, { withCredentials: true })
                     .then(response => {
@@ -767,10 +801,12 @@
                     });
             },
         
+            //Test function to see if a toast loaded
             handleToast(toastData) {
                 console.log(toastData.message);
             },
 
+            //Choose instructors tab
             chooseInstructors(){
                 this.tab = 'instructors';
                 this.dashboard = false;
@@ -778,6 +814,7 @@
                 this.instructors = true;
             },
 
+            //Choose dashboard tab
             chooseDashboard(){
                 this.tab = 'dashboard';
                 this.instructors = false;
@@ -785,6 +822,7 @@
                 this.dashboard = true;
             },
 
+            //Choose analytics tab
             chooseAnalytics(){
                 this.tab = 'analytics';
                 this.dashboard = false;
@@ -792,6 +830,7 @@
                 this.analytics = true;
             },
 
+            //function to remove notification from data and DB
             removeNotification(notificationID, index){
                 axios.post('http://127.0.0.1:5000/remove-active-notif', { notificationID: notificationID })
                     .then(response => {
@@ -805,11 +844,13 @@
                     });
             },
 
+            //Disapproves a pending instructor and removes them from the list
             removePendingInstructor(index) {
                 this.pendingInstructors.splice(index, 1);
                 this.removeDialog[index] = false;
             },
 
+            //Removes an archived instructor and removes them from the list
             removeArchivedInstructor(index) {
                 this.archivedInstructors.splice(index, 1);
                 this.removeDialog[index] = false;
@@ -822,6 +863,7 @@
             //     this.unarchiveDialog[index] = false;
             // },
 
+            //Approve pending instructor and puts them in approved instructors list
             approvePendingInstructor(index) {
                 const instructor = this.pendingInstructors[index];
                 this.approveDialog[index] = false;                
@@ -852,6 +894,7 @@
             //     this.notificationDialog = false;
             // },
 
+            //Sends a site wide notification
             sendNotification() {
                 const now = new Date();
                 const notification = {
@@ -871,6 +914,7 @@
                     });
             },
 
+            //sends a site wide email
             sendEmail(){
                 const reformatDate = new Date(this.notificationDate).toLocaleDateString('en-US', {
                     month: 'long',
@@ -899,6 +943,7 @@
                 });
             },
 
+            //fetches the counts of data from the database
             fetchCounts() {
                 axios.get('http://127.0.0.1:5000/analytics/counts', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                 .then(response => {
@@ -911,6 +956,7 @@
                 });
             },
 
+            //fetch Analytics
             fetchDataCounts() {
                 axios.get('http://127.0.0.1:5000/analytics/stored-data-counts', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                 .then(response => {
@@ -926,6 +972,7 @@
                 });
             },
 
+            //Get pending instructors from DB
             fetchPendingInstructors() {
                 axios.get('http://127.0.0.1:5000/pending-instructors', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                 .then(response => {
@@ -941,6 +988,7 @@
                 });
             },
 
+            //Get approved instructors from DB
             fetchApprovedInstructors() {
                 axios.get('http://127.0.0.1:5000/approved-instructors', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                 .then(response => {
@@ -956,6 +1004,7 @@
                 });
             },
 
+            //Get archived instructors from DB
             fetchArchivedInstructors() {
                 axios.get('http://127.0.0.1:5000/archived-instructors', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                 .then(response => {
@@ -971,16 +1020,19 @@
                 });
             },
 
+            //Show Approve Confirmation
             confirmApproveInstructor(instructor) {
                 this.currentInstructor = instructor;
                 this.approveDialog = true;
             },
 
+            //Show Reject Confirmation
             confirmRejectInstructor(instructor) {
                 this.currentInstructor = instructor;
                 this.rejectDialog = true;
             },
 
+            //approve instructor
             approveInstructor() {
                 axios.post('http://127.0.0.1:5000/approve-instructor', { email: this.currentInstructor.email })
                     .then(response => {
@@ -998,6 +1050,7 @@
                     });
             },
 
+            //reject instructor
             rejectInstructor() {
                 axios.post('http://127.0.0.1:5000/reject-instructor', { email: this.currentInstructor.email })
                     .then(response => {
@@ -1010,6 +1063,7 @@
                     });
             },
 
+            //archive instructor
             archiveInstructor(instructor_email, index) {
                 axios.post('http://127.0.0.1:5000/archive-instructor', { email: instructor_email })
                     .then(response => {
@@ -1028,6 +1082,7 @@
                     });
             },
 
+            //unarchive instructor
             unarchiveInstructor(instructor_email, index) {
                 axios.post('http://127.0.0.1:5000/unarchive-instructor', { email: instructor_email })
                     .then(response => {
@@ -1044,6 +1099,7 @@
                     });
             },
 
+            //remove instructor
             removeInstructor(instructor_email, index) {
                 axios.post('http://127.0.0.1:5000/remove-instructor', { email: instructor_email })
                     .then(response => {
@@ -1057,6 +1113,7 @@
                     });
             },
 
+            //get outbound emails
             fetchOutboundEmails() {
                 axios.get('http://127.0.0.1:5000/outbound-emails')
                     .then(response => {
@@ -1067,6 +1124,7 @@
                     });
             },
 
+            //get active notifications
             fetchActiveNotifs() {
                 axios.get('http://127.0.0.1:5000/active-notifs')
                     .then(response => {
@@ -1077,6 +1135,7 @@
                     });
             },
 
+            //get instructor courses
             fetchInstructorCourses(email) {
                 axios.get(`http://127.0.0.1:5000/instructor-courses/${email}`)
                     .then(response => {
@@ -1087,11 +1146,13 @@
                     });
             },
 
+            //show instructor details
             showInstructorDetails(instructor) {
                 this.currentInstructor = instructor;
                 this.fetchInstructorCourses(instructor.email);
             },
             
+            //unenroll instructor from courses
             async unenrollCourse(index) {
                 try {
                     const response = await axios.post('http://127.0.0.1:5000/unenrollCourse', {
@@ -1123,10 +1184,6 @@
             this.fetchOutboundEmails();
             this.fetchActiveNotifs();
         },
-
-        computed: {
-            
-            },
     };
 </script>
 

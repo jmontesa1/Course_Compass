@@ -1,10 +1,14 @@
 <!--Created by: John Montesa-->
-<!-- This is dashboard page for Course Compass -->
-<!-- This page will contain brief information -->
+<!-- This is student dashboard page for Course Compass -->
+<!-- This page will contain student information about their schedule including courses they have
+today and tomorrow, specific notifications and deadlines from their school or instructors, they can 
+turn on email notifications for these or create custom deadlines and notifications. 
+They can also see course details they are enrolled in and unenroll in them-->
 
 <template>
 <div v-if="userType ==='Student'">
     <br>
+    <!-- Welcome Text -->
     <div class="top-container">
         <v-row v-if="user && user.firstname">
             <h1 class="welcome-text">
@@ -15,6 +19,7 @@
 
     <v-container class="dashboard-container">
         <v-row>
+            <!-- Display of courses today and tomorrow for student's schedule -->
             <v-col>
                 <p>Today: {{ currentDate }}</p>
                 <v-container class="upcoming-container">
@@ -57,10 +62,12 @@
 
             <v-col cols="3">
                 <br>
+                <!-- Notification/Announcement/Deadlines Center -->
                 <v-container class="deadlines-container">
                     <v-row style="padding-bottom: 15px;">
                         <p style="margin-top: 3px;">Deadlines:</p>
                         <v-spacer></v-spacer>
+                        <!-- Turn on notifications button and popup dialog -->
                         <v-dialog v-model="dialogNotifications" max-width="420" style="font-family: Poppins;">
                             <template v-slot:activator="{ props: activatorProps }">
                                 <v-btn size="extra-small" v-bind="activatorProps" variant="plain" style="position: relative;">
@@ -135,11 +142,13 @@
                         </v-dialog> 
                     </v-row>
                     <v-expansion-panels>
+                        <!-- Displays notifications -->
                         <v-expansion-panel class="deadline-title" v-for="(notification, index) in upcomingNotifications" :key="index" :title="`${notification.date} - ${notification.source}`" :class="{'upcoming': index === 0}">
                             <v-expansion-panel-text>
                                 {{notification.message}}
                                 <br>
                                 <div v-if="notification.source === this.user.firstname + ' ' + this.user.lastname">
+                                    <!-- Delete notification IF it is a custom deadline created by the user -->
                                     <v-dialog v-model="dialogDeleteDeadline[index]" max-width="400" style="font-family: Poppins;">
                                         <template v-slot:activator="{ props: activatorProps }">
                                             <v-btn v-bind="activatorProps" class="announcement-btn" variant="tonal" @click="handleLogout">
@@ -165,6 +174,7 @@
                         </v-expansion-panel>
                     </v-expansion-panels>
                 </v-container>
+                    <!-- Create deadline button and dialog popup -->
                     <v-dialog v-model="dialogDeadline" max-width="1000" style="font-family: Poppins;">
                         <template v-slot:activator="{ props: activatorProps }">
                             <v-btn v-bind="activatorProps" class="announcement-btn" variant="outlined" @click="handleLogout">
@@ -196,25 +206,25 @@
                     </v-dialog>
             </v-col>
         </v-row>
-
-
     </v-container>
 
+    <!-- Enrolled Courses display -->
     <v-container class="dashboard-container2">
         <div class="inner-container">
         <v-row>
             <h1 class="header-text">Enrolled Courses</h1>
         </v-row>
-
         <p v-if="schedule.length === 0"><br>No courses enrolled, please visit the <router-link to="/courses" >Courses</router-link> page to add courses!</p>
 
         <v-row>
+            <!-- Course Cards that are displayed -->
             <v-card class="enrolled-cards" v-for="(course, index) in schedule" :key="index" :title="course.course" :subtitle="course.location">
                 <v-card-text>
                     {{ formatDays(course.days) }}<br>
                     {{ course.time }}
                 </v-card-text>
                 <v-card-actions>
+                    <!-- View Course Details Button and dialog -->
                     <v-dialog v-model="dialog[index]" max-width="500" style="font-family: Poppins;">
                         <template v-slot:activator="{ props: activatorProps }">
                             <v-btn color="dark-grey" variant="tonal" v-bind="activatorProps">View Details</v-btn>
@@ -246,6 +256,7 @@
         </v-row>
         <br>
 
+        <!-- Unenroll course confirmation -->
         <v-dialog v-model="showUnenrollDialog" max-width="500" style="font-family: Poppins;">
             <v-card>
                 <v-card-title class="headline">Confirm Unenrollment</v-card-title>
@@ -264,6 +275,7 @@
 
 </div>
 <div v-else>
+<!-- Displayed if user is unauthorized -->
 <v-container fluid fill-height>
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="6">
@@ -293,10 +305,12 @@
 
         data() {
             return {
+                //unenroll dialog
                 unenrollScheduleID: null,
                 showUnenrollDialog: false,
                 dialog: [],
 
+                //student data
                 currentDate: null,
                 user: {
                     firstname: '',
@@ -320,8 +334,10 @@
                 daysBeforeNotification: 1,
                 selectedNotificationSources: [],
 
+                //student schedule
                 schedule: [],
 
+                //notifications
                 notifications: [
                     {date: '5/15/2024', source: 'UNR', message: 'Instruction Ends'},
                     {date: '3/1/2024', source: 'UNR', message: 'Deadline to apply for May graduation'},
@@ -344,10 +360,12 @@
             };
         },
         methods: {
+            //formats days for course schedule display
             formatDays(days){
                 return days.map(day => day.slice(0,3)).join('');
             },
 
+            //gets student user data
             fetchDashboardData() {
                 axios.get('http://127.0.0.1:5000/dashboard', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                 .then(response => {
@@ -363,7 +381,7 @@
                 });
             },
         
-
+            //get student's enrolled courses
             async fetchEnrolledCourses() {
                 try {
                     const response = await axios.get('http://127.0.0.1:5000/getEnrolledCourses', {
@@ -378,6 +396,7 @@
                 }
             },
 
+            //unenroll course from student's schedule
             async unenrollCourse() {
                 try {
                     const response = await axios.post('http://127.0.0.1:5000/unenrollCourse', {
@@ -397,13 +416,14 @@
                 }
             },
 
-
+            //confirmation dialog
             confirmUnenrollment(scheduleID, index) {
                 this.unenrollScheduleID = scheduleID;
                 this.showUnenrollDialog = true;
                 this.dialog[index] = false;
             },
 
+            //Create custom student deadlines
             createDeadline(){
                 //Month/Date/Year
                 const reformatDate = new Date(this.deadlineDate).toLocaleDateString('en-US', {
@@ -425,6 +445,7 @@
                 this.dialogDeadline = false;
             },
 
+            //Delete custom deadliens
             deleteDeadline(notification, index){
                 const toDelete = notification;
                 console.log('test', toDelete);
@@ -437,6 +458,7 @@
                 this.dialogDeleteDeadline[index] = false;
             },
 
+            //turn on email notifications
             turnOnEmailNotifications(){
                 const currentDate = new Date();
                 const grabNotifications = JSON.parse(JSON.stringify(this.notifications));//copy this.notifcations
@@ -464,6 +486,7 @@
                 this.sendEmail();                
             },
 
+            //Send email notifications for deadlines
             sendEmail(){
                 const notificationToEmail = this.emailNotifications[0];
 
@@ -505,6 +528,7 @@
                 });
             },
 
+            //Send email based on if it is time for email to be sent
             deadlineCheck(){
                 const notification = this.emailNotifications[0];
 
@@ -524,12 +548,13 @@
         },
         
         computed:{
+            //format current date
             currentDate(){
                 const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
                 this.currentDate = new Date().toLocaleDateString('en-US', options);
                 return this.currentDate;
             },
-               
+            //If deadline is past today, it wont be displayed in notification center
             upcomingNotifications() {
                 const currentDate = new Date();
                 //const currentDate = new Date('2024-03-03'); test case
@@ -539,7 +564,7 @@
                 return upcomingNotifications.length > 0 ? upcomingNotifications : null;
             },
 
-            //retrieves todays and tomorrows classes
+            //Next two functions retrieves todays and tomorrows classes
             retrieveSchedule(){
                 const currentDayIndex = new Date().getDay();
                 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];

@@ -3,11 +3,14 @@
 <!-- This page will show the progress of the specific user's college career in a progress bar style -->
 <!-- The progress bar will be based on the courses that the user has completed -->
 <!-- The user can check off the courses that they have completed and the progress bar and units completed will update accordingly -->
+<!-- There are also grade calculators and grade distribution analytics the user can view as a student-->
+<!-- Users can rate courses from their checklist, write reviews, and tag courses based on keywords. -->
 
 <template>
 <div v-if="userType === 'Student'">
     <v-row no-gutters>
             <v-col cols="2">
+            <!-- Selection tabs of the various components in the progress page -->
             <v-tabs v-model="tab" direction="vertical" color="primary" selected-class="selected-tab" slider-color="black">
                 <v-tab value="progress" @click="chooseProgress">
                     <v-icon start>
@@ -33,6 +36,7 @@
             </v-col>
 
             <v-col>
+                <!-- Progress page that shows college progress and checklist based on Progress tab -->
                 <div class="progress-page" v-if="this.progress === true">
                         <v-card style="border-radius: 0px;">
                         <v-card-title style="font-family:Poppins; font-size: 26px;">Progress</v-card-title>
@@ -40,6 +44,7 @@
                                 <div v-for="(major, index) in filteredMajors" :key="index">
                                 <div class="container-fluid mt-3">
                                     <div class="row">
+                                        <!-- Displays college career details from student -->
                                         <div class="col-md-4 d-flex flex-column" style="border-right: 1px solid black;">
                                             <h2>Career</h2>
                                             <p>
@@ -63,6 +68,7 @@
                                             <p><strong>Academic Standing:</strong> Good Standing</p>
                                             <p><strong>Credits Completed:</strong> {{ unitsCompleted }}/{{ major.units }}</p>
                                             <p>
+                                            <!-- Save progress button -->
                                             <v-btn
                                             class="save-changes-btn"
                                             @click="confirmationDialog = true"
@@ -78,11 +84,12 @@
                                         <div class="col-md-8 d-flex flex-column">
                                             <h2>Courses</h2>
                                             <div class="input-group mb-3">
-                                                <!--<span class="input-group-text" id="course-search">Search</span>-->
+                                                <!--Search courses from the checklist-->
                                                 <input type="text" class="form-control" v-model="courseSearch" placeholder="Enter Course Name">
                                             </div>
 
                                             <div class="scroll"> 
+                                            <!-- Load courses from specific major, shows checklist-->
                                             <div class="loading" v-if="filteredCourses.length === 0">
                                                 <v-progress-circular indeterminate :width="5"></v-progress-circular>
                                             </div>
@@ -114,6 +121,7 @@
                                                                         </v-col>
                                                                     </v-row>-->
                                                                     <div>
+                                                                        <!-- Rating course system -->
                                                                         <label style="position:relative;top:-19px;">Your Rating:</label>
                                                                         <v-rating
                                                                             v-model="course.studentRating"
@@ -161,7 +169,7 @@
                                 </div>
                             </div>
 
-
+                    <!-- Save progress confirmation -->
                     <v-dialog v-model="confirmationDialog" max-width="500" style="font-family: Poppins;">
                       <v-card>
                         <v-card-title class="headline">Confirm Changes</v-card-title>
@@ -174,6 +182,7 @@
                       </v-card>
                     </v-dialog>
                     
+                    <!-- College career progress bar -->
                     <div class="footer">
                         <div class="container-fluid mt-3">
                             <div class="row">
@@ -194,11 +203,12 @@
                 </v-card>
                 </div>
 
-
+                <!-- Shows calculators if calculator tab is selected -->
                 <div class="calculators-page" v-if="this.calculators === true">
                     <v-card style="border-radius: 0px;">
                         <v-card-title style="font-family:Poppins; font-size: 26px;">Calculators</v-card-title>
                         <v-card-text>
+                        <!--GPA Calculator-->
                         <v-container class="gpa-calculator">
                         <v-row>
                             <h1 class="calculator-heading">GPA Calculator</h1>
@@ -246,6 +256,7 @@
                     </v-container>
 
                     <br>
+                    <!--Final Grade calculator based on exams -->
                     <v-container class="grade-calculator">
                             <v-row>
                                 <h1 class="calculator-heading">Final Grade Calculator</h1>
@@ -292,6 +303,7 @@
                     </v-card>
                 </div>
 
+                <!-- Grade distribution and analytics page for enrolled courses -->
                 <div class="analytics-page" v-if="this.analytics === true">
                     <v-card style="border-radius: 0px;">
                         <v-card-title style="font-family:Poppins; font-size: 26px;">Grade Distributions
@@ -336,6 +348,7 @@
     
 </div> 
 <div v-else>
+<!--Unauthorized user displays -->
 <v-container fluid fill-height>
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="6">
@@ -371,6 +384,7 @@
         },
         data() {
             return {
+                //User information
                 schedule: [],
                 courseNames: [],
                 confirmationDialog: false,
@@ -388,7 +402,6 @@
                 courseSearch: '',
                 userCourseTags: {},
                 hasUnsavedChanges: false,
-
                 unitsCompleted: 0,
                 user: {
                     firstname: '',
@@ -405,6 +418,7 @@
                 ],
 
                 selectedMajor: null,
+                //GPA Calculator data
                 grades:[
                     { grade: 'A', weight: 4.0 },
                     { grade: 'A-', weight: 3.67 },
@@ -429,6 +443,7 @@
                     {name:'', credits:'', grade:''},
                 ],
 
+                //analytic data
                 GPA: 0,
                 gradeAnalytics: [0,0,0,0,0,0,0,0,0,0,0,0,0,0], //U S F D- D D+ C- C C+ B- B B+ A- A
                 courseGradeAverage: 0,
@@ -444,21 +459,23 @@
                 finalGradeCalculation: 0,
                 majorName: '',
 
+                //Tag classes data
                 availableTags: [],
-
             };
         },
 
         methods:{
-            
+            //get grade analytics based on a course selected
             handleSelectedCourseChange() {
                 this.getGradeAnalytics(); 
             },
-            handleToast(toastData) {
 
-            console.log(toastData.message);
+            //testing for toasts
+            handleToast(toastData) {
+                console.log(toastData.message);
             },
 
+            //the next three functions handle switching tabs in the page
             chooseProgress(){
                 this.tab = 'progress';
                 this.calculators = false;
@@ -480,6 +497,7 @@
                 this.analytics = true;
             },
 
+            //the next three functions are for the GPA calculator
             addCourseGPA(){
                 this.coursesGPA.push({name:'', credits:'', grade:''});
                 this.$refs.form.reset()
@@ -490,6 +508,7 @@
                 this.$refs.form.reset()
             },
 
+            //calculates the GPA
             calculateGPA(){
                 let totalCredits = 0;
                 let totalWeightedPoints = 0;
@@ -510,6 +529,8 @@
                     this.GPA = 0;
                 }
             },
+
+            //randomizes array for analytics
             shuffleArray(array) {
                 for (let i = array.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
@@ -518,6 +539,7 @@
                 return array;
             },
 
+            //Get grade analytics for the analytics page
             getGradeAnalytics(){
                 let tallyGrades = [0, 4, 2, 2, 6, 1, 5, 5, 12, 8, 8, 1, 9, 10]; //U S F D- D D+ C- C C+ B- B B+ A- A
                 tallyGrades = this.shuffleArray(tallyGrades);
@@ -597,6 +619,7 @@
                 this.sparklineKey++;
             },
 
+            //calculate final grade for grade calculator
             calculateFinalGrade(){
                 const currentGrade = parseFloat(this.currentGrade);
                 const targetGrade = parseFloat(this.targetGrade);
@@ -606,6 +629,7 @@
                 this.finalGradeCalculation = finalGrade.toFixed(2);
             },
 
+            //fetch student courses for the analytics page
             async fetchUserCourses() {
                 try {
                     const response = await axios.get('http://127.0.0.1:5000/getCourseProgress', {
@@ -635,6 +659,7 @@
                 }
             },
 
+            //retrieve courses tags
             async fetchUserCourseTags() {
                 try {
                     const response = await axios.get('http://127.0.0.1:5000/getUserCourseTags', {
@@ -662,6 +687,7 @@
                 }
             },
 
+            //get user career progress from DB
             async fetchCareerProgress() {
                 try {
                     const response = await axios.get('http://127.0.0.1:5000/getCareerProgress', {
@@ -676,6 +702,7 @@
                 }
             },
 
+            //save checklist changes
             async saveAllChanges() {
                 //check if any course has been changed and not saved yet.
                 const unsavedCourses = this.majors.flatMap(major => 
@@ -721,6 +748,7 @@
                 }
             },
 
+            //select course tags
             toggleTag(course, tag) {
                 const index = course.tags.findIndex(t => t.id === tag.id);
                 if (index > -1) {
@@ -740,6 +768,7 @@
                 }
             },
 
+            //retrive course tags
             async fetchTags() {
                 try {
                     const response = await axios.get('http://127.0.0.1:5000/getTags');
@@ -749,6 +778,7 @@
                 }
             },
 
+            //handle tag selection and saves
             isTagSelected(course, tag) {
                 const courseCode = course.name.split(':')[0].trim();
                 const preSelectedTags = this.userCourseTags[courseCode] || [];
@@ -761,6 +791,8 @@
                     return course.tags && course.tags.some(t => t.id === tag.id);
                 }
             },
+
+            //retrieve student enrolled courses
             async fetchEnrolledCourses() {
                 try {
                     const response = await axios.get('http://127.0.0.1:5000/getEnrolledCourses', {
@@ -786,10 +818,12 @@
         },
 
         computed: {
+            //only show courses applied for user major
             filteredMajors() {
                 return this.majors.filter((major) => major.name === this.user.major);
             },
 
+            //calculate the percentage of college progress completed for progress bar
             progressPercentage() {
                 const selectedMajorCourses = this.majors.find((major) => major.name === this.user.major).courses;
                 let completedUnits = 0;
@@ -805,6 +839,7 @@
                 return Math.min((completedUnits / totalUnits) * 100, 100);
             },
 
+            //Next 4 functions for logic for coursre information
             isCourseSaved() {
                 return (course) => course.saved;
             },

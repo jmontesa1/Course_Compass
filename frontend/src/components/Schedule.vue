@@ -1,11 +1,14 @@
 <!--Created by: John Montesa-->
 <!-- This is the Schedule page for Course Compass -->
-<!-- This page will show the scheudle of the specific user in a time table/ time block style -->
+<!-- This page will show the scheudle of the specific user courses in a time table/time block style -->
+<!-- Users can create weekly schedules from weekdays and daily, they can create and delete custom events that persist, they can print weekly schedules -->
+<!-- Users have a monthly calendar where they can create/delete monthly events, they can export indidivual events to ics or complete calendar to ics -->
 
 <template>
 <div v-if="userType !== ''">
     <v-row no-gutters>
         <v-col cols="2">
+        <!-- Tabs to select between weekly schedule or monthly calendar -->
         <v-tabs v-model="tab" direction="vertical" color="primary" selected-class="selected-tab" slider-color="black">
             <v-tab value="class-schedule" @click="chooseClassSchedule">
                 <v-icon start>
@@ -26,6 +29,7 @@
 
 
         <v-col>
+            <!-- Display weekly schedule -->
             <div class="right-side1" v-if="classSchedule">
                 <div class="header-container">
                     <div class="row justify-content-center">
@@ -37,6 +41,7 @@
                                         <option v-for="schedule in userSchedules" :key="schedule.title" :value="schedule.title">{{ schedule.title }}</option>
                                     </select>-->
                                     <v-col cols="9">
+                                        <!-- Select to choose a calendar -->
                                         <v-select
                                             v-model="selectedScheduleTitle"
                                             :items="userSchedules"
@@ -51,6 +56,7 @@
                                             </template>
                                         </v-select>
                                     </v-col>
+                                    <!-- Add weekly schedule button and dialog -->
                                     <v-dialog v-model="dialog" max-width="500" style="font-family: Poppins;">
                                         <template v-slot:activator="{ props: activatorProps }">
                                             <v-btn class="add-schedule" size="small" v-bind="activatorProps" style="max-width: 41px; height:41px; margin-top:18px;">
@@ -75,6 +81,7 @@
                                         </v-card>
                                     </v-dialog>
 
+                                    <!-- Delete weekly schedule button and confirmation if weekly schedule is custom -->
                                     <v-dialog v-model="dialog_delete_schedule" max-width="500" style="font-family: Poppins;" v-if="scheduleOption === 'Weekdays and Weekends' || scheduleOption === 'Weekdays'">
                                         <template v-slot:activator="{ props: activatorProps }">
                                             <v-btn class="add-schedule" size="small"  v-bind="activatorProps" style="max-width: 41px; height:41px; margin-top:18px;">
@@ -100,6 +107,7 @@
                             </h1>
                         </div>
 
+                        <!-- Print button to print schedule as pdf -->
                         <div class="col d-flex flex-column">
                             <v-btn class="add-schedule" @click="downloadPDF" size="small" style="max-width: 46px; height:46px; margin-top:6px; margin-left: auto; margin-right: 10px;">
                                 <span class="material-symbols-outlined" style="font-size: 46px;">print</span>
@@ -337,7 +345,9 @@
             <br>
             </div>
 
+            <!-- Monthly calendar -->
             <div class="right-side2" v-if="calendar">
+                <!-- Manage events button and dialog -->
                 <v-dialog v-model="dialog_events" max-width="800" style="font-family: Poppins;">
                     <template v-slot:activator="{ props: activatorProps }">
                         <v-btn class="add-event2" v-bind="activatorProps">Events</v-btn>
@@ -362,6 +372,7 @@
                                                         <p><strong>{{events[index].title}}</strong> (<em>{{events[index].date}}</em>) - {{events[index].description}}</p>
                                                     </v-col>
                                                     <v-col cols="1">
+                                                        <!-- Delete event button and popup -->
                                                         <v-dialog v-model="dialog_events_remove[index]" max-width="500" style="font-family: Poppins;">
                                                             <template v-slot:activator="{ props: activatorProps }">
                                                                 <v-btn v-bind="activatorProps" icon="$close" variant="plain">
@@ -385,6 +396,7 @@
                                                         </v-dialog> 
                                                     </v-col>
                                                     <v-col cols="1">
+                                                        <!-- Export event button and popup -->
                                                         <v-dialog v-model="dialog_events_share[index]" max-width="500" style="font-family: Poppins;">
                                                             <template v-slot:activator="{ props: activatorProps }">
                                                                 <v-btn v-bind="activatorProps" icon="$close" variant="plain">
@@ -416,6 +428,7 @@
                             </v-row>
                         </v-card-text>
                         <v-card-actions>
+                            <!-- Export Calendar to ics button -->
                             <v-btn text="Export Calendar" color="success" @click="generateAllICSEvents" variant="tonal" :disabled="events.length === 0"></v-btn>
                             <v-spacer></v-spacer>
                             <v-btn text="Close" variant="plain" @click="dialog_events = false"></v-btn>
@@ -423,6 +436,7 @@
                     </v-card>
                 </v-dialog>
 
+                <!-- Add event button and popup -->
                 <v-dialog v-model="dialog" max-width="1000" style="font-family: Poppins;">
                     <template v-slot:activator="{ props: activatorProps }">
                         <v-btn class="add-event" v-bind="activatorProps">Add an event</v-btn>
@@ -450,6 +464,7 @@
                     </v-card>
                 </v-dialog>
                     
+                <!-- Main calendar display -->
                 <v-row class="fill-height">
                     <v-col>
                         <v-sheet class="calendar-container">
@@ -470,6 +485,7 @@
     </v-row>
 </div> 
 <div v-else>
+<!-- Unauthorized user view -->
 <v-container fluid fill-height>
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="6">
@@ -501,7 +517,7 @@
             }
         },
         data:() => ({
-            
+                //weekly schedule variables and tabs
                 tab: 'class-schedule',
                 classSchedule: true,
                 calendar: false,
@@ -509,12 +525,14 @@
                 dialog_event_popup: false,
                 dialog_delete_event: false,
 
+                //user information
                 user: {
                     firstname: '',
                     lastname: '',
                     major: '',
                 },
 
+                //dialogs
                 dialog: false,
                 dialog_events: false,
                 dialog_events_remove: [],
@@ -565,12 +583,14 @@
                 }),
 
         watch:{
+            //schedule change
             selectedScheduleTitle(){
                 this.handleScheduleChange();
             }
         },
 
         computed: {
+            //validation for time when creating weekly events
             timeValidation() {
                 return () => {
                 const minTime = "08:00";
@@ -608,26 +628,32 @@
             },
 
         methods: {
+            //testing for clicking days on calendar
             dateClick(date) {
                 console.log('Clicked day', date);
             },
+            
+            //weekly schedule chosen
             chooseClassSchedule(){
                 this.tab = 'class-schedule';
                 this.calendar = false;
                 this.classSchedule = true;
             },
 
+            //view event details when clicking weekly event
             openEventPopup(event) {
                 this.selectedEvent = event;
                 this.dialog_event_popup = true;
             },
 
+            //choose calendar tab
             chooseCalendar(){
                 this.tab = 'calendar';
                 this.classSchedule = false;
                 this.calendar = true;
             },
 
+            //convert the weekly schedule into a pdf and download it to users browser
             async downloadPDF() {
                 await this.$nextTick();
                 const content = this.$refs.schedulePage;
@@ -643,6 +669,7 @@
                 html2pdf().from(content).set(pdfSettings).save();
             },
 
+            //fetch user information
             async fetchUserInfo() {
                 try {
                     const response = await axios.get('http://127.0.0.1:5000/myaccount', {headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }});
@@ -666,6 +693,7 @@
                 }
             },
 
+            //fetch user schedules from DB
             async fetchUserSchedule() {
                 try {
                     const response = await axios.get('http://127.0.0.1:5000/getUserSchedule', {
@@ -692,7 +720,7 @@
             },
 
     
-            //This is for the class Schedule
+            //Generate event blocks for class schedule
             generateBlocks(day) {
                 const blocks = [];
                 const colors = ['#F1948A', '#AED6F1', '#A3E4D7', '#F9E79F', '#BB8FCE', '#F8C471', '#AEB6BF', '#FADBD8'];
@@ -779,8 +807,8 @@
             },
 
 
-            //Any method under this are for the schedule
-
+            //Any method under this are for the custom schedules
+            //delete custom schedule
             async deleteSchedule() {
                 const scheduleToDelete = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
 
@@ -802,12 +830,14 @@
                 }
             },
 
+            //create weekly event
             createWeeklyEvent(){
                 const selectedDays = Object.keys(this.daysOfWeek).filter(day => this.daysOfWeek[day]);
                 this.newWeeklyEvent(selectedDays);
                 console.log("selected days", selectedDays);
             },
 
+            //generate new weekly event
             newWeeklyEvent(selectedDays){
                 const selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
                 console.log("selected schedule", selectedSchedule);
@@ -845,6 +875,7 @@
                 this.dialog_weekdaysevent = false;                
             },
 
+            //delete event from DB
             async confirmDeleteEvent() {
                 await axios.delete(`http://127.0.0.1:5000/deleteCustomEvent/${this.selectedEvent.eventID}`, {
                     headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
@@ -855,6 +886,7 @@
                 this.dialog_event_popup = false;
             },
             
+            //Generate weekly blocks for weekdays and weekends
             generateWeeklyBlocks(day) {
                 const blocks = [];
                 const selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
@@ -953,6 +985,7 @@
                 return blocks;
             },
 
+            //handle schedule change from selection menu
             handleScheduleChange() {
                 this.selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
                 this.scheduleOption = this.selectedSchedule.option;
@@ -964,6 +997,7 @@
                 return event.color
             },
 
+            //export a single ics event
             generateSingleICSEvent(index) {
                 const eventExport = this.events[index];
 
@@ -998,6 +1032,7 @@
                 this.dialog_events_share = false;
             },
 
+            //generate entire calendar as ICS
             generateAllICSEvents() {
                 const icsData = [];
 
@@ -1037,6 +1072,7 @@
                 document.body.removeChild(link);
             },
 
+            //new monthly calendar event
             newEvent(){
                 const reformatDate = new Date(this.eventDate).toLocaleDateString('en-US', {
                     month: 'long',
@@ -1062,10 +1098,12 @@
                 this.eventDescription ='';
             },
 
+            //get events from monthly calendars
             fetchEvents (newEvent) {
                 this.events.push();
             },
 
+            //remove calendar event from monthly calendar
             removeCalendarEvent(index){
                 this.events.splice(index, 1);
                 this.dialog_events_remove[index] = false;
@@ -1108,6 +1146,7 @@
                 }
             }, //-- end
 
+            //cretae custom event for weekly schedule
             async createCustomEvent() {
                 const selectedSchedule = this.userSchedules.find(schedule => schedule.title === this.selectedScheduleTitle);
 
@@ -1150,6 +1189,7 @@
                 }
             },
 
+            //retrieve custom schedules
             async fetchCustomSchedules() {
                 try {
                     const response = await axios.get('http://127.0.0.1:5000/getCustomSchedules', {

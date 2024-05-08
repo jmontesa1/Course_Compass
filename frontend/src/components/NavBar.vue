@@ -1,9 +1,12 @@
 <!-- Created by: John Montesa -->
 <!-- This component creates the navigation bar that the user will interact with -->
-<!-- There are 5 buttons, and one is a drop down menu that directs the user to log in, sign up, or check their profile settings-->
+<!-- There are different buttons based on user type or if they are logged in -->
+<!-- Redirects users to the various different pages -->
+<!-- Contains the dynamic notifciation bar at the top the changes based on days as well. -->
 
 <template>
     <v-banner v-if="isBannerVisible" color="grey-darken-1" lines="two">
+        <!-- Loading animation when gathering announcements -->
         <div class="loading" v-if="notifications.length === 0">
             <v-progress-linear color="white" indeterminate :height="5" rounded></v-progress-linear>
         </div>
@@ -14,6 +17,7 @@
             <b> {{ formatDate(notifications[currentNotificationIndex].announceDate) }} </b> {{ notifications[currentNotificationIndex].source }} - {{ notifications[currentNotificationIndex].message }}
         </v-banner-text>
 
+        <!-- Close announcement bar at the top of page -->
         <v-banner-actions class="notification-actions">
             <v-btn class ="notification-button" @click="dismissBanner">
                 <span class="material-icons" style="color:white">close</span>
@@ -21,9 +25,11 @@
         </v-banner-actions>
     </v-banner>
 
+    <!-- Navigation bar if logged in -->
     <div v-if="isLoggedIn">
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container-fluid">
+                    <!-- Logo -->
                     <router-link to="/" class="navbar-brand">
                         <img src="../assets/course compass logo.png" alt="Course Compass Logo">
                     </router-link>
@@ -32,7 +38,7 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <!-- right-aligned menu items -->
+                        <!-- right-aligned menu items, each item redirects depending on page and user type -->
                         <li class="nav-item" @click="dashboardRefresh">
                             <a class="nav-link" style="cursor:pointer;">{{this.userType}} Dashboard</a>
                         </li>
@@ -124,6 +130,7 @@
         },
 
         methods:{
+            //get notifications from DB
             fetchNotifications() {
                 axios.get('http://127.0.0.1:5000/active-notifications', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                 .then(response => { 
@@ -141,6 +148,7 @@
                 });
             },
 
+            //Rotates notifications every ten seconds
             setUpNotificationRotation() {
                 if(this.notifications.length > 1) {
                     this.notificationDisplayInterval = setInterval(() => {
@@ -150,6 +158,7 @@
                 }
             },
 
+            //change dashboard routing based on user type
             dashboardRefresh() {
                 if (this.$route.path === '/dashboard' && this.userType === 'Student') {
                     this.$router.go();
@@ -171,11 +180,13 @@
 
             },
 
+            //remove announcement bar
             dismissBanner(){
                 this.isBannerVisible = false;
                 clearInterval(this.notificationDisplayInterval);
             },
             
+            //logout users
             handleLogout() {
                 axios.post('http://127.0.0.1:5000/logout', {}, { withCredentials: true })
                     .then(response => {
@@ -194,6 +205,7 @@
                     });
             },
 
+            //reformat date for announcements
             formatDate(dateString) {
                 const options = { year: 'numeric', month: 'long', day: 'numeric' };
                 const date = new Date(dateString);

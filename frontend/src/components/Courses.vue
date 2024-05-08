@@ -2,10 +2,16 @@
 <!-- This is the courses page for Course Compass -->
 <!-- This page prompts the user to select courses based on filters they choose -->
 <!-- Courses will have a popup menu that gives details about it -->
+<!-- There are three different courses pages for each user role. Students can add courses to their cart and enroll.
+Instructors have an entirely new courses page that shows the courses they are enrolled in
+and can view students and give them grades, view grade distribution chart, and recent reviews.<template>
+Admins have an altered student course page where they can enroll instructors.-->
 
 <template> 
 <div v-if="userType !== ''">
+    <!-- Courses page for Students and Admins -->
     <div v-if="userType === 'Student' || userType === 'Admin'">
+        <!-- Very top row of the page -->
         <div class="top-row">
         <div class="row">
             <div class="col-sm-2 d-flex flex-column justify-content-end">
@@ -36,42 +42,15 @@
             </div>
             <div class="col-sm-2 d-flex flex-column"></div>
         </div>
-            <!--<div class="row">
-                <div class="col-sm-2 d-flex flex-column">
-                </div>
-                <div class="col d-flex flex-column">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text" id="course-search">Course</span>
-                        <input type="text" class="form-control" v-model="courseSearch" placeholder="Enter Course Name">
-                    </div>
-                </div>
-                <div class="col-sm-2 d-flex flex-column"></div>
-            </div>
-
-            <div class="row">
-                <div class="col-sm-2 d-flex flex-column">
-                </div>
-                <div class="col d-flex flex-column">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text" id="department-search">Department</span>
-                        <input type="text" class="form-control" v-model="departmentSearch" placeholder="Enter Department Name">
-                    </div>
-                </div>
-                <div class="col d-flex flex-column">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text" id="professor-search">Professor</span>
-                        <input type="text" class="form-control" v-model="professorSearch" placeholder="Enter Professor Name">
-                    </div>
-                </div>
-                <div class="col-sm-2 d-flex flex-column"></div>
-            </div>-->
         </div>
 
+        <!--Filter Chips row -->
         <div class="row">
             <div class="col-sm-2 d-flex flex-column"></div>
             <div class="col d-flex flex-column">
                 <div class="filter-row">
                     <div class="filter-chips-container">
+                        <!-- Chips displayed based on selected filters -->
                         <v-chip class="filter-chips" v-for="(filter, index) in selectedFilters" :key="index" color="darkgrey">
                             {{ filter }}
                         </v-chip>
@@ -84,8 +63,8 @@
         <div class="row">
             <!--LEFT SIDE OF PAGE-->
             <div class="col-md-2 d-flex flex-column">
+                <!-- Filter Menu is displayed -->
                 <FilterMenu v-model:selectedFilters="selectedFilters" @itemSelected="handleFilterSelected" :open="filterMenuOpen" ></FilterMenu>
-
                 <div class="form-check mb-3" v-if="userType === 'Student'">
                 <label class="form-check-label" for="showCoursesFromMajor">
                     <span class="ml-1">Show Courses from Major</span>
@@ -94,8 +73,9 @@
                 </div>
             </div>
 
-            <!--RIGHT SIDE OF PAGE-->
+            <!--Middle of page -->
             <div class="col-md-8 d-flex flex-column">
+                <!-- Course List is displayed -->
                 <div class="course-list">
                     <CourseList :userType="userType" :courses="displayCourses" @addToSchedule="addToSchedule"></CourseList>
                 </div>
@@ -104,6 +84,7 @@
 
             <div class="col-md-2 flex-column">
                 <div class="enrolled">
+                    <!-- Instructor Select is displayed for Admins when enrolling instructors into courses -->
                     <v-select
                         :items="instructors"
                         v-model="selectedInstructor"
@@ -116,12 +97,15 @@
                         v-if="userType === 'Admin'"
                         style="margin-top: 10px; color: black; font-family: Poppins;"
                     ></v-select>
+
+                    <!-- Cart is displayed, very right of page -->
                     <p style="font-size: 16px">Cart:</p>
                     <div v-if="selectedTerm" class="term-reminder">
                     <p>Enrolling for: {{ selectedTerm }}</p>
                     </div>
                     <v-chip class="form-control" v-for="course in schedule" :key="course.id" color="darkgrey">
                             <div class="chip-text">{{ course.name }}</div>
+                            <!-- Remove course from cart -->
                             <v-btn size="extra-small" @click="removeFromSchedule(course)" variant="plain" style="position: relative;">
                                 <span class="material-symbols-outlined">
                                     close
@@ -130,6 +114,7 @@
                     </v-chip>
                     <v-divider></v-divider>
 
+                    <!-- Enroll button and confirmation -->
                     <v-dialog v-model="dialog" max-width="500" style="font-family: Poppins;">
                         <template v-slot:activator="{ props: activatorProps }">
                             <div class="enroll-container">
@@ -165,6 +150,7 @@
     <br>
     </div>
 
+    <!-- Instructor page is displayed if user is an instructor -->
     <div v-if="userType ==='Instructor'">
         <v-row no-gutters>
             <v-col cols="2">
@@ -172,6 +158,7 @@
                     Courses Taught 
                 </h2>
                 <v-divider></v-divider>
+                <!-- Displays courses an instructor is enrolled in -->
                 <v-tabs v-model="tab" direction="vertical" color="primary" selected-class="selected-tab" slider-color="black">
                     <v-tab v-for="(course, index) in instructorSchedule" :key="index" :title="course.course" value="tab" @click="chooseTab(index)">
                         {{course.course}}
@@ -181,6 +168,7 @@
 
 
             <v-col>
+                <!-- Various text depending on instructor schedule -->
                 <div class="course-page" v-if="this.tab===null">
                     <h3 class="course-heading" v-if="this.instructorSchedule.length > 0">Please select a course from the menu.</h3>
                     <h4 class="course-heading" v-if="this.instructorSchedule.length === 0">Please wait for an administrator to enroll you into your taught courses.</h4>
@@ -191,6 +179,7 @@
                     <v-container>
                         <v-row>
                             <v-col cols="8">
+                                <!-- Grade Distribution analytics and chart -->
                                 <v-card style="border: 1px solid black; height: 420px;">
                                     <v-card-title style="font-family:Poppins;">Course Details</v-card-title>
                                     <v-card-text>
@@ -220,6 +209,7 @@
                                 </v-card>
                             </v-col>
 
+                            <!-- Recent course reviews -->
                             <v-col cols="4">
                                 <v-card style="border: 1px solid black; height: 420px; overflow-y: auto;">
                                     <v-card-title style="font-family:Poppins;">Recent Course Reviews</v-card-title>
@@ -244,6 +234,7 @@
                         </v-row>
 
                         <v-row>
+                            <!-- Students enrolled in an instructor's class -->
                             <v-col cols="12">
                                 <v-card style="border: 1px solid black; min-height: 120px;">
                                     <v-card-title style="font-family:Poppins;">Students</v-card-title>
@@ -268,6 +259,7 @@
                                                     </p>
                                                     </v-col>
                                                         <v-col cols="1">
+                                                            <!-- View student details -->
                                                             <v-dialog v-model="studentDialog[index]" max-width="500" style="font-family: Poppins;">
                                                                 <template v-slot:activator="{ props: activatorProps }">
                                                                     <v-btn v-bind="activatorProps" icon="$close" variant="plain">
@@ -283,6 +275,7 @@
                                                                     </v-card-title>
                                                                     <v-card-text>
                                                                         <v-row>
+                                                                            <!-- Add student grades -->
                                                                             <v-col cols="auto">
                                                                                 <p style="margin-top: 13px;">Grade</p>
                                                                             </v-col>
@@ -295,6 +288,7 @@
                                                                                     :items="grades.map(item => item.grade)"
                                                                                 ></v-select>
                                                                             </v-col>
+                                                                            <!-- Save student details and confirmation -->
                                                                             <v-col cols="auto">
                                                                                 <v-dialog v-model="studentGradeDialog[index]" max-width="400" style="font-family: Poppins;">
                                                                                     <template v-slot:activator="{ props: activatorProps }">
@@ -322,6 +316,7 @@
                                                                         <br>
                                                                     </v-card-text> 
                                                                     <v-card-actions>
+                                                                        <!-- Remove student button and confirmation -->
                                                                         <v-dialog v-model="studentRemoveDialog[index]" max-width="400" style="font-family: Poppins;">
                                                                             <template v-slot:activator="{ props: activatorProps }">
                                                                                 <v-btn v-bind="activatorProps" text="Remove Student" variant="tonal" color="red"></v-btn>
@@ -361,6 +356,7 @@
     </div>
 </div> 
 <div v-else>
+<!-- Unauthorized user page -->
 <v-container fluid fill-height>
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="6">
@@ -401,6 +397,7 @@
             },
         },
         watch: {
+            //Fetch courses based on filters or search
             selectedFilters(newFilters) {
             this.selectedFilters = newFilters;
             this.fetchDepartments();
@@ -419,6 +416,7 @@
         },
         data() {
             return {
+                //filter menu data and search data
                 courseList: [],
                 courseSearch: '',
                 departmentSearch: '',
@@ -526,7 +524,6 @@
                         ],
                     },
                 ],
-
                 grades:[
                     { grade: 'A', weight: 4.0 },
                     { grade: 'A-', weight: 3.67 },
@@ -543,7 +540,7 @@
                     { grade: 'S', weight: 0.0 },
                     { grade: 'U', weight: 0.0 }
                 ],
-
+                //instructor page analytics
                 sparklineKey: 0,
                 gradeAnalytics: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], //U S F D- D D+ C- C C+ B- B B+ A- A
                 courseGradeAverage: 0,
@@ -563,11 +560,14 @@
                 //rounds to highest number for pages
                 return Math.ceil(this.courseList.length / this.itemsPerPage);
             },
+            //display course based on pagination
             displayCourses() {
                 const firstCourse = (this.currentPage - 1) * this.itemsPerPage;
                 const lastCourse = firstCourse + this.itemsPerPage;
                 return this.courseList.slice(firstCourse, lastCourse);
             },
+
+            //search functionality
             searchParams() {
                 const params = {};
 
@@ -594,6 +594,7 @@
                 return params;
             },
 
+            //Get courses from student
             retrieveCourseStudents(){
                 const retrieveStudents = this.courseStudents[this.tab].students;
                 return retrieveStudents;
@@ -628,12 +629,8 @@
                 console.error("Failed to load:", error);
                 });
             },
-            /* handleLevelSelection(selectedLevel) {
-            const isLevel = /^\d+00$/.test(selectedLevel);
-            if (isLevel) {
-                this.fetchDepartments(selectedLevel);
-            }
-            }, */
+
+            //get Course data
             fetchDepartments() {
                 let baseUrl = 'http://127.0.0.1:5000/search-departments';
                 let queryParts = [];
@@ -722,7 +719,7 @@
                     });
             },
 
-
+            //get Course Codes
             fetchCourseCodes() {
                 let baseUrl = 'http://127.0.0.1:5000/search-courses';
                 let queryParts = [];
@@ -793,6 +790,7 @@
                     });
             },
 
+            //add selected courses in cart to user schedule
             addToSchedule(course) {
                 if (!this.schedule.some((c) => c.name === course.name)) {
                     this.schedule.push(course);
@@ -802,6 +800,7 @@
                 }
             },
 
+            //remove course from cart
             removeFromSchedule(course){
                 const index = this.schedule.indexOf(course);
                 if(index !== -1){
@@ -809,6 +808,7 @@
                 }
             },
 
+            //handle filter selection
             handleFilterSelected(filter) {
                 const index = this.selectedFilters.indexOf(filter);
                 if (index !== -1) {
@@ -820,6 +820,7 @@
                 }
             },
 
+            //enroll courses for user
             async enrollCourses(instructor) {
                 if(this.userType === 'Student' || this.userType ==='Instructor'){
                     try {
@@ -926,6 +927,7 @@
                 }
             },
             
+            //remove student from instructor schedule
             async removeStudent(index) {
                 const student = this.instructorSchedule[this.tab].students[index];
                 try {
@@ -961,6 +963,7 @@
                 this.studentRemoveDialog[index] = false;
             },
 
+            //save student grade
             async saveStudentGrade(index) {
                 //console.log('saveStudentGrade called with index:', index);
                 const student = this.instructorSchedule[this.tab].students[index];
@@ -1003,12 +1006,14 @@
                 this.getGradeAnalytics();
             },
 
+            //choose tab for instructor page
             chooseTab(index){
                 this.tab = index;
                 this.coursePage[this.tab] = true;
                 this.getGradeAnalytics();
             },
 
+            //retrieve grade analytics based on course and students' grades
             getGradeAnalytics(){
                 const tallyGrades = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; //U S F D- D D+ C- C C+ B- B B+ A- A
                 let tally = 0;
@@ -1100,6 +1105,7 @@
                 this.gradeAnalytics = tallyGrades;
             },
 
+            //get instructors for admin courses page
             async fetchInstructors() {
                 try {
                     const response = await axios.get('http://127.0.0.1:5000/getInstructors', {

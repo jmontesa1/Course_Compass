@@ -36,6 +36,7 @@
                         <p><strong>Meeting Time:</strong> {{ course.meetingTime || 'N/A' }}</p>
                     </div>
 
+                    <!-- Edit course details if an admin wants to edit the course -->
                     <div class="col-lg left-column" style="border-right: none;" v-if="editMode === true">
                         <div class="edit-form">
                             <p style="margin-right: 10px;"><strong>Department:</strong></p>
@@ -120,23 +121,23 @@
                 <p>Course information unavailable.</p>
             </div>
             <br>
+            <!-- This button appears if the user is an Admin and wants to edit the course-->
             <div class="button-container" v-if="userType === 'Admin' && editMode === false">
                     <button class="schedule-button2" @click="editMode = true">Edit Course Details</button>
             </div>
 
-
+            <!-- Add Course to cart-->
             <div class="button-container" v-if="editMode === false">
                     <button class="schedule-button" @click="addToSchedule">Add Course to Cart</button>
             </div>
 
+            <!-- Edit mode buttons-->
             <div class="button-container" v-if="editMode === true">
                     <button class="schedule-button2" @click="editMode = false">Cancel</button>
             </div>
-
             <div class="button-container" v-if="editMode === true">
                     <button class="schedule-button" @click="editCourseDetails">Save</button>
             </div>
-
         </div>
     </div>
 </template>
@@ -145,6 +146,7 @@
     export default {
         data() {
             return {
+                //date for editing
                 editMode: false,
                 newDepartment: '',
                 newName: '',
@@ -160,7 +162,6 @@
                 newLocation: '',
                 newDays: '',
                 newMeetingTime:'',
-
             };
         },
 
@@ -173,16 +174,18 @@
             },
         },
         methods: {
+            //closes popup when used in courses component
             closePopup() {
                 this.$emit('close');
                 },
+            //adds to user schedule in courses compoment
             addToSchedule() {
                 this.$emit('addToSchedule', this.course);
                 },
-
+            
+            //edit course Details (NOT IMPLEMENTED IN THE BACKEND...)
             editCourseDetails(){
                 //backend stuff here
-
                 this.editMode = false;
                 this.newDepartment = '';
                 this.newName = '';
@@ -200,15 +203,13 @@
                 this.newMeetingTime = '';
             },
 
+            //These are used for adding new professors when editing
             addProfessor(){
                 this.newProfessor.push('');
             },
-
             removeProfessor(index){
                 this.newProfessor.pop();
             },
-            
-
         },
     };
     </script>
@@ -318,5 +319,4 @@
         display: flex;
         align-items: center;
     }
-
 </style>

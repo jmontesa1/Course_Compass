@@ -19,7 +19,7 @@
             </div>
             <div class="col-md-6">
                 <div class="img-container">
-                    <img src="../assets/course compass logo.png" alt="University of Nevada, Reno logo." class="img-fluid">
+                    <img src="../assets/course compass logo.png" alt="Course Compass Logo." class="img-fluid">
                 </div>
             </div>
         </div>
@@ -30,7 +30,7 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="img-container">
-                    <img src="../assets/schedule.png" alt="University of Nevada, Reno logo." class="img-fluid">
+                    <img src="../assets/schedule.png" alt="Schedule Icon." class="img-fluid">
                 </div>
             </div>    
             <div class="col-md-6">
@@ -62,9 +62,6 @@
             </div>
         </div>
     </div>
-
-
-
     <br>
     <br>
     <br>

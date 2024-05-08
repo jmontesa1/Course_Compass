@@ -1,6 +1,6 @@
 <!-- Created by: John Montesa -->
 <!-- This component creates the footer of the pages-->
-<!-- There are brief details-->
+<!-- Displays copyright information at bottom of every page-->
 
 <template>
   <footer class="footer-container">

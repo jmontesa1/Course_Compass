@@ -1,3 +1,4 @@
+<!--Page that appears when the user tries to navigate to a page that does not exist through browser search bar -->
 <template>
     <div>
         <h1>Sorry!</h1>

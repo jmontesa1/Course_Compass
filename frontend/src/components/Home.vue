@@ -1,17 +1,9 @@
 <!-- Created by: John Montesa-->
-<!-- This is the home page for Course Compass, which includes the navigation bar, a description of the website, and a button to get started-->
+<!-- This is the home page for Course Compass which shows a description of the website, a button to get started, user role information, and a description of the features-->
 <!-- This is the first page the user will see -->
 
 <template>
-<!--    <div class="image-container">
-    <img src="@/assets/unrskyline2.png" alt="Unr whole campus with skyline">
-        <div class="button-container">
-            <router-link to="/signup">
-                <button class="get-started-button">Get Started</button>
-            </router-link>
-        </div>
-    </div>
--->
+        <!-- Hero Text -->
         <div class="home-container">
             <div class="text1-container">
                 <h1 class="hero"><br>Remove the clutter of your college experience.<br>Use Course Compass. </h1>
@@ -32,6 +24,7 @@
         </div>
 
         <br>
+        <!-- User Role descriptions -->
         <div class="roles-container">
             <div class="text3-container">
                 <h1 class="hero2">Students</h1>
@@ -56,6 +49,7 @@
         </div>
 
         <br>
+        <!-- Feature card and description tabs -->
         <h1 class="hero3">Features:</h1>
 
         <div class="features-container">
@@ -99,10 +93,11 @@
 
 <script setup>
     import { ref } from 'vue'
-import About from './About.vue';
-
+    import About from './About.vue';
+    //chosen tab
     const tab = ref('Features')
 
+    //features data
     const items = [
         { label: 'Courses', header:'Fine Tune Your Needs', value: 'Courses', 
         text: 'Explore a wide range of courses offered by your university, and easily navigate through various categories.',

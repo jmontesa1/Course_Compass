@@ -1,16 +1,18 @@
 <!--Created by: John Montesa-->
-<!-- This is dashboard page for Course Compass -->
-<!-- This page will contain brief information -->
+<!-- This is instructor dashboard page for Course Compass -->
+<!-- This page will contain instructor information about their schedule including courses they have
+today and tomorrow, specific notifications and deadlines from their school and admins, they can 
+turn on email notifications for these or create custom deadlines and notifications for themselves and to send out to courses.
+They can manage these custom sent notifications and annoucnements to classes and view recently reviewed comments on courses. 
+They can see course details they are enrolled in and change office hours.-->
 
 <template>
-<div v-if="this.userType === 'Instructor'">
+<div v-if="this.userType === 'Instructor'"> <!-- User type check -->
     <br>
+    <!-- Welcome Text -->
     <div class="top-container">
         <v-row v-if="user && user.firstname">
             <h1 class="welcome-text">
-                <!--<v-avatar size="37" >
-                    <v-img :src="user.avatar" alt="User profile picture"></v-img>
-                </v-avatar>-->
                 Welcome, {{ user.firstname }}
             </h1>
         </v-row>
@@ -19,6 +21,7 @@
     <v-container class="dashboard-container">
         <v-row>
             <v-col>
+                <!-- Courses today and tomorrow display -->
                 <p>Today: {{ currentDate }}</p>
                 <v-container class="upcoming-container">
                     <p>Classes Today:</p>
@@ -60,10 +63,12 @@
 
             <v-col cols="3">
                 <br>
+                <!-- Deadlines and notification center -->
                 <v-container class="deadlines-container">
                     <v-row style="padding-bottom: 15px;">
                         <p style="margin-top: 3px;">Deadlines:</p>
                         <v-spacer></v-spacer>
+                        <!-- Turn on notification email button and popup -->
                         <v-dialog v-model="dialogNotifications" max-width="420" style="font-family: Poppins;">
                             <template v-slot:activator="{ props: activatorProps }">
                                 <v-btn size="extra-small" v-bind="activatorProps" variant="plain" style="position: relative;">
@@ -148,6 +153,7 @@
     </v-container>
 
     <v-container class="dashboard-container2">
+        <!-- Instructor create announcements button and manage announcements -->
         <div class="inner-container">
             <v-row>
                 <h1 class="header-text">Announcements</h1>
@@ -155,6 +161,7 @@
             <v-row>
                 <v-expansion-panels>
                     <v-expansion-panel>
+                        <!-- Active notifications display -->
                         <v-expansion-panel-title>
                             <v-row no-gutters>
                                 <v-col class="d-flex justify-start">
@@ -169,6 +176,7 @@
                                     <br><p>Sent to: {{instructorNotifications[index].courses}}</p>
                                 </v-col>
                                 <v-col cols="1">
+                                    <!-- Delete announcement button and confirmation -->
                                     <v-dialog v-model="deleteNotificationDialog[index]" max-width="800" style="font-family: Poppins;">
                                         <template v-slot:activator="{ props: activatorProps }">
                                             <v-btn v-bind="activatorProps" icon="$close" variant="plain">
@@ -203,6 +211,7 @@
                 <v-col cols="10">
                 </v-col>
                 <v-col cols="2" class="d-flex justify-end align-center">
+                    <!-- Send announcement button and popup -->
                     <v-dialog v-model="notificationDialog" max-width="1000" style="font-family: Poppins;">
                         <template v-slot:activator="{ props: activatorProps }">
                             <v-btn  v-bind="activatorProps" class="announcement-btn" variant="outlined">
@@ -245,6 +254,7 @@
 
 
     <v-container class="dashboard-container3">
+        <!-- Courses the instructor is enrolled is displayed -->
         <div class="inner-container">
         <v-row>
             <h1 class="header-text">Courses Taught</h1>
@@ -260,6 +270,7 @@
                 </v-card-text>
 
                 <v-card-actions>
+                    <!-- View course details button and pop up -->
                     <v-dialog v-model="dialog[index]" max-width="500" style="font-family: Poppins;">
                         <template v-slot:activator="{ props: activatorProps }">
                             <v-btn color="dark-grey" variant="tonal" v-bind="activatorProps">View Details</v-btn>
@@ -289,6 +300,7 @@
                 </v-card-actions>
 
                 <v-card-actions>
+                    <!-- Change office hours button and pop up -->
                     <v-dialog v-model="officeHoursDialog[index]" max-width="700" style="font-family: Poppins;">
                         <template v-slot:activator="{ props: activatorProps }">
                             <v-btn variant="outlined" v-bind="activatorProps">Office Hours</v-btn>
@@ -332,6 +344,7 @@
             </v-card>
         </v-row>
         <br>
+        <!-- Unenroll pop up -->
         <v-dialog v-model="showUnenrollDialog" max-width="500" style="font-family: Poppins;">
             <v-card>
                 <v-card-title class="headline">Confirm Unenrollment</v-card-title>
@@ -343,7 +356,7 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-
+        <!-- Officehours pop up -->
         <v-dialog v-model="officeHoursConfirmDialog" max-width="500" style="font-family: Poppins;">
             <v-card>
                 <v-card-title class="headline">Confirm Office Hours Changes</v-card-title>
@@ -359,6 +372,7 @@
         </div>
     </v-container>
 
+    <!-- Display recent student reviews -->
     <v-container class="dashboard-container4">
         <div class="inner-container">
         <v-row>
@@ -384,6 +398,7 @@
     </v-container>
 </div>
 <div v-else>
+<!-- Shows if the user is an unauthorized user type -->
 <v-container fluid fill-height>
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="6">
@@ -426,6 +441,7 @@
                     email: '',
                 },
 
+                //dialogs
                 showUnenrollDialog: false,
                 officeHoursDialog: [],
                 officeHoursConfirmDialog: false,
@@ -433,9 +449,10 @@
                 notificationDialog: false,
                 deleteNotificationDialog: [],
 
+                //instructor schedule
                 schedule: [],
 
-                //send announcement vars under
+                //send announcement variables under
                 source: "Instructor",
                 chosenCourses: [],
                 notificationDate: new Date(),
@@ -501,10 +518,12 @@
             };
         },
         methods: {
+            //format days for courses
             formatDays(days){
                 return days.map(day => day.slice(0,3)).join('');
             },
 
+            //get announcements from DB
             fetchAnnouncements() {
                 axios.get('http://127.0.0.1:5000/get-announcements', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
                 }).then(response => {
@@ -523,6 +542,7 @@
                 });
             },
 
+            //get instructor dashboard data
             fetchDashboardData() {
                 axios.get('http://127.0.0.1:5000/dashboard', { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }})
                 .then(response => {
@@ -538,10 +558,7 @@
                 });
             },
             
-            goToDashboard() {
-                this.$router.push('/dashboard')
-            },
-
+            //get instructor schedule
             async fetchEnrolledCourses() {
                 try {
                     const response = await axios.get('http://127.0.0.1:5000/getEnrolledCourses', {
@@ -556,6 +573,7 @@
                 }
             },
 
+            //unenroll course
             async unenrollCourse() {
                 try {
                     const response = await axios.post('http://127.0.0.1:5000/unenrollCourse', {
@@ -575,19 +593,21 @@
                 }
             },
 
-
+            //unenroll dialog
             confirmUnenrollment(scheduleID, index) {
                 this.unenrollScheduleID = scheduleID;
                 this.showUnenrollDialog = true;
                 this.dialog[index] = false;
             },
 
+            //officehours dialog
             confirmOfficeHours(scheduleID, index) {
                 //this.unenrollScheduleID = scheduleID;
                 this.officeHoursConfirmDialog = true;
                 this.officeHoursDialog[index] = false;
             },
 
+            //change a courses office hours from DB
             changeOfficeHours() {
                 const scheduleID = this.unenrollScheduleID;
                 const selectedDays = this.chosenOfficeHoursDays
@@ -625,6 +645,7 @@
                 });
             },
 
+            //send announcements to classes chosen
             sendNotification(){
             //     //Month Date, Year
             //     const reformatDate = new Date(this.notificationDate).toLocaleDateString('en-US', {
@@ -691,6 +712,7 @@
                 });
             },
 
+            //delete announcement
             deleteAnnouncement(notification) {
                 const formattedDate = new Date(notification.date).toISOString().split('T')[0];
                 axios.post('http://127.0.0.1:5000/delete-announcement', {
@@ -706,6 +728,7 @@
                 });
             },
 
+            //delete notification from deadlines
             deleteNotification(index){
                 const deletedNotification = this.instructorNotifications[index];
                 this.instructorNotifications.splice(index, 1);
@@ -718,6 +741,7 @@
                 this.notifications.splice(deadlineNotification, 1);
                 this.deleteNotificationDialog[index] = false;
             },
+            //turn on email notifications
             turnOnEmailNotifications(){
                 const currentDate = new Date();
                 const grabNotifications = JSON.parse(JSON.stringify(this.notifications));//copy this.notifcations
@@ -746,6 +770,7 @@
                 this.sendEmail();               
             },
 
+            //send email from notifications
             sendEmail(){
                 const notificationToEmail = this.emailNotifications[0];
 
@@ -787,6 +812,7 @@
                 });
             },
 
+            //checks if deadline has occurred to send email for notification/announcement
             deadlineCheck(){
                 const notification = this.emailNotifications[0];
 
@@ -806,12 +832,14 @@
         },
         
         computed:{
+            //format current date
             currentDate(){
                 const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
                 this.currentDate = new Date().toLocaleDateString('en-US', options);
                 return this.currentDate;
             },
-               
+            
+            //get current notifications that have not passed yet
             upcomingNotifications() {
                 const currentDate = new Date();
                 //const currentDate = new Date('2024-03-03'); test case
@@ -821,7 +849,7 @@
                 return upcomingNotifications.length > 0 ? upcomingNotifications : null;
             },
 
-            //retrieves todays and tomorrows classes
+            //Next two functions retrieves todays and tomorrows classes
             retrieveSchedule(){
                 const currentDayIndex = new Date().getDay();
                 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -889,6 +917,7 @@
                 });
             },
 
+            //validates time for office hours so they have proper requirements and make sense
             timeValidation() {
                 return () => {
                 const startTime = this.officeHoursStart;

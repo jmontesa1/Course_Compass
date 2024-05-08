@@ -1,9 +1,11 @@
+<!--Creates the base of the softwares frontend-->
 <template>
   <!-- Display the navbar and the router view on every page -->
   <NavBar :userType="userType" :isLoggedIn="isLoggedIn" @logout="handleLogout" />
+  <!-- Everypage draws specific variables that can be used, emits certain events to determine login status or toasts -->
   <router-view :userType="userType" @login-status-changed="updateLoginStatus" @show-toast="showToastMessage" @update-user-type="updateUserType" />
-  <Footer></Footer>
-  <Toast :showToast="showToast" :toastMessage="toastMessage" :toastColor="toastColor" />
+  <Footer></Footer> <!-- Footer displayed -->
+  <Toast :showToast="showToast" :toastMessage="toastMessage" :toastColor="toastColor" /> <!-- Every page can utilize toasts -->
 </template>
 
 <script>
@@ -59,6 +61,7 @@
           localStorage.removeItem('userType');
         },
 
+        //Shows toasts and message/color depending on event emitted in component
         showToastMessage(payload){
                 this.toastMessage = payload.message;
                 this.toastColor = payload.color;
